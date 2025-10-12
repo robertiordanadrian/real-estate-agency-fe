@@ -1,4 +1,3 @@
-// app/pages/Properties/EditProperty.tsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -12,21 +11,26 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { GeneralDetailsStep } from "../../components/Properties/AddPropertySteps/GeneralDetailsStep";
-import { CharacteristicsStep } from "../../components/Properties/AddPropertySteps/CharacteristicsStep";
-import { UtilityStep } from "../../components/Properties/AddPropertySteps/UtilityStep";
-import { PriceStep } from "../../components/Properties/AddPropertySteps/PriceStep";
-import { DescriptionStep } from "../../components/Properties/AddPropertySteps/DescriptionStep";
-import { ImagesStep } from "../../components/Properties/AddPropertySteps/ImagesStep";
-import { useProperties } from "../../context/PropertyContext";
+import { GeneralDetailsStep } from "../../components/PropertySteps/GeneralDetailsStep";
+import { CharacteristicsStep } from "../../components/PropertySteps/CharacteristicsStep";
+import { UtilityStep } from "../../components/PropertySteps/UtilityStep";
+import { PriceStep } from "../../components/PropertySteps/PriceStep";
+import { DescriptionStep } from "../../components/PropertySteps/DescriptionStep";
+import { ImagesStep } from "../../components/PropertySteps/ImagesStep";
 import type { IProperty } from "../../common/interfaces/property.interface";
-import axiosClient from "../../api/axiosClient";
+
+import {
+  usePropertiesQuery,
+  usePropertyQuery,
+} from "../../features/properties/propertiesQueries";
+import { PropertiesApi } from "../../features/properties/propertiesApi";
+import { http } from "../../services/http";
 
 const steps = [
   "Detalii generale",
   "Caracteristici",
-  "Utilitati",
-  "Pret",
+  "Utilități",
+  "Preț",
   "Descriere",
   "Imagini",
 ];
@@ -34,7 +38,10 @@ const steps = [
 export const EditProperty: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { properties, fetchProperties } = useProperties(); // Use fetchProperties instead of refreshProperties
+
+  const { data: propertyFromQuery } = usePropertyQuery(id ?? "");
+  const { refetch } = usePropertiesQuery(); // pentru invalidare la final
+
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +53,12 @@ export const EditProperty: React.FC = () => {
     severity: "success" as "success" | "error",
   });
 
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => setSnackbar((s) => ({ ...s, open: false }));
+
   const parseToDate = (value: unknown): Date | null => {
     if (!value) return null;
     const date = new Date(value as string);
@@ -53,120 +66,74 @@ export const EditProperty: React.FC = () => {
   };
 
   useEffect(() => {
-    const parseToDate = (value: unknown): Date | null => {
-      if (!value) return null;
-      const date = new Date(value as string);
-      return isNaN(date.getTime()) ? null : date;
-    };
-
     const fetchProperty = async () => {
       if (!id) return;
+      setIsLoading(true);
 
       try {
-        setIsLoading(true);
-        const existingProperty = properties.find((p) => p._id === id);
+        let fetchedProperty = propertyFromQuery;
 
-        if (existingProperty) {
-          const prop = structuredClone(existingProperty);
-          if (prop?.price?.contact) {
-            prop.price.contact.signDate = parseToDate(
-              prop.price.contact.signDate
-            );
-            prop.price.contact.expirationDate = parseToDate(
-              prop.price.contact.expirationDate
-            );
-          }
-          setFormData(prop);
-        } else {
-          const response = await axiosClient.get(`/properties/${id}`);
-          const property = response.data;
-
-          if (property?.price?.contact) {
-            property.price.contact.signDate = parseToDate(
-              property.price.contact.signDate
-            );
-            property.price.contact.expirationDate = parseToDate(
-              property.price.contact.expirationDate
-            );
-          }
-
-          setFormData(property);
+        if (!fetchedProperty) {
+          const res = await http.get(`/${id}`);
+          fetchedProperty = res.data;
         }
-      } catch (error) {
-        console.error("Error fetching property:", error);
-        showSnackbar("Eroare la incarcarea proprietatii", "error");
-        navigate("/properties");
+
+        if (fetchedProperty?.price?.contact) {
+          fetchedProperty.price.contact.signDate = parseToDate(
+            fetchedProperty.price.contact.signDate
+          );
+          fetchedProperty.price.contact.expirationDate = parseToDate(
+            fetchedProperty.price.contact.expirationDate
+          );
+        }
+
+        setFormData(fetchedProperty ?? null);
+      } catch (err) {
+        console.error("Error fetching property:", err);
+        showSnackbar("Eroare la încărcarea proprietății", "error");
+        navigate("");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProperty();
-  }, [id, properties, navigate]);
-
-  const showSnackbar = (message: string, severity: "success" | "error") => {
-    setSnackbar({ open: true, message, severity });
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
+  }, [id, propertyFromQuery, navigate]);
 
   const handleSubmit = async () => {
     if (!formData || !id) return;
-
     setIsSubmitting(true);
 
     try {
-      // Update property data
-      const propertyPayload = {
-        ...formData,
-        // Don't send images in the main update - handle them separately
-        images: undefined,
-      };
+      const { images, ...propertyPayload } = formData;
 
-      await axiosClient.put(`/properties/${id}`, propertyPayload);
+      await http.put(`/${id}`, propertyPayload);
 
-      // Handle image uploads if there are new files
-      if (imageFiles && imageFiles.length > 0) {
-        const formDataToSend = new FormData();
-        imageFiles.forEach((file) => {
-          formDataToSend.append("images", file);
-        });
-
-        await axiosClient.post(`/properties/${id}/images`, formDataToSend, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+      if (imageFiles.length > 0) {
+        await PropertiesApi.uploadImages(id, imageFiles);
       }
 
-      // Refresh properties in context using fetchProperties
-      await fetchProperties();
-
+      await refetch();
       showSnackbar("Proprietate actualizată cu succes!", "success");
 
-      setTimeout(() => {
-        navigate(`/properties/${id}`);
-      }, 2000);
+      setTimeout(() => navigate(`/${id}`), 2000);
     } catch (error: any) {
       let errorMessage = "A apărut o eroare. Te rugăm să încerci din nou.";
 
       if (error.response) {
-        if (error.response.status === 413) {
+        const status = error.response.status;
+        if (status === 413)
           errorMessage =
-            "Fișierul este prea mare. Te rugăm să reduci dimensiunea imaginilor.";
-        } else if (error.response.status === 415) {
+            "Fișierele sunt prea mari. Redu dimensiunea imaginilor.";
+        else if (status === 415)
           errorMessage =
-            "Tip de fișier neacceptat. Te rugăm să încarci doar imagini (JPEG, PNG, WebP).";
-        } else if (error.response.status === 400) {
-          errorMessage = "Date invalide. Te rugăm să verifici toate câmpurile.";
-        } else if (error.response.data?.message) {
+            "Tip de fișier neacceptat. Doar imagini (JPEG, PNG, WebP).";
+        else if (status === 400)
+          errorMessage = "Date invalide. Verifică toate câmpurile.";
+        else if (error.response.data?.message)
           errorMessage = error.response.data.message;
-        }
       } else if (error.request) {
-        errorMessage =
-          "Eroare de rețea. Te rugăm să verifici conexiunea la internet.";
+        errorMessage = "Eroare de rețea. Verifică conexiunea la internet.";
       }
 
       showSnackbar(errorMessage, "error");
@@ -175,8 +142,8 @@ export const EditProperty: React.FC = () => {
     }
   };
 
-  const handleNext = () => setActiveStep((prev) => prev + 1);
-  const handleBack = () => setActiveStep((prev) => prev - 1);
+  const handleNext = () => setActiveStep((p) => p + 1);
+  const handleBack = () => setActiveStep((p) => p - 1);
 
   const renderStep = () => {
     if (!formData) return null;
@@ -241,7 +208,7 @@ export const EditProperty: React.FC = () => {
             onChange={(val) =>
               setFormData((prev) => (prev ? { ...prev, images: val } : null))
             }
-            onFilesChange={(files) => setImageFiles(files)}
+            onFilesChange={setImageFiles}
           />
         );
       default:
@@ -249,6 +216,7 @@ export const EditProperty: React.FC = () => {
     }
   };
 
+  // 🔹 Loading & errors
   if (isLoading) {
     return (
       <Box
@@ -268,15 +236,11 @@ export const EditProperty: React.FC = () => {
   if (!formData) {
     return (
       <Box sx={{ p: 3 }}>
-        <Typography variant="h4" color="error">
-          Proprietatea nu a putut fi găsită
+        <Typography variant="h5" color="error">
+          Proprietatea nu a putut fi găsită.
         </Typography>
-        <Button
-          variant="contained"
-          sx={{ mt: 2 }}
-          onClick={() => navigate("/properties")}
-        >
-          Inapoi la lista
+        <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate("")}>
+          Înapoi la listă
         </Button>
       </Box>
     );
@@ -285,7 +249,7 @@ export const EditProperty: React.FC = () => {
   return (
     <Box sx={{ width: "100%", p: 2 }}>
       <Typography variant="h4" mb={3}>
-        Editeaza proprietatea
+        Editează proprietatea
       </Typography>
 
       <Stepper activeStep={activeStep} alternativeLabel>
@@ -314,7 +278,7 @@ export const EditProperty: React.FC = () => {
             disabled={isSubmitting}
             size="large"
           >
-            {isSubmitting ? "Se actualizează..." : "Actualizează proprietate"}
+            {isSubmitting ? "Se actualizează..." : "Actualizează proprietatea"}
           </Button>
         ) : (
           <Button variant="contained" color="primary" onClick={handleNext}>

@@ -10,14 +10,15 @@ import {
 } from "@mui/material";
 import { blue } from "@mui/material/colors";
 import { Logout, RealEstateAgent } from "@mui/icons-material";
-import { useAuth } from "../../auth/AuthContext";
 import { NavLink, useLocation } from "react-router-dom";
+import { selectUser } from "../../features/auth/authSelectors";
+import { useLogout } from "../../features/auth/authMutations";
+import { useAppSelector } from "../../app/hook";
 
 export const SidePanel = () => {
-  const { user, logout, loading } = useAuth();
+  const user = useAppSelector(selectUser);
+  const { mutate: logout, isPending } = useLogout();
   const location = useLocation();
-
-  if (loading) return null;
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 
@@ -35,8 +36,10 @@ export const SidePanel = () => {
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", mb: 6 }}>
-        <Avatar sx={{ bgcolor: blue[200], mr: 1.5 }}>{user?.name?.[0]}</Avatar>
-        <Box sx={{ fontWeight: 500 }}>{user?.name}</Box>
+        <Avatar sx={{ bgcolor: blue[200], mr: 1.5 }}>
+          {user?.name?.[0] ?? "?"}
+        </Avatar>
+        <Box sx={{ fontWeight: 500 }}>{user?.name ?? "User"}</Box>
       </Box>
 
       <List>
@@ -59,11 +62,12 @@ export const SidePanel = () => {
 
       <Button
         variant="text"
-        onClick={logout}
+        onClick={() => logout()}
         startIcon={<Logout />}
+        disabled={isPending}
         sx={{ position: "absolute", bottom: 20, left: 20, right: 20 }}
       >
-        Logout
+        {isPending ? "Logging out..." : "Logout"}
       </Button>
     </Box>
   );

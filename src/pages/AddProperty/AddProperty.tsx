@@ -9,13 +9,20 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { GeneralDetailsStep } from "../../components/Properties/AddPropertySteps/GeneralDetailsStep";
-import { CharacteristicsStep } from "../../components/Properties/AddPropertySteps/CharacteristicsStep";
-import { UtilityStep } from "../../components/Properties/AddPropertySteps/UtilityStep";
-import { PriceStep } from "../../components/Properties/AddPropertySteps/PriceStep";
-import { DescriptionStep } from "../../components/Properties/AddPropertySteps/DescriptionStep";
-import { ImagesStep } from "../../components/Properties/AddPropertySteps/ImagesStep";
+import { GeneralDetailsStep } from "../../components/PropertySteps/GeneralDetailsStep";
+import { CharacteristicsStep } from "../../components/PropertySteps/CharacteristicsStep";
+import { UtilityStep } from "../../components/PropertySteps/UtilityStep";
+import { PriceStep } from "../../components/PropertySteps/PriceStep";
+import { DescriptionStep } from "../../components/PropertySteps/DescriptionStep";
+import { ImagesStep } from "../../components/PropertySteps/ImagesStep";
+
 import type { IProperty } from "../../common/interfaces/property.interface";
+import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
+import type { ICharacteristics } from "../../common/interfaces/characteristics.interface";
+import type { IUtilities } from "../../common/interfaces/utilities.interface";
+import type { IPrice } from "../../common/interfaces/price.interface";
+import type { IDescription } from "../../common/interfaces/description.interface";
+
 import {
   ECategory,
   EStatus,
@@ -37,18 +44,14 @@ import {
   EContactType,
   ESignedContract,
 } from "../../common/enums/price.enums";
-import type { IUtilities } from "../../common/interfaces/utilities.interface";
-import type { ICharacteristics } from "../../common/interfaces/characteristics.interface";
-import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
-import type { IPrice } from "../../common/interfaces/price.interface";
-import type { IDescription } from "../../common/interfaces/description.interface";
-import axiosClient from "../../api/axiosClient";
+import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
+import { PropertiesApi } from "../../features/properties/propertiesApi";
 
 const steps = [
   "Detalii generale",
   "Caracteristici",
-  "Utilitati",
-  "Pret",
+  "Utilități",
+  "Preț",
   "Descriere",
   "Imagini",
 ];
@@ -187,6 +190,8 @@ const defaultDescription: IDescription = {
 };
 
 export const AddProperty: React.FC = () => {
+  const { refetch } = usePropertiesQuery();
+
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<IProperty>({
@@ -207,43 +212,24 @@ export const AddProperty: React.FC = () => {
   const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({ open: true, message, severity });
   };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
+  const handleCloseSnackbar = () => setSnackbar((s) => ({ ...s, open: false }));
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-
     try {
       const propertyPayload = {
         ...formData,
         images: [],
       };
 
-      const propertyResponse = await axiosClient.post("/properties", {
-        data: JSON.stringify(propertyPayload),
-      });
+      const newProperty = await PropertiesApi.create(propertyPayload);
+      const propertyId = newProperty._id;
 
-      const propertyId = propertyResponse.data._id;
-
-      if (imageFiles && imageFiles.length > 0) {
-        const formDataToSend = new FormData();
-        imageFiles.forEach((file) => {
-          formDataToSend.append("images", file);
-        });
-
-        await axiosClient.post(
-          `/properties/${propertyId}/images`,
-          formDataToSend,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+      if (imageFiles.length > 0) {
+        await PropertiesApi.uploadImages(propertyId || "", imageFiles);
       }
 
+      await refetch();
       showSnackbar("Proprietate creată cu succes!", "success");
 
       setTimeout(() => {
@@ -257,25 +243,24 @@ export const AddProperty: React.FC = () => {
         });
         setImageFiles([]);
         setActiveStep(0);
-      }, 2000);
+      }, 1500);
     } catch (error: any) {
       let errorMessage = "A apărut o eroare. Te rugăm să încerci din nou.";
 
       if (error.response) {
-        if (error.response.status === 413) {
+        const status = error.response.status;
+        if (status === 413)
           errorMessage =
-            "Fișierul este prea mare. Te rugăm să reduci dimensiunea imaginilor.";
-        } else if (error.response.status === 415) {
+            "Fișierul este prea mare. Redu dimensiunea imaginilor.";
+        else if (status === 415)
           errorMessage =
-            "Tip de fișier neacceptat. Te rugăm să încarci doar imagini (JPEG, PNG, WebP).";
-        } else if (error.response.status === 400) {
-          errorMessage = "Date invalide. Te rugăm să verifici toate câmpurile.";
-        } else if (error.response.data?.message) {
+            "Tip de fișier neacceptat. Încarcă doar imagini (JPEG, PNG, WebP).";
+        else if (status === 400)
+          errorMessage = "Date invalide. Verifică toate câmpurile.";
+        else if (error.response.data?.message)
           errorMessage = error.response.data.message;
-        }
       } else if (error.request) {
-        errorMessage =
-          "Eroare de rețea. Te rugăm să verifici conexiunea la internet.";
+        errorMessage = "Eroare de rețea. Verifică conexiunea la internet.";
       }
 
       showSnackbar(errorMessage, "error");
@@ -284,8 +269,8 @@ export const AddProperty: React.FC = () => {
     }
   };
 
-  const handleNext = () => setActiveStep((prev) => prev + 1);
-  const handleBack = () => setActiveStep((prev) => prev - 1);
+  const handleNext = () => setActiveStep((p) => p + 1);
+  const handleBack = () => setActiveStep((p) => p - 1);
 
   const renderStep = () => {
     switch (activeStep) {
@@ -340,7 +325,7 @@ export const AddProperty: React.FC = () => {
             onChange={(val) =>
               setFormData((prev) => ({ ...prev, images: val }))
             }
-            onFilesChange={(files) => setImageFiles(files)}
+            onFilesChange={setImageFiles}
           />
         );
       default:
@@ -351,7 +336,7 @@ export const AddProperty: React.FC = () => {
   return (
     <Box sx={{ width: "100%", p: 2 }}>
       <Typography variant="h4" mb={3}>
-        Adauga o proprietate
+        Adaugă o proprietate
       </Typography>
 
       <Stepper activeStep={activeStep} alternativeLabel>
@@ -370,7 +355,7 @@ export const AddProperty: React.FC = () => {
           onClick={handleBack}
           variant="outlined"
         >
-          Inapoi
+          Înapoi
         </Button>
         {activeStep === steps.length - 1 ? (
           <Button
@@ -380,11 +365,11 @@ export const AddProperty: React.FC = () => {
             disabled={isSubmitting}
             size="large"
           >
-            {isSubmitting ? "Se trimite..." : "Finalizeaza"}
+            {isSubmitting ? "Se trimite..." : "Finalizează"}
           </Button>
         ) : (
           <Button variant="contained" color="primary" onClick={handleNext}>
-            Urmatorul pas
+            Următorul pas
           </Button>
         )}
       </Box>

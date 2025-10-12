@@ -6,8 +6,10 @@ import {
   Typography,
   TextField,
   Grid,
+  Button,
 } from "@mui/material";
-import type { IDescription } from "../../../common/interfaces/description.interface";
+import { IDescription } from "../../../common/interfaces/description.interface";
+import { PlayCircle, Tour } from "@mui/icons-material";
 
 interface DescriptionStepProps {
   data: IDescription;
@@ -22,20 +24,20 @@ export const DescriptionStep: React.FC<DescriptionStepProps> = ({
     onChange({ ...data, [key]: value });
   };
 
+  const handleOpenLink = (url: string) => {
+    if (url && url.startsWith("http")) {
+      window.open(url, "_blank");
+    }
+  };
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-        overflow: "auto",
-      }}
-    >
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Descriere
+            Descriere proprietate
           </Typography>
+
           <Grid container spacing={2}>
             <Grid size={12}>
               <TextField
@@ -51,9 +53,9 @@ export const DescriptionStep: React.FC<DescriptionStepProps> = ({
                 label="Descriere"
                 value={data.description}
                 onChange={(e) => handleChange("description", e.target.value)}
-                multiline
-                rows={6}
                 fullWidth
+                multiline
+                minRows={5}
               />
             </Grid>
 
@@ -68,25 +70,49 @@ export const DescriptionStep: React.FC<DescriptionStepProps> = ({
 
             <Grid size={6}>
               <TextField
-                label="Video (Link YouTube)"
+                label="Link video YouTube"
                 value={data.videoYoutubeLink}
                 onChange={(e) =>
                   handleChange("videoYoutubeLink", e.target.value)
                 }
-                type="url"
                 fullWidth
               />
             </Grid>
 
-            <Grid size={12}>
+            <Grid size={6}>
               <TextField
-                label="Tur virtual"
+                label="Link tur virtual"
                 value={data.virtualTour}
                 onChange={(e) => handleChange("virtualTour", e.target.value)}
-                type="url"
                 fullWidth
               />
             </Grid>
+
+            {/* Butoane de test pentru linkuri */}
+            {(data.videoYoutubeLink || data.virtualTour) && (
+              <Grid size={12}>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  {data.videoYoutubeLink && (
+                    <Button
+                      variant="outlined"
+                      startIcon={<PlayCircle />}
+                      onClick={() => handleOpenLink(data.videoYoutubeLink)}
+                    >
+                      Deschide video
+                    </Button>
+                  )}
+                  {data.virtualTour && (
+                    <Button
+                      variant="outlined"
+                      startIcon={<Tour />}
+                      onClick={() => handleOpenLink(data.virtualTour)}
+                    >
+                      Deschide tur virtual
+                    </Button>
+                  )}
+                </Box>
+              </Grid>
+            )}
           </Grid>
         </CardContent>
       </Card>

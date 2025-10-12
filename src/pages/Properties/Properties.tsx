@@ -1,8 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
-import { PropertiesList } from "../../components/Properties/PropertiesList/PropertiesList";
-// Remove the PropertyProvider import from here
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { PropertiesList } from "../../components/PropertiesList/PropertiesList";
 
 export default function Properties() {
   const navigate = useNavigate();
@@ -10,7 +9,7 @@ export default function Properties() {
   return (
     <Box sx={{ width: "100%", p: 2 }}>
       <Typography variant="h4" mb={3}>
-        Proprietati{" "}
+        Proprietăți{" "}
         <Button
           variant="contained"
           color="success"
@@ -18,10 +17,11 @@ export default function Properties() {
           sx={{ marginLeft: "1rem" }}
           onClick={() => navigate("/properties/add")}
         >
-          Adauga
+          Adaugă
         </Button>
       </Typography>
-      <PropertiesList></PropertiesList>
+
+      <PropertiesList />
     </Box>
   );
 }

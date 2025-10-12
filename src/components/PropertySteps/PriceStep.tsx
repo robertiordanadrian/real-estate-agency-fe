@@ -4,26 +4,23 @@ import {
   Card,
   CardContent,
   Typography,
+  TextField,
+  FormControlLabel,
+  Switch,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
-  TextField,
   Grid,
-  FormControlLabel,
-  Switch,
   InputAdornment,
 } from "@mui/material";
+import { IPrice } from "../../common/interfaces/price.interface";
 import {
+  EContactType,
   ECurrency,
   EPaymentMethod,
-  EContactType,
   ESignedContract,
-} from "../../../common/enums/price.enums";
-import type { IPrice } from "../../../common/interfaces/price.interface";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+} from "../../common/enums/price.enums";
 
 interface PriceStepProps {
   data: IPrice;
@@ -31,232 +28,256 @@ interface PriceStepProps {
 }
 
 export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
-  const handlePriceDetailsChange = (
-    key: keyof IPrice["priceDetails"],
-    value: any
-  ) => {
-    onChange({ ...data, priceDetails: { ...data.priceDetails, [key]: value } });
+  const handlePriceChange = (key: keyof IPrice["priceDetails"], value: any) => {
+    onChange({
+      ...data,
+      priceDetails: { ...data.priceDetails, [key]: value },
+    });
   };
 
   const handleCommissionsChange = (
     key: keyof IPrice["commissions"],
-    value: string
+    value: any
   ) => {
-    onChange({ ...data, commissions: { ...data.commissions, [key]: value } });
+    onChange({
+      ...data,
+      commissions: { ...data.commissions, [key]: value },
+    });
   };
 
   const handleContactChange = (key: keyof IPrice["contact"], value: any) => {
-    onChange({ ...data, contact: { ...data.contact, [key]: value } });
+    onChange({
+      ...data,
+      contact: { ...data.contact, [key]: value },
+    });
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-        overflow: "auto",
-      }}
-    >
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {/* -------------------- Detalii Preț -------------------- */}
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Detalii Pret
+            Detalii preț
           </Typography>
+
           <Grid container spacing={2}>
             <Grid size={3}>
               <TextField
-                label="Pret"
+                label="Preț"
                 value={data.priceDetails.price}
-                onChange={(e) =>
-                  handlePriceDetailsChange("price", e.target.value)
-                }
-                fullWidth
-              />
-            </Grid>
-            <Grid size={3}>
-              <FormControl fullWidth>
-                <InputLabel>Moneda</InputLabel>
-                <Select
-                  value={data.priceDetails.currency}
-                  label="Moneda"
-                  onChange={(e) =>
-                    handlePriceDetailsChange("currency", e.target.value)
-                  }
-                >
-                  {Object.values(ECurrency).map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={3}>
-              <TextField
-                label="Pret per mp"
-                value={data.priceDetails.pricePerMp}
-                onChange={(e) =>
-                  handlePriceDetailsChange("pricePerMp", e.target.value)
-                }
+                onChange={(e) => handlePriceChange("price", e.target.value)}
                 fullWidth
                 slotProps={{
                   input: {
                     endAdornment: (
-                      <InputAdornment position="end">m²</InputAdornment>
+                      <InputAdornment position="end">€</InputAdornment>
                     ),
                   },
                 }}
               />
             </Grid>
-            <Grid size={3}>
-              <TextField
-                label="Ultimul pret"
-                value={data.priceDetails.lastPrice || ""}
-                onChange={(e) =>
-                  handlePriceDetailsChange("lastPrice", e.target.value)
-                }
-                fullWidth
-              />
-            </Grid>
-            <Grid size={3}>
-              <TextField
-                label="Pret garaj"
-                value={data.priceDetails.garagePrice}
-                onChange={(e) =>
-                  handlePriceDetailsChange("garagePrice", e.target.value)
-                }
-                fullWidth
-              />
-            </Grid>
-            <Grid size={3}>
-              <TextField
-                label="Pret parcare"
-                value={data.priceDetails.parkingPrice}
-                onChange={(e) =>
-                  handlePriceDetailsChange("parkingPrice", e.target.value)
-                }
-                fullWidth
-              />
-            </Grid>
+
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Metoda de plata</InputLabel>
+                <InputLabel>Monedă</InputLabel>
                 <Select
-                  value={data.priceDetails.paymentMethod}
-                  label="Metoda de plata"
+                  value={data.priceDetails.currency}
+                  label="Monedă"
                   onChange={(e) =>
-                    handlePriceDetailsChange("paymentMethod", e.target.value)
+                    handlePriceChange("currency", e.target.value)
                   }
                 >
-                  {Object.values(EPaymentMethod).map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
+                  {Object.values(ECurrency).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={3}>
               <TextField
-                label="Nota privata pret"
+                label="Preț / mp"
+                value={data.priceDetails.pricePerMp}
+                onChange={(e) =>
+                  handlePriceChange("pricePerMp", e.target.value)
+                }
+                fullWidth
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">€/mp</InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={3}>
+              <FormControl fullWidth>
+                <InputLabel>Metodă plată</InputLabel>
+                <Select
+                  value={data.priceDetails.paymentMethod}
+                  label="Metodă plată"
+                  onChange={(e) =>
+                    handlePriceChange("paymentMethod", e.target.value)
+                  }
+                >
+                  {Object.values(EPaymentMethod).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid size={3}>
+              <TextField
+                label="Ultimul preț"
+                value={data.priceDetails.lastPrice}
+                onChange={(e) => handlePriceChange("lastPrice", e.target.value)}
+                fullWidth
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">€</InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={3}>
+              <TextField
+                label="Preț garaj"
+                value={data.priceDetails.garagePrice}
+                onChange={(e) =>
+                  handlePriceChange("garagePrice", e.target.value)
+                }
+                fullWidth
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">€</InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={3}>
+              <TextField
+                label="Preț parcare"
+                value={data.priceDetails.parkingPrice}
+                onChange={(e) =>
+                  handlePriceChange("parkingPrice", e.target.value)
+                }
+                fullWidth
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">€</InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={3}>
+              <TextField
+                label="Notițe private preț"
                 value={data.priceDetails.privateNotePrice}
                 onChange={(e) =>
-                  handlePriceDetailsChange("privateNotePrice", e.target.value)
+                  handlePriceChange("privateNotePrice", e.target.value)
                 }
                 fullWidth
               />
             </Grid>
           </Grid>
+
+          {/* Boolean price options */}
           <Grid container spacing={2} sx={{ mt: 2 }}>
-            <Grid size={3}>
+            <Grid size={2}>
               <FormControlLabel
                 control={
                   <Switch
                     checked={data.priceDetails.tva}
-                    onChange={(e) =>
-                      handlePriceDetailsChange("tva", e.target.checked)
-                    }
+                    onChange={(e) => handlePriceChange("tva", e.target.checked)}
                   />
                 }
-                label="TVA"
+                label="TVA inclus"
               />
             </Grid>
-            <Grid size={3}>
+
+            <Grid size={2}>
               <FormControlLabel
                 control={
                   <Switch
                     checked={data.priceDetails.negociablePrice}
                     onChange={(e) =>
-                      handlePriceDetailsChange(
-                        "negociablePrice",
-                        e.target.checked
-                      )
+                      handlePriceChange("negociablePrice", e.target.checked)
                     }
                   />
                 }
-                label="Pret negociabil"
+                label="Preț negociabil"
               />
             </Grid>
-            <Grid size={3}>
+
+            <Grid size={2}>
               <FormControlLabel
                 control={
                   <Switch
                     checked={data.priceDetails.requestPrice}
                     onChange={(e) =>
-                      handlePriceDetailsChange("requestPrice", e.target.checked)
+                      handlePriceChange("requestPrice", e.target.checked)
                     }
                   />
                 }
-                label="Cerere pret"
+                label="Preț la cerere"
               />
             </Grid>
-            <Grid size={3}>
+
+            <Grid size={2}>
               <FormControlLabel
                 control={
                   <Switch
                     checked={data.priceDetails.showPricePerMp}
                     onChange={(e) =>
-                      handlePriceDetailsChange(
-                        "showPricePerMp",
-                        e.target.checked
-                      )
+                      handlePriceChange("showPricePerMp", e.target.checked)
                     }
                   />
                 }
-                label="Arata pret per mp"
+                label="Afișează €/mp"
               />
             </Grid>
           </Grid>
         </CardContent>
       </Card>
 
+      {/* -------------------- Comisioane -------------------- */}
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
             Comisioane
           </Typography>
+
           <Grid container spacing={2}>
             <Grid size={3}>
               <TextField
-                label="Comision cumparator"
+                label="Comision cumpărător"
                 value={data.commissions.buyerCommission}
                 onChange={(e) =>
                   handleCommissionsChange("buyerCommission", e.target.value)
                 }
                 fullWidth
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">%</InputAdornment>
-                    ),
-                  },
-                }}
               />
             </Grid>
             <Grid size={3}>
               <TextField
-                label="Valoare comision cumparator"
+                label="Valoare comision cumpărător"
                 value={data.commissions.buyerCommissionValue}
                 onChange={(e) =>
                   handleCommissionsChange(
@@ -265,6 +286,13 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                   )
                 }
                 fullWidth
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">€</InputAdornment>
+                    ),
+                  },
+                }}
               />
             </Grid>
             <Grid size={3}>
@@ -275,13 +303,6 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                   handleCommissionsChange("ownerCommission", e.target.value)
                 }
                 fullWidth
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">%</InputAdornment>
-                    ),
-                  },
-                }}
               />
             </Grid>
             <Grid size={3}>
@@ -295,34 +316,44 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                   )
                 }
                 fullWidth
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">€</InputAdornment>
+                    ),
+                  },
+                }}
               />
             </Grid>
           </Grid>
         </CardContent>
       </Card>
 
+      {/* -------------------- Detalii Contract -------------------- */}
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Contact
+            Detalii contract
           </Typography>
+
           <Grid container spacing={2}>
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Tip contact</InputLabel>
+                <InputLabel>Tip contract</InputLabel>
                 <Select
                   value={data.contact.type}
-                  label="Tip contact"
+                  label="Tip contract"
                   onChange={(e) => handleContactChange("type", e.target.value)}
                 >
-                  {Object.values(EContactType).map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
+                  {Object.values(EContactType).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={3}>
               <FormControl fullWidth>
                 <InputLabel>Contract semnat</InputLabel>
@@ -333,17 +364,18 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                     handleContactChange("signedContract", e.target.value)
                   }
                 >
-                  {Object.values(ESignedContract).map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
+                  {Object.values(ESignedContract).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={3}>
               <TextField
-                label="Numar contract"
+                label="Număr contract"
                 value={data.contact.contractNumber}
                 onChange={(e) =>
                   handleContactChange("contractNumber", e.target.value)
@@ -351,47 +383,57 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                 fullWidth
               />
             </Grid>
+
             <Grid size={3}>
               <TextField
-                label="Fisier contract"
+                label="Data semnării"
+                type="date"
+                value={
+                  data.contact.signDate
+                    ? new Date(data.contact.signDate)
+                        .toISOString()
+                        .split("T")[0]
+                    : ""
+                }
+                onChange={(e) =>
+                  handleContactChange("signDate", new Date(e.target.value))
+                }
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+
+            <Grid size={3}>
+              <TextField
+                label="Data expirării"
+                type="date"
+                value={
+                  data.contact.expirationDate
+                    ? new Date(data.contact.expirationDate)
+                        .toISOString()
+                        .split("T")[0]
+                    : ""
+                }
+                onChange={(e) =>
+                  handleContactChange(
+                    "expirationDate",
+                    new Date(e.target.value)
+                  )
+                }
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+
+            <Grid size={3}>
+              <TextField
+                label="Fișier contract (nume / link)"
                 value={data.contact.contractFile}
                 onChange={(e) =>
                   handleContactChange("contractFile", e.target.value)
                 }
                 fullWidth
               />
-            </Grid>
-            <Grid size={3}>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                  label="Data semnare"
-                  value={data.contact.signDate}
-                  onChange={(newValue) =>
-                    handleContactChange("signDate", newValue)
-                  }
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                    },
-                  }}
-                />
-              </LocalizationProvider>
-            </Grid>
-            <Grid size={3}>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                  label="Data expirare"
-                  value={data.contact.expirationDate}
-                  onChange={(newValue) =>
-                    handleContactChange("expirationDate", newValue)
-                  }
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                    },
-                  }}
-                />
-              </LocalizationProvider>
             </Grid>
           </Grid>
         </CardContent>

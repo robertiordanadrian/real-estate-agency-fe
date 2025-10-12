@@ -1,21 +1,14 @@
-import { Box } from "@mui/material";
-import { Outlet } from "react-router-dom";
-import { SidePanel } from "../../components/SidePanel/SidePanel";
+import { Box, Typography } from "@mui/material";
 
 const Dashboard = () => {
   return (
-    <Box
-      sx={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "row",
-      }}
-    >
-      <SidePanel />
-      <Box sx={{ width: "100%", p: 2, overflowY: "auto" }}>
-        <Outlet />
-      </Box>
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h4" mb={2}>
+        Bine ai venit în Dashboard
+      </Typography>
+      <Typography variant="body1">
+        Aici poți gestiona proprietățile, proprietarii și datele contului.
+      </Typography>
     </Box>
   );
 };

@@ -1,61 +1,35 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useNavigate,
-} from "react-router-dom";
-import { AuthProvider } from "./auth/AuthContext";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AppLayout } from "./layouts/AppLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import { PrivateRoute } from "./components/PrivateRoute";
-import LoginPage from "./auth/LoginPage";
-import RegisterPage from "./auth/RegisterPage";
 import Properties from "./pages/Properties/Properties";
+import LoginPage from "./pages/Login/LoginPage";
+import RegisterPage from "./pages/Register/RegisterPage";
+import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import { AddProperty } from "./pages/AddProperty/AddProperty";
-import PropertyDetails from "./components/Properties/PropertyDetails/PropertyDetails";
-import { PropertyProvider } from "./context/PropertyContext";
-import { setGlobalNavigate } from "./api/axiosClient";
-import { useEffect } from "react";
 import { EditProperty } from "./pages/EditProperty/EditProperty";
-
-const AppRouter = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    setGlobalNavigate(navigate);
-  }, [navigate]);
-
-  return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route
-        path="/"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      >
-        <Route path="properties" element={<Properties />} />
-        <Route path="properties/add" element={<AddProperty />} />
-        <Route path="properties/:id" element={<PropertyDetails />} />
-        <Route path="/properties/edit/:id" element={<EditProperty />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" />} />
-    </Routes>
-  );
-};
+import PropertyDetail from "./components/PropertyDetails/PropertyDetails";
 
 function App() {
   return (
-    <AuthProvider>
-      <PropertyProvider>
-        <BrowserRouter>
-          <AppRouter />
-        </BrowserRouter>
-      </PropertyProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/properties" element={<Properties />} />
+            <Route path="properties/add" element={<AddProperty />} />
+            <Route path="properties/:id" element={<PropertyDetail />} />{" "}
+            <Route path="/properties/edit/:id" element={<EditProperty />} />
+            {/* 👈 */}
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

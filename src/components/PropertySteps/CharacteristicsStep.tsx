@@ -7,10 +7,10 @@ import {
   TextField,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
-  Switch,
+  Select,
   FormControlLabel,
+  Switch,
   InputAdornment,
   Grid,
 } from "@mui/material";
@@ -21,12 +21,12 @@ import {
   EConstructionStage,
   EDestination,
   EEnergyClass,
-} from "../../../common/enums/characteristics.enums";
+} from "../../common/enums/characteristics.enums";
 import type {
   ICharacteristics,
   IDetails,
   IAreas,
-} from "../../../common/interfaces/characteristics.interface";
+} from "../../common/interfaces/characteristics.interface";
 
 interface CharacteristicsStepProps {
   data: ICharacteristics;
@@ -38,7 +38,10 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
   onChange,
 }) => {
   const handleDetailsChange = (key: keyof IDetails, value: any) => {
-    onChange({ ...data, details: { ...data.details, [key]: value } });
+    onChange({
+      ...data,
+      details: { ...data.details, [key]: value },
+    });
   };
 
   const handleAreasChange = (key: keyof IAreas, value: string) => {
@@ -52,7 +55,10 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
     key: keyof ICharacteristics["building"],
     value: any
   ) => {
-    onChange({ ...data, building: { ...data.building, [key]: value } });
+    onChange({
+      ...data,
+      building: { ...data.building, [key]: value },
+    });
   };
 
   const handleEnergyChange = (
@@ -70,23 +76,23 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
     { label: "Camere", key: "rooms" },
     { label: "Bucatarii", key: "kitchens" },
     { label: "Dormitoare", key: "bedrooms" },
-    { label: "Bai", key: "bathrooms" },
+    { label: "Băi", key: "bathrooms" },
     { label: "Balcoane", key: "balconies" },
     { label: "Terase", key: "terraces" },
-    { label: "Parcari", key: "parkingLots" },
+    { label: "Parcări", key: "parkingLots" },
     { label: "Garaje", key: "garages" },
-    { label: "Anul constructiei", key: "yearOfConstruction" },
-    { label: "Anul renovarii", key: "yearOfRenovation" },
+    { label: "An construcție", key: "yearOfConstruction" },
+    { label: "An renovare", key: "yearOfRenovation" },
     { label: "Orientare", key: "orientation" },
   ];
 
   const areaFields = [
-    { label: "Suprafata utila", key: "usableArea" as keyof IAreas },
-    { label: "Suprafata construita", key: "builtupArea" as keyof IAreas },
-    { label: "Suprafata utila totala", key: "totalUsableArea" as keyof IAreas },
-    { label: "Suprafata balcoane", key: "balconyArea" as keyof IAreas },
-    { label: "Suprafata terase", key: "terraceArea" as keyof IAreas },
-    { label: "Suprafata teren", key: "gardenArea" as keyof IAreas },
+    { label: "Suprafață utilă", key: "usableArea" as keyof IAreas },
+    { label: "Suprafață construită", key: "builtupArea" as keyof IAreas },
+    { label: "Suprafață utilă totală", key: "totalUsableArea" as keyof IAreas },
+    { label: "Suprafață balcoane", key: "balconyArea" as keyof IAreas },
+    { label: "Suprafață terase", key: "terraceArea" as keyof IAreas },
+    { label: "Suprafață teren", key: "gardenArea" as keyof IAreas },
   ];
 
   return (
@@ -103,35 +109,38 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
           <Typography variant="subtitle1" mb={2}>
             Detalii
           </Typography>
+
           <Grid container spacing={2}>
             <Grid size={3}>
               <TextField
-                label="Tip casa"
+                label="Tip proprietate"
                 value={data.details.type}
                 onChange={(e) => handleDetailsChange("type", e.target.value)}
                 fullWidth
               />
             </Grid>
+
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Destinatie</InputLabel>
+                <InputLabel>Destinație</InputLabel>
                 <Select
                   value={data.details.destination}
-                  label="Destinatie"
+                  label="Destinație"
                   onChange={(e) =>
                     handleDetailsChange("destination", e.target.value)
                   }
                 >
-                  {Object.values(EDestination).map((opt) => (
-                    <MenuItem key={opt} value={opt}>
-                      {opt}
+                  {Object.values(EDestination).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+
             {detailFields.map((field) => (
-              <Grid key={field.key} size={3}>
+              <Grid size={3} key={field.key}>
                 <TextField
                   label={field.label}
                   value={data.details[field.key as keyof IDetails] as string}
@@ -146,6 +155,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
               </Grid>
             ))}
           </Grid>
+
           <Grid container spacing={2} sx={{ mt: 2 }}>
             <Grid size={3}>
               <FormControlLabel
@@ -157,9 +167,10 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                     }
                   />
                 }
-                label="Bucatarie deschisa"
+                label="Bucătărie deschisă"
               />
             </Grid>
+
             <Grid size={3}>
               <FormControlLabel
                 control={
@@ -173,6 +184,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                 label="Geam la baie"
               />
             </Grid>
+
             <Grid size={3}>
               <FormControlLabel
                 control={
@@ -183,9 +195,10 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                     }
                   />
                 }
-                label="Pet Friendly"
+                label="Pet friendly"
               />
             </Grid>
+
             <Grid size={3}>
               <FormControlLabel
                 control={
@@ -196,7 +209,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                     }
                   />
                 }
-                label="Cheia in agentie"
+                label="Cheia în agenție"
               />
             </Grid>
           </Grid>
@@ -206,11 +219,12 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Suprafete
+            Suprafațe
           </Typography>
+
           <Grid container spacing={2}>
             {areaFields.map((field) => (
-              <Grid key={field.key} size={3}>
+              <Grid size={3} key={field.key}>
                 <TextField
                   label={field.label}
                   value={data.areas[field.key]}
@@ -233,61 +247,65 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Cladire
+            Clădire
           </Typography>
+
           <Grid container spacing={2}>
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Stadiu constructie</InputLabel>
+                <InputLabel>Stadiu construcție</InputLabel>
                 <Select
                   value={data.building.constructionStage}
-                  label="Stadiu constructie"
+                  label="Stadiu construcție"
                   onChange={(e) =>
                     handleBuildingChange("constructionStage", e.target.value)
                   }
                 >
-                  {Object.values(EConstructionStage).map((opt) => (
-                    <MenuItem key={opt} value={opt}>
-                      {opt}
+                  {Object.values(EConstructionStage).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Tip cladire</InputLabel>
+                <InputLabel>Tip clădire</InputLabel>
                 <Select
                   value={data.building.type}
-                  label="Tip cladire"
+                  label="Tip clădire"
                   onChange={(e) => handleBuildingChange("type", e.target.value)}
                 >
-                  {Object.values(EBuildingType).map((opt) => (
-                    <MenuItem key={opt} value={opt}>
-                      {opt}
+                  {Object.values(EBuildingType).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Structura</InputLabel>
+                <InputLabel>Structură</InputLabel>
                 <Select
                   value={data.building.structure}
-                  label="Structura"
+                  label="Structură"
                   onChange={(e) =>
                     handleBuildingChange("structure", e.target.value)
                   }
                 >
-                  {Object.values(EBuildingStructure).map((opt) => (
-                    <MenuItem key={opt} value={opt}>
-                      {opt}
+                  {Object.values(EBuildingStructure).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={3}>
               <FormControl fullWidth>
                 <InputLabel>Risc seismic</InputLabel>
@@ -298,17 +316,18 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                     handleBuildingChange("seismicRisk", e.target.value)
                   }
                 >
-                  {Object.values(EBuildingSeismicRisk).map((opt) => (
-                    <MenuItem key={opt} value={opt}>
-                      {opt}
+                  {Object.values(EBuildingSeismicRisk).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={3}>
               <TextField
-                label="Inaltime cladire"
+                label="Înălțime clădire"
                 value={data.building.height}
                 onChange={(e) => handleBuildingChange("height", e.target.value)}
                 fullWidth
@@ -321,27 +340,29 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Performanta Energetica
+            Performanță energetică
           </Typography>
+
           <Grid container spacing={2}>
             <Grid size={2}>
               <FormControl fullWidth>
-                <InputLabel>Clasa energetica</InputLabel>
+                <InputLabel>Clasă energetică</InputLabel>
                 <Select
                   value={data.energyPerformance.energyClass}
-                  label="Clasa energetica"
+                  label="Clasă energetică"
                   onChange={(e) =>
                     handleEnergyChange("energyClass", e.target.value)
                   }
                 >
-                  {Object.values(EEnergyClass).map((opt) => (
-                    <MenuItem key={opt} value={opt}>
-                      {opt}
+                  {Object.values(EEnergyClass).map((val) => (
+                    <MenuItem key={val} value={val}>
+                      {val}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={3}>
               <TextField
                 label="Consum anual specific"
@@ -362,6 +383,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                 }}
               />
             </Grid>
+
             <Grid size={3}>
               <TextField
                 label="Indice emisii CO₂"
@@ -382,9 +404,10 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                 }}
               />
             </Grid>
+
             <Grid size={4}>
               <TextField
-                label="Consum din surse regenerabile"
+                label="Consum surse regenerabile"
                 value={
                   data.energyPerformance.specificConsumptionFromRenewableSources
                 }

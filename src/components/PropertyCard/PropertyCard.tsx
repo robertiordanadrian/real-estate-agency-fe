@@ -21,12 +21,13 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const handleClick = () => {
     navigate(`/properties/${property._id}`);
   };
+
   return (
     <Card sx={{ cursor: "pointer" }} onClick={handleClick}>
       <CardMedia
         component="img"
         alt={description?.title}
-        image={images ? images[0] : ""}
+        image={images?.[0] || ""}
         sx={{ height: 200, objectFit: "cover" }}
       />
       <CardContent>
@@ -44,24 +45,27 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             gap: 0.5,
           }}
         >
-          <LocationOn /> {generalDetails.location.zone}
+          <LocationOn /> {generalDetails?.location?.zone}
         </Typography>
 
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
           <Chip
-            label={`${characteristics.details.bedrooms} camere`}
+            label={`${characteristics?.details?.bedrooms} camere`}
             size="small"
           />
           <Chip
-            label={`${characteristics.areas.totalUsableArea} mp`}
+            label={`${characteristics?.areas?.totalUsableArea} mp`}
             size="small"
           />
-          <Chip label={`Etaj ${characteristics.details.floor}`} size="small" />
           <Chip
-            label={`An de constructie ${characteristics.details.yearOfConstruction}`}
+            label={`Etaj ${characteristics?.details?.floor}`}
             size="small"
           />
-          <Chip label={`Agent - ${generalDetails.agent}`} size="small" />
+          <Chip
+            label={`An ${characteristics?.details?.yearOfConstruction}`}
+            size="small"
+          />
+          <Chip label={`Agent - ${generalDetails?.agent}`} size="small" />
         </Box>
       </CardContent>
     </Card>

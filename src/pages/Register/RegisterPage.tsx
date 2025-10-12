@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -9,30 +9,31 @@ import {
   CircularProgress,
   Link as MuiLink,
 } from "@mui/material";
-import { useAuth } from "../auth/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { useRegister } from "../../features/auth/authMutations";
 
-const LoginPage = () => {
-  const { login } = useAuth();
+const RegisterPage = () => {
   const navigate = useNavigate();
+  const { mutateAsync, isPending } = useRegister();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
     try {
-      await login(email, password);
-      navigate("/dashboard"); // redirect după login
+      await mutateAsync({ name, email, password });
+      navigate("/dashboard");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Registration failed. Please try again.";
+      setError(message);
     }
   };
 
@@ -48,10 +49,18 @@ const LoginPage = () => {
       >
         <Paper sx={{ p: 4, bgcolor: "background.paper", width: "100%" }}>
           <Typography variant="h5" component="h1" gutterBottom>
-            Login
+            Register
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+            <TextField
+              label="Name"
+              fullWidth
+              required
+              margin="normal"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
             <TextField
               label="Email"
               type="email"
@@ -83,22 +92,21 @@ const LoginPage = () => {
               color="primary"
               fullWidth
               sx={{ mt: 3 }}
-              disabled={loading}
+              disabled={isPending}
             >
-              {loading ? <CircularProgress size={24} /> : "Login"}
+              {isPending ? <CircularProgress size={24} /> : "Register"}
             </Button>
 
-            {/* 🔹 Link mic spre Register */}
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="body2">
-                Don’t have an account?{" "}
+                Already have an account?{" "}
                 <MuiLink
                   component={Link}
-                  to="/register"
+                  to="/login"
                   underline="hover"
                   sx={{ fontWeight: 500 }}
                 >
-                  Register
+                  Login
                 </MuiLink>
               </Typography>
             </Box>
@@ -109,4 +117,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
