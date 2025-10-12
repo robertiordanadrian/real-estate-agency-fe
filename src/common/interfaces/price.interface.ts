@@ -1,4 +1,9 @@
-import { EContactType, ECurrency, EPaymentMethod, ESignedContract } from '../enums/price.enums';
+import {
+  EContactType,
+  ECurrency,
+  EPaymentMethod,
+  ESignedContract,
+} from "../enums/price.enums";
 
 export interface IPrice {
   priceDetails: IPriceDetails;
@@ -28,10 +33,10 @@ interface ICommissions {
   ownerCommissionValue: string;
 }
 interface IContact {
-    type: EContactType;
-    signedContract: ESignedContract;
-    contractNumber: string;
-    signDate: Date;
-    expirationDate: Date;
-    contractFile: string;
+  type: EContactType;
+  signedContract: ESignedContract;
+  contractNumber: string;
+  signDate: Date | null;
+  expirationDate: Date | null;
+  contractFile: string;
 }

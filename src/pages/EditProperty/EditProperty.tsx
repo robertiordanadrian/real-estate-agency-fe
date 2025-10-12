@@ -46,22 +46,51 @@ export const EditProperty: React.FC = () => {
     severity: "success" as "success" | "error",
   });
 
-  // Fetch property data when component mounts
+  const parseToDate = (value: unknown): Date | null => {
+    if (!value) return null;
+    const date = new Date(value as string);
+    return isNaN(date.getTime()) ? null : date;
+  };
+
   useEffect(() => {
+    const parseToDate = (value: unknown): Date | null => {
+      if (!value) return null;
+      const date = new Date(value as string);
+      return isNaN(date.getTime()) ? null : date;
+    };
+
     const fetchProperty = async () => {
       if (!id) return;
 
       try {
         setIsLoading(true);
-        // Try to find property in context first
         const existingProperty = properties.find((p) => p._id === id);
 
         if (existingProperty) {
-          setFormData(existingProperty);
+          const prop = structuredClone(existingProperty);
+          if (prop?.price?.contact) {
+            prop.price.contact.signDate = parseToDate(
+              prop.price.contact.signDate
+            );
+            prop.price.contact.expirationDate = parseToDate(
+              prop.price.contact.expirationDate
+            );
+          }
+          setFormData(prop);
         } else {
-          // If not found in context, fetch from API
           const response = await axiosClient.get(`/properties/${id}`);
-          setFormData(response.data);
+          const property = response.data;
+
+          if (property?.price?.contact) {
+            property.price.contact.signDate = parseToDate(
+              property.price.contact.signDate
+            );
+            property.price.contact.expirationDate = parseToDate(
+              property.price.contact.expirationDate
+            );
+          }
+
+          setFormData(property);
         }
       } catch (error) {
         console.error("Error fetching property:", error);
@@ -96,9 +125,7 @@ export const EditProperty: React.FC = () => {
         images: undefined,
       };
 
-      await axiosClient.put(`/properties/${id}`, {
-        data: JSON.stringify(propertyPayload),
-      });
+      await axiosClient.put(`/properties/${id}`, propertyPayload);
 
       // Handle image uploads if there are new files
       if (imageFiles && imageFiles.length > 0) {
