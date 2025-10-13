@@ -49,12 +49,12 @@ const RegisterPage = () => {
       >
         <Paper sx={{ p: 4, bgcolor: "background.paper", width: "100%" }}>
           <Typography variant="h5" component="h1" gutterBottom>
-            Register
+            Inregistreaza-te
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <TextField
-              label="Name"
+              label="Nume"
               fullWidth
               required
               margin="normal"
@@ -71,7 +71,7 @@ const RegisterPage = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
             <TextField
-              label="Password"
+              label="Parola"
               type="password"
               fullWidth
               required
@@ -94,19 +94,19 @@ const RegisterPage = () => {
               sx={{ mt: 3 }}
               disabled={isPending}
             >
-              {isPending ? <CircularProgress size={24} /> : "Register"}
+              {isPending ? <CircularProgress size={24} /> : "Inregistreaza-te"}
             </Button>
 
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="body2">
-                Already have an account?{" "}
+                Nu ai un cont?{" "}
                 <MuiLink
                   component={Link}
                   to="/login"
                   underline="hover"
                   sx={{ fontWeight: 500 }}
                 >
-                  Login
+                  Logheaza-te
                 </MuiLink>
               </Typography>
             </Box>

@@ -176,7 +176,7 @@ const defaultPrice: IPrice = {
     contractNumber: "",
     signDate: new Date(),
     expirationDate: new Date(),
-    contractFile: "",
+    contractFile: null, // 🔹 implicit null
   },
 };
 
@@ -201,7 +201,9 @@ export const AddProperty: React.FC = () => {
     description: defaultDescription,
     images: [],
   });
+
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [contractFile, setContractFile] = useState<File | null>(null); // 🔹 nou
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -224,12 +226,20 @@ export const AddProperty: React.FC = () => {
       const newProperty = await PropertiesApi.create(propertyPayload);
       const propertyId = newProperty._id;
 
+      if (!propertyId) {
+        throw new Error("Property ID not returned from backend");
+      }
+
       if (imageFiles.length > 0) {
-        await PropertiesApi.uploadImages(propertyId || "", imageFiles);
+        await PropertiesApi.uploadImages(propertyId, imageFiles);
+      }
+
+      if (contractFile) {
+        await PropertiesApi.uploadContract(propertyId, contractFile);
       }
 
       await refetch();
-      showSnackbar("Proprietate creată cu succes!", "success");
+      showSnackbar("Proprietate creata cu succes!", "success");
 
       setTimeout(() => {
         setFormData({
@@ -241,25 +251,26 @@ export const AddProperty: React.FC = () => {
           images: [],
         });
         setImageFiles([]);
+        setContractFile(null);
         setActiveStep(0);
       }, 1500);
     } catch (error: any) {
-      let errorMessage = "A apărut o eroare. Te rugăm să încerci din nou.";
+      let errorMessage = "A aparut o eroare. Te rugam sa incerci din nou.";
 
       if (error.response) {
         const status = error.response.status;
         if (status === 413)
           errorMessage =
-            "Fișierul este prea mare. Redu dimensiunea imaginilor.";
+            "Fisierul este prea mare. Redu dimensiunea imaginilor.";
         else if (status === 415)
           errorMessage =
-            "Tip de fișier neacceptat. Încarcă doar imagini (JPEG, PNG, WebP).";
+            "Tip de fisier neacceptat. Incarca doar imagini (JPEG, PNG, WebP).";
         else if (status === 400)
-          errorMessage = "Date invalide. Verifică toate câmpurile.";
+          errorMessage = "Date invalide. Verifica toate campurile.";
         else if (error.response.data?.message)
           errorMessage = error.response.data.message;
       } else if (error.request) {
-        errorMessage = "Eroare de rețea. Verifică conexiunea la internet.";
+        errorMessage = "Eroare de retea. Verifica conexiunea la internet.";
       }
 
       showSnackbar(errorMessage, "error");
@@ -304,7 +315,13 @@ export const AddProperty: React.FC = () => {
         return (
           <PriceStep
             data={formData.price}
-            onChange={(val) => setFormData((prev) => ({ ...prev, price: val }))}
+            onChange={(val) => {
+              if (val.contact.contractFile instanceof File) {
+                setContractFile(val.contact.contractFile);
+                val.contact.contractFile = "";
+              }
+              setFormData((prev) => ({ ...prev, price: val }));
+            }}
           />
         );
       case 4:
@@ -335,7 +352,7 @@ export const AddProperty: React.FC = () => {
   return (
     <Box sx={{ width: "100%", p: 2 }}>
       <Typography variant="h4" mb={3}>
-        Adaugă o proprietate
+        Adauga o proprietate
       </Typography>
 
       <Stepper activeStep={activeStep} alternativeLabel>
@@ -354,7 +371,7 @@ export const AddProperty: React.FC = () => {
           onClick={handleBack}
           variant="outlined"
         >
-          Înapoi
+          Inapoi
         </Button>
         {activeStep === steps.length - 1 ? (
           <Button
@@ -368,7 +385,7 @@ export const AddProperty: React.FC = () => {
           </Button>
         ) : (
           <Button variant="contained" color="primary" onClick={handleNext}>
-            Următorul pas
+            Urmatorul pas
           </Button>
         )}
       </Box>

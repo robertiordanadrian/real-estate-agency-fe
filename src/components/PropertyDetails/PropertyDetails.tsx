@@ -28,6 +28,7 @@ import {
   Close,
   ZoomIn,
   Edit,
+  Download,
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { EStatus, EType } from "../../common/enums/general-details.enums";
@@ -1086,13 +1087,38 @@ export default function PropertyDetail() {
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
-                  <TextField
-                    label="Fisier contract"
-                    value={price.contact.contractFile || "N/A"}
-                    fullWidth
-                    size="small"
-                    InputProps={{ readOnly: true }}
-                  />
+                  {typeof price.contact.contractFile === "string" &&
+                  price.contact.contractFile ? (
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      startIcon={<Download />}
+                      fullWidth
+                      onClick={() =>
+                        window.open(
+                          price.contact.contractFile as string,
+                          "_blank"
+                        )
+                      }
+                      sx={{
+                        height: 40,
+                        textTransform: "none",
+                        justifyContent: "flex-start",
+                        borderColor: "#90caf9",
+                        "&:hover": { borderColor: "rgba(255, 255, 255)" },
+                      }}
+                    >
+                      Descarcă contract
+                    </Button>
+                  ) : (
+                    <TextField
+                      label="Fisier contract"
+                      value="N/A"
+                      fullWidth
+                      size="small"
+                      InputProps={{ readOnly: true }}
+                    />
+                  )}
                 </Grid>
               </Grid>
             </DetailSection>

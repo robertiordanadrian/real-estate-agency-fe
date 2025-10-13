@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { AttachFile } from "@mui/icons-material";
 import {
   Box,
   Card,
@@ -13,6 +14,7 @@ import {
   Select,
   Grid,
   InputAdornment,
+  Button,
 } from "@mui/material";
 import { IPrice } from "../../common/interfaces/price.interface";
 import {
@@ -28,6 +30,8 @@ interface PriceStepProps {
 }
 
 export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
+  const [selectedContractName, setSelectedContractName] = useState<string>("");
+
   const handlePriceChange = (key: keyof IPrice["priceDetails"], value: any) => {
     onChange({
       ...data,
@@ -422,14 +426,53 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
             </Grid>
 
             <Grid size={3}>
-              <TextField
-                label="Fisier contract"
-                value={data.contact.contractFile}
-                onChange={(e) =>
-                  handleContactChange("contractFile", e.target.value)
-                }
-                fullWidth
-              />
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  component="label"
+                  fullWidth
+                  startIcon={<AttachFile />}
+                  sx={{
+                    height: 56,
+                    borderColor: "rgba(0,0,0,0.23)",
+                    color: "text.primary",
+                    justifyContent: "flex-start",
+                    textTransform: "none",
+                    fontSize: "0.875rem",
+                    fontWeight: 400,
+                    letterSpacing: "0.00938em",
+                    padding: "0 14px",
+                    border: "1px solid #90caf9",
+                    "&:hover": {
+                      borderColor: "rgb(255, 255, 255)",
+                      backgroundColor: "rgba(25,118,210,0.04)",
+                    },
+                  }}
+                >
+                  {selectedContractName ||
+                    (data.contact.contractFile instanceof File
+                      ? data.contact.contractFile.name
+                      : data.contact.contractFile || "Încarcă fișier contract")}
+                  <input
+                    type="file"
+                    hidden
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setSelectedContractName(file.name);
+                        handleContactChange("contractFile", file);
+                      }
+                    }}
+                  />
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </CardContent>

@@ -40,13 +40,14 @@ export const EditProperty: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: propertyFromQuery } = usePropertyQuery(id ?? "");
-  const { refetch } = usePropertiesQuery(); // pentru invalidare la final
+  const { refetch } = usePropertiesQuery(); // pentru reîncărcare la final
 
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState<IProperty | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [contractFile, setContractFile] = useState<File | null>(null); // 🔹 nou
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -74,7 +75,7 @@ export const EditProperty: React.FC = () => {
         let fetchedProperty = propertyFromQuery;
 
         if (!fetchedProperty) {
-          const res = await http.get(`/${id}`);
+          const res = await http.get(`/properties/${id}`);
           fetchedProperty = res.data;
         }
 
@@ -91,7 +92,7 @@ export const EditProperty: React.FC = () => {
       } catch (err) {
         console.error("Error fetching property:", err);
         showSnackbar("Eroare la incarcarea proprietatilor", "error");
-        navigate("");
+        navigate("/");
       } finally {
         setIsLoading(false);
       }
@@ -113,27 +114,32 @@ export const EditProperty: React.FC = () => {
         await PropertiesApi.uploadImages(id, imageFiles);
       }
 
-      await refetch();
-      showSnackbar("Proprietate actualizată cu succes!", "success");
+      if (contractFile) {
+        await PropertiesApi.uploadContract(id, contractFile);
+      }
 
-      setTimeout(() => navigate(`/${id}`), 2000);
+      await refetch();
+      showSnackbar("Proprietate actualizata cu succes!", "success");
+
+      setTimeout(() => navigate(`/property/${id}`), 2000);
+      setContractFile(null);
     } catch (error: any) {
-      let errorMessage = "A apărut o eroare. Te rugăm să încerci din nou.";
+      let errorMessage = "A aparut o eroare. Te rugam sa incerci din nou.";
 
       if (error.response) {
         const status = error.response.status;
         if (status === 413)
           errorMessage =
-            "Fișierele sunt prea mari. Redu dimensiunea imaginilor.";
+            "Fisierele sunt prea mari. Redu dimensiunea imaginilor.";
         else if (status === 415)
           errorMessage =
-            "Tip de fișier neacceptat. Doar imagini (JPEG, PNG, WebP).";
+            "Tip de fisier neacceptat. Doar imagini (JPEG, PNG, WebP).";
         else if (status === 400)
-          errorMessage = "Date invalide. Verifică toate câmpurile.";
+          errorMessage = "Date invalide. Verifica toate campurile.";
         else if (error.response.data?.message)
           errorMessage = error.response.data.message;
       } else if (error.request) {
-        errorMessage = "Eroare de rețea. Verifică conexiunea la internet.";
+        errorMessage = "Eroare de retea. Verifica conexiunea la internet.";
       }
 
       showSnackbar(errorMessage, "error");
@@ -184,9 +190,13 @@ export const EditProperty: React.FC = () => {
         return (
           <PriceStep
             data={formData.price}
-            onChange={(val) =>
-              setFormData((prev) => (prev ? { ...prev, price: val } : null))
-            }
+            onChange={(val) => {
+              if (val.contact.contractFile instanceof File) {
+                setContractFile(val.contact.contractFile);
+                val.contact.contractFile = "";
+              }
+              setFormData((prev) => (prev ? { ...prev, price: val } : null));
+            }}
           />
         );
       case 4:
@@ -216,7 +226,6 @@ export const EditProperty: React.FC = () => {
     }
   };
 
-  // 🔹 Loading & errors
   if (isLoading) {
     return (
       <Box
@@ -228,7 +237,7 @@ export const EditProperty: React.FC = () => {
         }}
       >
         <CircularProgress />
-        <Typography sx={{ ml: 2 }}>Se încarcă proprietatea...</Typography>
+        <Typography sx={{ ml: 2 }}>Se incarca proprietatea...</Typography>
       </Box>
     );
   }
@@ -237,10 +246,14 @@ export const EditProperty: React.FC = () => {
     return (
       <Box sx={{ p: 3 }}>
         <Typography variant="h5" color="error">
-          Proprietatea nu a putut fi găsită.
+          Proprietatea nu a putut fi gasita.
         </Typography>
-        <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate("")}>
-          Înapoi la listă
+        <Button
+          variant="contained"
+          sx={{ mt: 2 }}
+          onClick={() => navigate("/")}
+        >
+          Inapoi la lista
         </Button>
       </Box>
     );
@@ -249,7 +262,7 @@ export const EditProperty: React.FC = () => {
   return (
     <Box sx={{ width: "100%", p: 2 }}>
       <Typography variant="h4" mb={3}>
-        Editează proprietatea
+        Editeaza proprietatea
       </Typography>
 
       <Stepper activeStep={activeStep} alternativeLabel>
@@ -268,7 +281,7 @@ export const EditProperty: React.FC = () => {
           onClick={handleBack}
           variant="outlined"
         >
-          Înapoi
+          Inapoi
         </Button>
         {activeStep === steps.length - 1 ? (
           <Button
@@ -282,7 +295,7 @@ export const EditProperty: React.FC = () => {
           </Button>
         ) : (
           <Button variant="contained" color="primary" onClick={handleNext}>
-            Următorul pas
+            Urmatorul pas
           </Button>
         )}
       </Box>

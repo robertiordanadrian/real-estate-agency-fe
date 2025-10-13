@@ -38,5 +38,5 @@ interface IContact {
   contractNumber: string;
   signDate: Date | null;
   expirationDate: Date | null;
-  contractFile: string;
+  contractFile: string | File | null;
 }

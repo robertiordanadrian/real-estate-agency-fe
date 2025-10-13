@@ -48,7 +48,7 @@ const LoginPage = () => {
       >
         <Paper sx={{ p: 4, bgcolor: "background.paper", width: "100%" }}>
           <Typography variant="h5" component="h1" gutterBottom>
-            Login
+            Logheaza-te
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -62,7 +62,7 @@ const LoginPage = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
             <TextField
-              label="Password"
+              label="Parola"
               type="password"
               fullWidth
               required
@@ -88,17 +88,16 @@ const LoginPage = () => {
               {isPending ? <CircularProgress size={24} /> : "Login"}
             </Button>
 
-            {/* 🔹 Link mic spre Register */}
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="body2">
-                Don’t have an account?{" "}
+                Nu ai un cont?{" "}
                 <MuiLink
                   component={Link}
                   to="/register"
                   underline="hover"
                   sx={{ fontWeight: 500 }}
                 >
-                  Register
+                  Inregistreaza-te
                 </MuiLink>
               </Typography>
             </Box>

@@ -26,4 +26,14 @@ export const PropertiesApi = {
       })
     ).data;
   },
+
+  uploadContract: async (id: string, file: File) => {
+    const formData = new FormData();
+    formData.append("contract", file);
+
+    const { data } = await http.post(`/properties/${id}/contract`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+  },
 };
