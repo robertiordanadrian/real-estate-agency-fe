@@ -26,13 +26,12 @@ const processQueue = (error: unknown, token: string | null) => {
         if (!p.config.headers) p.config.headers = {};
         p.config.headers["Authorization"] = `Bearer ${token}`;
       }
-      p.resolve(http(p.config)); // retrimite requestul
+      p.resolve(http(p.config));
     }
   });
   pendingQueue = [];
 };
 
-// --- Request: atașează Bearer dacă există ---
 http.interceptors.request.use((config) => {
   const state = store.getState();
   const token = selectAccessToken(state);
@@ -43,7 +42,6 @@ http.interceptors.request.use((config) => {
   return config;
 });
 
-// --- Response: 401 => refresh flow ---
 http.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
@@ -54,14 +52,12 @@ http.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // dacă deja s-a încercat refresh pentru acest request, nu intrăm în loop
     if ((originalConfig as any)._retry) {
       store.dispatch(logout());
       return Promise.reject(error);
     }
     (originalConfig as any)._retry = true;
 
-    // dacă deja e în curs un refresh, adaugă în coadă
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         pendingQueue.push({ resolve, reject, config: originalConfig });
@@ -72,17 +68,16 @@ http.interceptors.response.use(
     try {
       const state = store.getState();
       const auth = selectAuth(state);
-      if (!auth.user || !auth.accessToken || !auth.refreshToken) {
+      if (!auth.user || !auth.refreshToken) {
         store.dispatch(logout());
         return Promise.reject(error);
       }
 
       const refreshRes = await axios.post(`${baseURL}/auth/refresh`, {
-        access_token: auth.accessToken,
         userId: auth.user.id,
+        refreshToken: auth.refreshToken,
       });
 
-      // noul set de tokenuri
       const newAccessToken: string = refreshRes.data?.access_token;
       const newRefreshToken: string = refreshRes.data?.refresh_token;
 
@@ -93,19 +88,17 @@ http.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // actualizează ambele tokenuri în store
       store.dispatch(
         setCredentials({
           user: auth.user,
           accessToken: newAccessToken,
-          refreshToken: newRefreshToken ?? auth.refreshToken, // fallback la vechiul refresh
+          refreshToken: newRefreshToken ?? auth.refreshToken,
         })
       );
 
       processQueue(null, newAccessToken);
       isRefreshing = false;
 
-      // reface headerul pentru original
       originalConfig.headers = originalConfig.headers ?? {};
       originalConfig.headers["Authorization"] = `Bearer ${newAccessToken}`;
       return http(originalConfig);

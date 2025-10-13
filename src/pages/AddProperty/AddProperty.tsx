@@ -62,7 +62,6 @@ const defaultGeneralDetails: IGeneralDetails = {
   transactionType: EType.SALE,
   category: ECategory.APARTMENT,
   ownerID: "",
-  aditionalContactID: "",
   residentialComplex: "",
   location: {
     city: "",
