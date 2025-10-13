@@ -3,7 +3,7 @@ import {
   EType,
   ECategory,
   ESurroundings,
-} from '../enums/general-details.enums';
+} from "../enums/general-details.enums";
 
 export interface IGeneralDetails {
   agent: string;
@@ -11,7 +11,6 @@ export interface IGeneralDetails {
   transactionType: EType;
   category: ECategory;
   ownerID: string;
-  aditionalContactID: string;
   residentialComplex: string;
   location: ILocation;
   privatMemo: string;

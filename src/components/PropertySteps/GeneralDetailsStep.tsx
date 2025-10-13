@@ -247,17 +247,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
 
             <Grid size={3}>
               <TextField
-                label="Contracte aditionale"
-                value={data.aditionalContactID}
-                onChange={(e) =>
-                  onChange({ ...data, aditionalContactID: e.target.value })
-                }
-                fullWidth
-              />
-            </Grid>
-
-            <Grid size={3}>
-              <TextField
                 label="Complex rezidential"
                 value={data.residentialComplex}
                 onChange={(e) =>

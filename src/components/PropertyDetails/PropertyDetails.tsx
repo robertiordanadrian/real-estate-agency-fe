@@ -384,16 +384,6 @@ export default function PropertyDetail() {
                   />
                 </Grid>
 
-                <Grid size={{ xs: 6, md: 4 }}>
-                  <TextField
-                    label="Contact aditional"
-                    value={generalDetails.aditionalContactID || "N/A"}
-                    fullWidth
-                    size="small"
-                    InputProps={{ readOnly: true }}
-                  />
-                </Grid>
-
                 <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
                     label="Complex rezidential"
