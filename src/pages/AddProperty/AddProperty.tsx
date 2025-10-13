@@ -50,8 +50,8 @@ import { PropertiesApi } from "../../features/properties/propertiesApi";
 const steps = [
   "Detalii generale",
   "Caracteristici",
-  "Utilități",
-  "Preț",
+  "Utilitati",
+  "Pret",
   "Descriere",
   "Imagini",
 ];

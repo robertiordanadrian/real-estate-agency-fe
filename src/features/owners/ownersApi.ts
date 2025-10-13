@@ -11,4 +11,9 @@ export const OwnersApi = {
     const res = await http.post<IOwner>("/owners", payload);
     return res.data;
   },
+
+  getById: async (id: string) => {
+    const res = await http.get<IOwner>(`/owners/${id}`);
+    return res.data;
+  },
 };

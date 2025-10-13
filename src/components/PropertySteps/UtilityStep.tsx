@@ -97,16 +97,15 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* -------------------- Utilități Generale -------------------- */}
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Utilități generale
+            Utilitati generale
           </Typography>
           <Grid container spacing={2}>
             <Grid size={4}>
               {renderMultiSelect(
-                "Utilități generale",
+                "Utilitati generale",
                 Object.values(EGeneral),
                 data.generals,
                 (v) => handleChangeArray("generals", v)
@@ -114,7 +113,7 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
             </Grid>
             <Grid size={4}>
               {renderMultiSelect(
-                "Sistem irigație",
+                "Sistem irigatie",
                 Object.values(EIrigationSystem),
                 data.irigationSystem,
                 (v) => handleChangeArray("irigationSystem", v)
@@ -132,7 +131,6 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
         </CardContent>
       </Card>
 
-      {/* -------------------- Finisaje -------------------- */}
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
@@ -151,7 +149,7 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
 
             <Grid size={4}>
               {renderMultiSelect(
-                "Izolații",
+                "Izolatii",
                 Object.values(EFinishesInsulation),
                 data.finishes.insulation,
                 (v) => handleNestedChange("finishes", "insulation", v)
@@ -160,7 +158,7 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
 
             <Grid size={4}>
               {renderMultiSelect(
-                "Pereți",
+                "Pereti",
                 Object.values(EFinishesWalls),
                 data.finishes.walls,
                 (v) => handleNestedChange("finishes", "walls", v)
@@ -196,7 +194,7 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
 
             <Grid size={4}>
               {renderMultiSelect(
-                "Uși intrare",
+                "Usi intrare",
                 Object.values(EFinishesEnteringDoor),
                 data.finishes.enteringDoor,
                 (v) => handleNestedChange("finishes", "enteringDoor", v)
@@ -205,7 +203,7 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
 
             <Grid size={4}>
               {renderMultiSelect(
-                "Uși interioare",
+                "Usi interioare",
                 Object.values(EFinishesInteriorDoors),
                 data.finishes.interiorDoors,
                 (v) => handleNestedChange("finishes", "interiorDoors", v)
@@ -215,7 +213,6 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
         </CardContent>
       </Card>
 
-      {/* -------------------- Echipamente -------------------- */}
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
@@ -243,7 +240,7 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
 
             <Grid size={4}>
               {renderMultiSelect(
-                "Bucătărie",
+                "Bucatarie",
                 Object.values(EKitchen),
                 data.equipment.kitchen,
                 (v) => handleNestedChange("equipment", "kitchen", v)
@@ -270,7 +267,7 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
 
             <Grid size={4}>
               {renderMultiSelect(
-                "Spații recreative",
+                "Spatii recreative",
                 Object.values(ERecreationalSpaces),
                 data.equipment.recreationalSpaces,
                 (v) => handleNestedChange("equipment", "recreationalSpaces", v)

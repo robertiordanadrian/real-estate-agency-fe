@@ -29,8 +29,8 @@ import { http } from "../../services/http";
 const steps = [
   "Detalii generale",
   "Caracteristici",
-  "Utilități",
-  "Preț",
+  "Utilitati",
+  "Pret",
   "Descriere",
   "Imagini",
 ];
@@ -90,7 +90,7 @@ export const EditProperty: React.FC = () => {
         setFormData(fetchedProperty ?? null);
       } catch (err) {
         console.error("Error fetching property:", err);
-        showSnackbar("Eroare la încărcarea proprietății", "error");
+        showSnackbar("Eroare la incarcarea proprietatilor", "error");
         navigate("");
       } finally {
         setIsLoading(false);
@@ -107,7 +107,7 @@ export const EditProperty: React.FC = () => {
     try {
       const { images, ...propertyPayload } = formData;
 
-      await http.put(`/${id}`, propertyPayload);
+      await http.put(`/properties/${id}`, propertyPayload);
 
       if (imageFiles.length > 0) {
         await PropertiesApi.uploadImages(id, imageFiles);

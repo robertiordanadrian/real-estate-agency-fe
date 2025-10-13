@@ -76,23 +76,23 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
     { label: "Camere", key: "rooms" },
     { label: "Bucatarii", key: "kitchens" },
     { label: "Dormitoare", key: "bedrooms" },
-    { label: "Băi", key: "bathrooms" },
+    { label: "Bai", key: "bathrooms" },
     { label: "Balcoane", key: "balconies" },
     { label: "Terase", key: "terraces" },
-    { label: "Parcări", key: "parkingLots" },
+    { label: "Parcari", key: "parkingLots" },
     { label: "Garaje", key: "garages" },
-    { label: "An construcție", key: "yearOfConstruction" },
+    { label: "An constructie", key: "yearOfConstruction" },
     { label: "An renovare", key: "yearOfRenovation" },
     { label: "Orientare", key: "orientation" },
   ];
 
   const areaFields = [
-    { label: "Suprafață utilă", key: "usableArea" as keyof IAreas },
-    { label: "Suprafață construită", key: "builtupArea" as keyof IAreas },
-    { label: "Suprafață utilă totală", key: "totalUsableArea" as keyof IAreas },
-    { label: "Suprafață balcoane", key: "balconyArea" as keyof IAreas },
-    { label: "Suprafață terase", key: "terraceArea" as keyof IAreas },
-    { label: "Suprafață teren", key: "gardenArea" as keyof IAreas },
+    { label: "Suprafata utila", key: "usableArea" as keyof IAreas },
+    { label: "Suprafata construita", key: "builtupArea" as keyof IAreas },
+    { label: "Suprafata utila totala", key: "totalUsableArea" as keyof IAreas },
+    { label: "Suprafata balcoane", key: "balconyArea" as keyof IAreas },
+    { label: "Suprafata terase", key: "terraceArea" as keyof IAreas },
+    { label: "Suprafata teren", key: "gardenArea" as keyof IAreas },
   ];
 
   return (
@@ -122,7 +122,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
 
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Destinație</InputLabel>
+                <InputLabel>Destinatie</InputLabel>
                 <Select
                   value={data.details.destination}
                   label="Destinație"
@@ -167,7 +167,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                     }
                   />
                 }
-                label="Bucătărie deschisă"
+                label="Bucatarie deschisa"
               />
             </Grid>
 
@@ -209,7 +209,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                     }
                   />
                 }
-                label="Cheia în agenție"
+                label="Cheia în agentie"
               />
             </Grid>
           </Grid>
@@ -219,7 +219,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Suprafațe
+            Suprafete
           </Typography>
 
           <Grid container spacing={2}>
@@ -247,7 +247,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Clădire
+            Cladire
           </Typography>
 
           <Grid container spacing={2}>
@@ -272,7 +272,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
 
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Tip clădire</InputLabel>
+                <InputLabel>Tip cladire</InputLabel>
                 <Select
                   value={data.building.type}
                   label="Tip clădire"
@@ -289,7 +289,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
 
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Structură</InputLabel>
+                <InputLabel>Structura</InputLabel>
                 <Select
                   value={data.building.structure}
                   label="Structură"
@@ -327,7 +327,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
 
             <Grid size={3}>
               <TextField
-                label="Înălțime clădire"
+                label="Inaltime cladire"
                 value={data.building.height}
                 onChange={(e) => handleBuildingChange("height", e.target.value)}
                 fullWidth
@@ -340,16 +340,16 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Performanță energetică
+            Performanta energetica
           </Typography>
 
           <Grid container spacing={2}>
             <Grid size={2}>
               <FormControl fullWidth>
-                <InputLabel>Clasă energetică</InputLabel>
+                <InputLabel>Clasa energetica</InputLabel>
                 <Select
                   value={data.energyPerformance.energyClass}
-                  label="Clasă energetică"
+                  label="Clasa energetica"
                   onChange={(e) =>
                     handleEnergyChange("energyClass", e.target.value)
                   }

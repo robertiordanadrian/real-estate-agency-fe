@@ -28,6 +28,8 @@ import {
 import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
 import { OwnersApi } from "../../features/owners/ownersApi";
 import { IOwner } from "../../common/interfaces/owner.interface";
+import { useAppSelector } from "../../app/hook";
+import { selectUser } from "../../features/auth/authSelectors";
 
 interface GeneralDetailsStepProps {
   data: IGeneralDetails;
@@ -51,15 +53,16 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
     memo: "",
   });
 
+  const user = useAppSelector(selectUser);
+
   const ADD_NEW_OWNER = "__add_new_owner__";
 
-  // TODO: dacă vrei să legi la user ulterior, folosești un agentId real
-  const agentId = "default-agent";
+  const agentId = user?.id;
 
   React.useEffect(() => {
     const fetchOwners = async () => {
       try {
-        const ownersList = await OwnersApi.getAllByAgent(agentId);
+        const ownersList = await OwnersApi.getAllByAgent(agentId || "");
         setOwners(ownersList);
       } catch {
         setOwners([]);
@@ -90,19 +93,19 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
     label: string;
     key: Exclude<keyof IGeneralDetails["location"], "surroundings">;
   }[] = [
-    { label: "Oraș", key: "city" },
-    { label: "Zonă", key: "zone" },
-    { label: "Stradă", key: "street" },
-    { label: "Număr", key: "number" },
+    { label: "Oras", key: "city" },
+    { label: "Zona", key: "zone" },
+    { label: "Strada", key: "street" },
+    { label: "Numar", key: "number" },
     { label: "Bloc", key: "building" },
-    { label: "Scară", key: "stairwell" },
+    { label: "Scara", key: "stairwell" },
     { label: "Apartament", key: "apartment" },
     { label: "Puncte de interes", key: "interesPoints" },
   ];
 
   const handleCreateOwner = async () => {
     const payload = {
-      agentId,
+      agentId: agentId ? agentId : "",
       surname: newOwner.surname.trim(),
       lastname: newOwner.lastname.trim(),
       email: newOwner.email.trim(),
@@ -129,9 +132,7 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
         memo: "",
       });
       setOpenOwnerDialog(false);
-    } catch {
-      // Optional: toast sau mesaj de eroare
-    }
+    } catch {}
   };
 
   return (
@@ -143,7 +144,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
         overflow: "auto",
       }}
     >
-      {/* -------------------- Detalii Generale -------------------- */}
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
@@ -223,7 +223,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
               </FormControl>
             </Grid>
 
-            {/* Proprietar */}
             <Grid size={3}>
               <FormControl fullWidth>
                 <InputLabel>Proprietar</InputLabel>
@@ -248,7 +247,7 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
 
             <Grid size={3}>
               <TextField
-                label="Contracte adiționale"
+                label="Contracte aditionale"
                 value={data.aditionalContactID}
                 onChange={(e) =>
                   onChange({ ...data, aditionalContactID: e.target.value })
@@ -259,7 +258,7 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
 
             <Grid size={3}>
               <TextField
-                label="Complex rezidențial"
+                label="Complex rezidential"
                 value={data.residentialComplex}
                 onChange={(e) =>
                   onChange({ ...data, residentialComplex: e.target.value })
@@ -271,11 +270,10 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* -------------------- Locație -------------------- */}
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
-            Locație
+            Locatie
           </Typography>
 
           <Grid container spacing={2}>
@@ -320,7 +318,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* -------------------- Memo privat -------------------- */}
       <Card>
         <CardContent>
           <Typography variant="subtitle1" mb={2}>
@@ -337,14 +334,13 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
         </CardContent>
       </Card>
 
-      {/* -------------------- Dialog proprietar -------------------- */}
       <Dialog
         open={openOwnerDialog}
         onClose={() => setOpenOwnerDialog(false)}
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle>Adaugă proprietar</DialogTitle>
+        <DialogTitle>Adauga proprietar</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
             <TextField
@@ -412,9 +408,9 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenOwnerDialog(false)}>Anulează</Button>
+          <Button onClick={() => setOpenOwnerDialog(false)}>Anuleaza</Button>
           <Button variant="contained" onClick={handleCreateOwner}>
-            Salvează
+            Salveaza
           </Button>
         </DialogActions>
       </Dialog>

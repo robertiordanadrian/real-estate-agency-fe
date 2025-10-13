@@ -8,8 +8,8 @@ import {
   Grid,
   Button,
 } from "@mui/material";
-import { IDescription } from "../../../common/interfaces/description.interface";
 import { PlayCircle, Tour } from "@mui/icons-material";
+import { IDescription } from "../../common/interfaces/description.interface";
 
 interface DescriptionStepProps {
   data: IDescription;
@@ -87,32 +87,6 @@ export const DescriptionStep: React.FC<DescriptionStepProps> = ({
                 fullWidth
               />
             </Grid>
-
-            {/* Butoane de test pentru linkuri */}
-            {(data.videoYoutubeLink || data.virtualTour) && (
-              <Grid size={12}>
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  {data.videoYoutubeLink && (
-                    <Button
-                      variant="outlined"
-                      startIcon={<PlayCircle />}
-                      onClick={() => handleOpenLink(data.videoYoutubeLink)}
-                    >
-                      Deschide video
-                    </Button>
-                  )}
-                  {data.virtualTour && (
-                    <Button
-                      variant="outlined"
-                      startIcon={<Tour />}
-                      onClick={() => handleOpenLink(data.virtualTour)}
-                    >
-                      Deschide tur virtual
-                    </Button>
-                  )}
-                </Box>
-              </Grid>
-            )}
           </Grid>
         </CardContent>
       </Card>

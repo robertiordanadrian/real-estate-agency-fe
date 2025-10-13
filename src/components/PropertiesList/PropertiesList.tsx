@@ -6,9 +6,9 @@ export const PropertiesList = () => {
   const { data: properties, isLoading, error } = usePropertiesQuery();
 
   if (isLoading) return <CircularProgress />;
-  if (error) return <div>Eroare la încărcarea proprietăților</div>;
+  if (error) return <div>Eroare la incarcarea proprietatilor</div>;
   if (!properties || properties.length === 0)
-    return <div>Nu există proprietăți.</div>;
+    return <div>Nu există proprietati.</div>;
 
   return (
     <Grid container spacing={2}>

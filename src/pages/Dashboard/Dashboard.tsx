@@ -7,7 +7,7 @@ const Dashboard = () => {
         Bine ai venit în Dashboard
       </Typography>
       <Typography variant="body1">
-        Aici poți gestiona proprietățile, proprietarii și datele contului.
+        Aici poți gestiona proprietatile, proprietarii și datele contului.
       </Typography>
     </Box>
   );

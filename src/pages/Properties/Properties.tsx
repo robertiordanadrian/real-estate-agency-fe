@@ -9,7 +9,7 @@ export default function Properties() {
   return (
     <Box sx={{ width: "100%", p: 2 }}>
       <Typography variant="h4" mb={3}>
-        Proprietăți{" "}
+        Proprietati{" "}
         <Button
           variant="contained"
           color="success"

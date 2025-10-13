@@ -7,8 +7,8 @@ import {
   Typography,
 } from "@mui/material";
 import { LocationOn } from "@mui/icons-material";
-import type { IProperty } from "../../../common/interfaces/property.interface";
 import { useNavigate } from "react-router-dom";
+import { IProperty } from "../../common/interfaces/property.interface";
 
 interface PropertyCardProps {
   property: IProperty;

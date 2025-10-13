@@ -12,8 +12,8 @@ import { useDropzone } from "react-dropzone";
 import { Delete, ZoomIn } from "@mui/icons-material";
 
 interface ImagesStepProps {
-  data: string[]; // URLs pentru imagini existente sau preview-uri
-  files: File[]; // fișiere noi pentru upload
+  data: string[];
+  files: File[];
   onChange: (images: string[]) => void;
   onFilesChange: (files: File[]) => void;
 }
@@ -24,7 +24,6 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
   onChange,
   onFilesChange,
 }) => {
-  // -------- Handle file upload --------
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const newPreviews = acceptedFiles.map((file) =>
@@ -46,7 +45,6 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
     maxSize: 10 * 1024 * 1024, // 10 MB
   });
 
-  // -------- Handle removal --------
   const handleRemove = (index: number) => {
     const newData = [...data];
     newData.splice(index, 1);
@@ -58,7 +56,6 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
     onFilesChange(newFiles);
   };
 
-  // -------- Helpers --------
   const isExistingImage = (src: string) =>
     src.startsWith("http") || src.startsWith("/");
 
@@ -68,7 +65,6 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Typography variant="subtitle1">Imagini proprietate</Typography>
 
-      {/* Dropzone */}
       <Paper
         {...getRootProps()}
         sx={{
@@ -89,7 +85,7 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
             : "Trage imaginile aici sau fă click pentru a le selecta"}
         </Typography>
         <Typography variant="body2" color="text.secondary" mt={1}>
-          Acceptă până la 20 imagini, max 10MB fiecare
+          Acepta pana la 20 imagini, max 10MB fiecare
         </Typography>
       </Paper>
 
@@ -101,7 +97,7 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
             color="text.secondary"
             sx={{ p: 2, ml: 2 }}
           >
-            Nicio imagine încărcată.
+            Nu exista imagine incarcata.
           </Typography>
         )}
 
@@ -187,7 +183,6 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
         ))}
       </Grid>
 
-      {/* Rezumat */}
       <Typography variant="body2" color="text.secondary" mt={1}>
         Total imagini: {data.length} ({data.filter(isExistingImage).length}{" "}
         existente, {files.length} noi)
