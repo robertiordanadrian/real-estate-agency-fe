@@ -125,7 +125,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                 <InputLabel>Destinatie</InputLabel>
                 <Select
                   value={data.details.destination}
-                  label="Destinație"
+                  label="Destinatie"
                   onChange={(e) =>
                     handleDetailsChange("destination", e.target.value)
                   }
@@ -209,7 +209,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                     }
                   />
                 }
-                label="Cheia în agentie"
+                label="Cheia in agentie"
               />
             </Grid>
           </Grid>
@@ -253,10 +253,10 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
           <Grid container spacing={2}>
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Stadiu construcție</InputLabel>
+                <InputLabel>Stadiu constructie</InputLabel>
                 <Select
                   value={data.building.constructionStage}
-                  label="Stadiu construcție"
+                  label="Stadiu constructie"
                   onChange={(e) =>
                     handleBuildingChange("constructionStage", e.target.value)
                   }
@@ -275,7 +275,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                 <InputLabel>Tip cladire</InputLabel>
                 <Select
                   value={data.building.type}
-                  label="Tip clădire"
+                  label="Tip cladire"
                   onChange={(e) => handleBuildingChange("type", e.target.value)}
                 >
                   {Object.values(EBuildingType).map((val) => (
@@ -292,7 +292,7 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
                 <InputLabel>Structura</InputLabel>
                 <Select
                   value={data.building.structure}
-                  label="Structură"
+                  label="Structura"
                   onChange={(e) =>
                     handleBuildingChange("structure", e.target.value)
                   }

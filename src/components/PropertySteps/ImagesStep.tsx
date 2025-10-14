@@ -42,7 +42,7 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
       "image/*": [".jpeg", ".jpg", ".png", ".webp"],
     },
     maxFiles: 20,
-    maxSize: 10 * 1024 * 1024, // 10 MB
+  maxSize: 10 * 1024 * 1024,
   });
 
   const handleRemove = (index: number) => {
@@ -81,15 +81,15 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
         <input {...getInputProps()} />
         <Typography variant="body1">
           {isDragActive
-            ? "Eliberează pentru a adăuga imaginile..."
-            : "Trage imaginile aici sau fă click pentru a le selecta"}
+            ? "Elibereaza pentru a adauga imaginile..."
+            : "Trage imaginile aici sau fa click pentru a le selecta"}
         </Typography>
         <Typography variant="body2" color="text.secondary" mt={1}>
           Acepta pana la 20 imagini, max 10MB fiecare
         </Typography>
       </Paper>
 
-      {/* Galerie imagini */}
+
       <Grid container spacing={2}>
         {data.length === 0 && (
           <Typography
@@ -150,7 +150,7 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
                   </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Șterge imaginea">
+                <Tooltip title="Sterge imaginea">
                   <IconButton
                     size="small"
                     sx={{
@@ -167,7 +167,7 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
 
               {isExistingImage(img) && (
                 <Chip
-                  label="Existentă"
+                  label="Existenta"
                   size="small"
                   sx={{
                     position: "absolute",

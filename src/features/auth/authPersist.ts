@@ -17,4 +17,4 @@ export const loadPersistedAuth = () => {
   } catch {}
 };
 
-// în main.tsx: chemi loadPersistedAuth() înainte de mount și abonezi persistAuth() la store.subscribe
+

@@ -23,7 +23,7 @@ function App() {
             <Route path="properties/add" element={<AddProperty />} />
             <Route path="properties/:id" element={<PropertyDetail />} />{" "}
             <Route path="/properties/edit/:id" element={<EditProperty />} />
-            {/* 👈 */}
+
           </Route>
         </Route>
 

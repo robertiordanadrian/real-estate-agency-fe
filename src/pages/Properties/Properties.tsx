@@ -17,7 +17,7 @@ export default function Properties() {
           sx={{ marginLeft: "1rem" }}
           onClick={() => navigate("/properties/add")}
         >
-          Adaugă
+          Adauga
         </Button>
       </Typography>
 

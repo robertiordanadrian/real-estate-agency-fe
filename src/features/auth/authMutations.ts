@@ -7,15 +7,17 @@ type LoginPayload = { email: string; password: string };
 type LoginResponse = {
   access_token: string;
   refresh_token: string;
-  user: { id: string; email: string; name: string };
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    profilePicture?: string;
+  };
 };
 
 type RegisterPayload = { name: string; email: string; password: string };
-type RegisterResponse = {
-  access_token: string;
-  refresh_token: string;
-  user: { id: string; email: string; name: string };
-};
+type RegisterResponse = LoginResponse;
 
 export const useLogin = () => {
   const dispatch = useAppDispatch();
@@ -30,7 +32,10 @@ export const useLogin = () => {
         setCredentials({
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
-          user: data.user,
+          user: {
+            ...data.user,
+            role: data.user.role as "CEO" | "MANAGER" | "AGENT" | undefined,
+          },
         })
       );
     },
@@ -73,7 +78,10 @@ export const useRegister = () => {
         setCredentials({
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
-          user: data.user,
+          user: {
+            ...data.user,
+            role: data.user.role as "CEO" | "MANAGER" | "AGENT" | undefined,
+          }
         })
       );
     },

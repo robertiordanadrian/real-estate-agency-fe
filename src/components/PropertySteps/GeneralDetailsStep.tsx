@@ -1,4 +1,4 @@
-// app/components/Properties/AddPropertySteps/GeneralDetailsStep.tsx
+
 import React from "react";
 import {
   Box,
@@ -181,10 +181,10 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
 
             <Grid size={3}>
               <FormControl fullWidth>
-                <InputLabel>Tip tranzacție</InputLabel>
+                <InputLabel>Tip tranzactie</InputLabel>
                 <Select
                   value={data.transactionType}
-                  label="Tip tranzacție"
+                  label="Tip tranzactie"
                   onChange={(e) =>
                     onChange({
                       ...data,
@@ -240,7 +240,7 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
                       {o.surname} {o.lastname}
                     </MenuItem>
                   ))}
-                  <MenuItem value={ADD_NEW_OWNER}>+ Adaugă proprietar</MenuItem>
+                  <MenuItem value={ADD_NEW_OWNER}>+ Adauga proprietar</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -377,7 +377,7 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
               }
             />
             <TextField
-              label="Tag-uri (separate prin virgulă)"
+              label="Tag-uri (separate prin virgula)"
               fullWidth
               value={newOwner.tags}
               onChange={(e) =>

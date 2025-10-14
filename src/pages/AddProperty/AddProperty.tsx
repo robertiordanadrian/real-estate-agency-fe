@@ -176,7 +176,7 @@ const defaultPrice: IPrice = {
     contractNumber: "",
     signDate: new Date(),
     expirationDate: new Date(),
-    contractFile: null, // 🔹 implicit null
+  contractFile: null,
   },
 };
 
@@ -203,7 +203,7 @@ export const AddProperty: React.FC = () => {
   });
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [contractFile, setContractFile] = useState<File | null>(null); // 🔹 nou
+  const [contractFile, setContractFile] = useState<File | null>(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -381,7 +381,7 @@ export const AddProperty: React.FC = () => {
             disabled={isSubmitting}
             size="large"
           >
-            {isSubmitting ? "Se trimite..." : "Finalizează"}
+            {isSubmitting ? "Se trimite..." : "Finaleaza"}
           </Button>
         ) : (
           <Button variant="contained" color="primary" onClick={handleNext}>

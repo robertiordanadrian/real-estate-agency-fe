@@ -121,7 +121,7 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
             </Grid>
             <Grid size={4}>
               {renderMultiSelect(
-                "Aer condiționat",
+                "Aer conditionat",
                 Object.values(EAirConditioning),
                 data.airConditioning,
                 (v) => handleChangeArray("airConditioning", v)
@@ -231,7 +231,7 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
 
             <Grid size={4}>
               {renderMultiSelect(
-                "Spații adiționale",
+                "Spatii aditionale",
                 Object.values(EAdditionalSpaces),
                 data.equipment.additionalSpaces,
                 (v) => handleNestedChange("equipment", "additionalSpaces", v)

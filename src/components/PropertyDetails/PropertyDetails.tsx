@@ -29,11 +29,15 @@ import {
   ZoomIn,
   Edit,
   Download,
+  Phone,
+  Email,
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { EStatus, EType } from "../../common/enums/general-details.enums";
 import { usePropertyQuery } from "../../features/properties/propertiesQueries";
 import { useOwnerByIdQuery } from "../../features/owners/ownersQueries";
+import { useAppSelector } from "../../app/hook";
+import { selectUser } from "../../features/auth/authSelectors";
 
 const ImageModal = ({
   open,
@@ -162,6 +166,7 @@ export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const user = useAppSelector(selectUser);
 
   const { data: property, isLoading, isError } = usePropertyQuery(id!);
   const ownerId = property?.generalDetails?.ownerID;
@@ -170,13 +175,13 @@ export default function PropertyDetail() {
   if (isLoading)
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
-        <Typography variant="h6">Se încarcă...</Typography>
+  <Typography variant="h6">Se incarca...</Typography>
       </Box>
     );
   if (isError || !property)
     return (
       <Container>
-        <Typography variant="h4">Proprietate negăsită</Typography>
+  <Typography variant="h4">Proprietate negasita</Typography>
       </Container>
     );
 
@@ -341,7 +346,11 @@ export default function PropertyDetail() {
                     value={generalDetails.agent || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
 
@@ -351,7 +360,11 @@ export default function PropertyDetail() {
                     value={generalDetails.status || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
 
@@ -361,7 +374,11 @@ export default function PropertyDetail() {
                     value={generalDetails.transactionType || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
 
@@ -371,7 +388,11 @@ export default function PropertyDetail() {
                     value={generalDetails.category || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
 
@@ -381,7 +402,11 @@ export default function PropertyDetail() {
                     value={generalDetails.ownerID || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
 
@@ -391,7 +416,11 @@ export default function PropertyDetail() {
                     value={generalDetails.residentialComplex || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -411,7 +440,11 @@ export default function PropertyDetail() {
                         value={value || "N/A"}
                         fullWidth
                         size="small"
-                        InputProps={{ readOnly: true }}
+                        slotProps={{
+                          input: {
+                            readOnly: true,
+                          },
+                        }}
                       />
                     </Grid>
                   ))}
@@ -432,7 +465,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.type || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -443,7 +480,11 @@ export default function PropertyDetail() {
                     }
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -452,7 +493,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.destination || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -461,7 +506,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.comfort || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -470,7 +519,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.rooms || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -479,7 +532,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.bedrooms || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -488,7 +545,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.bathrooms || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -497,7 +558,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.kitchens || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -506,7 +571,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.balconies || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -515,7 +584,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.terraces || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -524,7 +597,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.floor || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -533,7 +610,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.yearOfConstruction || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -542,7 +623,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.yearOfRenovation || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -551,7 +636,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.parkingLots || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -560,7 +649,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.garages || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -569,7 +662,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.bathroomWindow ? "Da" : "Nu"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -578,7 +675,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.openKitchen ? "Da" : "Nu"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -587,7 +688,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.petFriendly ? "Da" : "Nu"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -596,7 +701,11 @@ export default function PropertyDetail() {
                     value={characteristics.details.keyInAgency ? "Da" : "Nu"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
 
@@ -612,11 +721,13 @@ export default function PropertyDetail() {
                     value={characteristics.areas.usableArea || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">m²</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">m²</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -626,11 +737,13 @@ export default function PropertyDetail() {
                     value={characteristics.areas.builtupArea || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">m²</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">m²</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -640,11 +753,13 @@ export default function PropertyDetail() {
                     value={characteristics.areas.totalUsableArea || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">m²</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">m²</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -654,11 +769,13 @@ export default function PropertyDetail() {
                     value={characteristics.areas.balconyArea || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">m²</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">m²</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -668,11 +785,13 @@ export default function PropertyDetail() {
                     value={characteristics.areas.terraceArea || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">m²</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">m²</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -682,11 +801,13 @@ export default function PropertyDetail() {
                     value={characteristics.areas.gardenArea || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">m²</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">m²</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -703,7 +824,11 @@ export default function PropertyDetail() {
                     value={characteristics.building.constructionStage || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -712,7 +837,11 @@ export default function PropertyDetail() {
                     value={characteristics.building.type || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -721,7 +850,11 @@ export default function PropertyDetail() {
                     value={characteristics.building.structure || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -730,7 +863,11 @@ export default function PropertyDetail() {
                     value={characteristics.building.seismicRisk || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -739,7 +876,11 @@ export default function PropertyDetail() {
                     value={characteristics.building.height || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
 
@@ -757,7 +898,11 @@ export default function PropertyDetail() {
                     }
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -769,11 +914,15 @@ export default function PropertyDetail() {
                     }
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">kWh/m²an</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            kWh/m²an
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -786,13 +935,15 @@ export default function PropertyDetail() {
                     }
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          kgCO₂/m²an
-                        </InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            kgCO₂/m²an
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -805,11 +956,15 @@ export default function PropertyDetail() {
                     }
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">kWh/m²an</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            kWh/m²an
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -842,11 +997,13 @@ export default function PropertyDetail() {
                     value={price.priceDetails.price || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">€</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">€</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -856,7 +1013,11 @@ export default function PropertyDetail() {
                     value={price.priceDetails.currency || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -865,11 +1026,13 @@ export default function PropertyDetail() {
                     value={price.priceDetails.pricePerMp || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">€/mp</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">€/mp</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -879,7 +1042,11 @@ export default function PropertyDetail() {
                     value={price.priceDetails.paymentMethod || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -888,11 +1055,13 @@ export default function PropertyDetail() {
                     value={price.priceDetails.lastPrice || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">€</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">€</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -902,11 +1071,13 @@ export default function PropertyDetail() {
                     value={price.priceDetails.garagePrice || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">€</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">€</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -916,11 +1087,13 @@ export default function PropertyDetail() {
                     value={price.priceDetails.parkingPrice || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">€</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">€</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -930,7 +1103,11 @@ export default function PropertyDetail() {
                     value={price.priceDetails.privateNotePrice || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -939,7 +1116,11 @@ export default function PropertyDetail() {
                     value={price.priceDetails.tva ? "Da" : "Nu"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -948,7 +1129,11 @@ export default function PropertyDetail() {
                     value={price.priceDetails.negociablePrice ? "Da" : "Nu"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -957,20 +1142,27 @@ export default function PropertyDetail() {
                     value={price.priceDetails.requestPrice ? "Da" : "Nu"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
                   <TextField
-                    label="Afisează €/mp"
+                    label="Afiseaza €/mp"
                     value={price.priceDetails.showPricePerMp ? "Da" : "Nu"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
 
-                {/* --- Comisioane --- */}
                 <Grid size={{ xs: 12 }}>
                   <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                     Comisioane
@@ -982,11 +1174,13 @@ export default function PropertyDetail() {
                     value={price.commissions.buyerCommissionValue || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">%</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">%</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -996,7 +1190,11 @@ export default function PropertyDetail() {
                     value={price.commissions.buyerCommission || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -1005,11 +1203,13 @@ export default function PropertyDetail() {
                     value={price.commissions.ownerCommissionValue || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{
-                      readOnly: true,
-                      endAdornment: (
-                        <InputAdornment position="end">%</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                        endAdornment: (
+                          <InputAdornment position="end">%</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -1019,11 +1219,14 @@ export default function PropertyDetail() {
                     value={price.commissions.ownerCommissionValue || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
 
-                {/* --- Contract --- */}
                 <Grid size={{ xs: 12 }}>
                   <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                     Detalii Contract
@@ -1035,7 +1238,11 @@ export default function PropertyDetail() {
                     value={price.contact.type || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -1044,7 +1251,11 @@ export default function PropertyDetail() {
                     value={price.contact.signedContract || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -1053,7 +1264,11 @@ export default function PropertyDetail() {
                     value={price.contact.contractNumber || "N/A"}
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -1068,7 +1283,11 @@ export default function PropertyDetail() {
                     }
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -1083,7 +1302,11 @@ export default function PropertyDetail() {
                     }
                     fullWidth
                     size="small"
-                    InputProps={{ readOnly: true }}
+                    slotProps={{
+                      input: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </Grid>
                 <Grid size={{ xs: 6, md: 4 }}>
@@ -1108,7 +1331,7 @@ export default function PropertyDetail() {
                         "&:hover": { borderColor: "rgba(255, 255, 255)" },
                       }}
                     >
-                      Descarcă contract
+                      Descarca contract
                     </Button>
                   ) : (
                     <TextField
@@ -1116,7 +1339,11 @@ export default function PropertyDetail() {
                       value="N/A"
                       fullWidth
                       size="small"
-                      InputProps={{ readOnly: true }}
+                      slotProps={{
+                        input: {
+                          readOnly: true,
+                        },
+                      }}
                     />
                   )}
                 </Grid>
@@ -1128,7 +1355,11 @@ export default function PropertyDetail() {
                   label="Titlu"
                   value={description?.title || "N/A"}
                   fullWidth
-                  InputProps={{ readOnly: true }}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
                 />
                 <TextField
                   label="Descriere"
@@ -1136,25 +1367,41 @@ export default function PropertyDetail() {
                   fullWidth
                   multiline
                   rows={4}
-                  InputProps={{ readOnly: true }}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
                 />
                 <TextField
                   label="Disponibilitate"
                   value={description?.disponibility || "N/A"}
                   fullWidth
-                  InputProps={{ readOnly: true }}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
                 />
                 <TextField
                   label="Link video YouTube"
                   value={description?.videoYoutubeLink || "N/A"}
                   fullWidth
-                  InputProps={{ readOnly: true }}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
                 />
                 <TextField
                   label="Link tur virtual"
                   value={description?.virtualTour || "N/A"}
                   fullWidth
-                  InputProps={{ readOnly: true }}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
                 />
               </Stack>
             </DetailSection>
@@ -1164,45 +1411,145 @@ export default function PropertyDetail() {
         <Grid size={{ xs: 12, lg: 4 }}>
           <Stack spacing={3}>
             <DetailSection title="Agent" icon={<Person />}>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar sx={{ width: 56, height: 56 }}>
-                  {generalDetails.agent?.charAt(0) || "A"}
+              <Stack
+                direction="column"
+                alignItems="center"
+                justifyContent="center"
+                spacing={1.5}
+                sx={{
+                  textAlign: "center",
+                  p: 2,
+                  borderRadius: 2,
+                  background: "linear-gradient(135deg, #1e293b, #0f172a)",
+                }}
+              >
+                <Avatar
+                  src={user?.profilePicture || undefined}
+                  sx={{
+                    width: 90,
+                    height: 90,
+                    border: "2px solid #38bdf8",
+                    bgcolor: "#1e293b",
+                    boxShadow: "0 0 12px rgba(56,189,248,0.5)",
+                  }}
+                >
+                  {!user?.profilePicture && (user?.name?.charAt(0) ?? "A")}
                 </Avatar>
-                <Box>
-                  <Typography variant="body1" fontWeight="bold">
-                    {generalDetails.agent || "Neatribuit"}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Agent imobiliar
-                  </Typography>
-                </Box>
+
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#e2e8f0", fontWeight: 600 }}
+                >
+                  {user?.name ?? "Neatribuit"}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "#38bdf8",
+                    fontWeight: 500,
+                    letterSpacing: "0.5px",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {user?.role ?? "Agent imobiliar"}
+                </Typography>
               </Stack>
             </DetailSection>
 
             <DetailSection title="Proprietar" icon={<Person />}>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar sx={{ width: 56, height: 56 }}>
-                  {owner?.surname?.charAt(0) || "P"}
-                </Avatar>
-                <Box>
-                  <Typography variant="body1" fontWeight="bold">
-                    {owner
-                      ? `${owner.surname ?? ""} ${
-                          owner.lastname ?? ""
-                        }`.trim() || "Nespecificat"
-                      : "Nespecificat"}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Proprietar
-                  </Typography>
-                </Box>
-              </Stack>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  background: "linear-gradient(135deg, #1e293b, #0f172a)",
+                  textAlign: "left",
+                  color: "#e2e8f0",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                    color: "#e2e8f0",
+                    mb: 2,
+                  }}
+                >
+                  {owner
+                    ? `${owner.surname ?? ""} ${owner.lastname ?? ""}`.trim() ||
+                      "Nespecificat"
+                    : "Nespecificat"}
+                </Typography>
+
+                <Stack spacing={2}>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Phone sx={{ color: "#38bdf8", fontSize: 20 }} />
+                    {owner?.phone ? (
+                      <Typography
+                        variant="body2"
+                        component="a"
+                        href={`tel:${owner.phone}`}
+                        sx={{
+                          color: "text.secondary",
+                          textDecoration: "none",
+                          transition: "color 0.2s ease",
+                          "&:hover": {
+                            color: "#38bdf8",
+                            textDecoration: "underline",
+                          },
+                        }}
+                      >
+                        {owner.phone}
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        Telefon nespecificat
+                      </Typography>
+                    )}
+                  </Stack>
+
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Email sx={{ color: "#38bdf8", fontSize: 20 }} />
+                    {owner?.email ? (
+                      <Typography
+                        variant="body2"
+                        component="a"
+                        href={`mailto:${owner.email}`}
+                        sx={{
+                          color: "text.secondary",
+                          textDecoration: "none",
+                          transition: "color 0.2s ease",
+                          "&:hover": {
+                            color: "#38bdf8",
+                            textDecoration: "underline",
+                          },
+                        }}
+                      >
+                        {owner.email}
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary">
+                        Email nespecificat
+                      </Typography>
+                    )}
+                  </Stack>
+                </Stack>
+              </Box>
             </DetailSection>
 
             <Button
               variant="contained"
               startIcon={<Edit />}
               onClick={() => navigate(`/properties/edit/${id}`)}
+              sx={{
+                textTransform: "none",
+                fontWeight: 500,
+                letterSpacing: 0.3,
+                background: "linear-gradient(90deg, #38bdf8, #0ea5e9)",
+                "&:hover": {
+                  background: "linear-gradient(90deg, #0ea5e9, #0284c7)",
+                },
+              }}
             >
               Editeaza proprietatea
             </Button>

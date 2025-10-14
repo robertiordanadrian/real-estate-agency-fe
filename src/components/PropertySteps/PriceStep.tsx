@@ -375,7 +375,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
             <Grid size={3}>
               <TextField
-                label="Număr contract"
+                label="Numar contract"
                 value={data.contact.contractNumber}
                 onChange={(e) =>
                   handleContactChange("contractNumber", e.target.value)
@@ -400,6 +400,12 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                 }
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                sx={{
+                  "& input[type='date']::-webkit-calendar-picker-indicator": {
+                    filter: "invert(1)",
+                    cursor: "pointer",
+                  },
+                }}
               />
             </Grid>
 
@@ -422,6 +428,12 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                 }
                 fullWidth
                 InputLabelProps={{ shrink: true }}
+                sx={{
+                  "& input[type='date']::-webkit-calendar-picker-indicator": {
+                    filter: "invert(1)",
+                    cursor: "pointer",
+                  },
+                }}
               />
             </Grid>
 
@@ -449,16 +461,31 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                     letterSpacing: "0.00938em",
                     padding: "0 14px",
                     border: "1px solid #90caf9",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
                     "&:hover": {
                       borderColor: "rgb(255, 255, 255)",
                       backgroundColor: "rgba(25,118,210,0.04)",
                     },
                   }}
                 >
-                  {selectedContractName ||
-                    (data.contact.contractFile instanceof File
-                      ? data.contact.contractFile.name
-                      : data.contact.contractFile || "Încarcă fișier contract")}
+                  <Box
+                    sx={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      flex: 1,
+                      display: "block",
+                    }}
+                  >
+                    {selectedContractName ||
+                      (data.contact.contractFile instanceof File
+                        ? data.contact.contractFile.name
+                        : data.contact.contractFile ||
+                          "Incarca fisier contract")}
+                  </Box>
+
                   <input
                     type="file"
                     hidden

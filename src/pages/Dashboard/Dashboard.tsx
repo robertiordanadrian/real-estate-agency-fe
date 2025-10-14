@@ -4,10 +4,10 @@ const Dashboard = () => {
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h4" mb={2}>
-        Bine ai venit în Dashboard
+  Bine ai venit in Dashboard
       </Typography>
       <Typography variant="body1">
-        Aici poți gestiona proprietatile, proprietarii și datele contului.
+  Aici poti gestiona proprietatile, proprietarii si datele contului.
       </Typography>
     </Box>
   );

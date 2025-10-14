@@ -8,17 +8,28 @@ import {
   Typography,
   CircularProgress,
   Link as MuiLink,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import { useRegister } from "../../features/auth/authMutations";
+import { useUploadProfilePicture } from "../../features/users/usersQueries";
+
+const ROLES = ["CEO", "MANAGER", "AGENT"];
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { mutateAsync, isPending } = useRegister();
+  const { mutateAsync: register, isPending: isRegistering } = useRegister();
+  const { mutateAsync: uploadAvatar, isPending: isUploading } =
+    useUploadProfilePicture();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("AGENT");
+  const [profileImage, setProfileImage] = useState<File | null>(null);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,7 +37,11 @@ const RegisterPage = () => {
     setError("");
 
     try {
-      await mutateAsync({ name, email, password });
+      await register({ name, email, password, role } as any);
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      if (profileImage) {
+        await uploadAvatar(profileImage);
+      }
       navigate("/dashboard");
     } catch (err: any) {
       const message =
@@ -80,6 +95,37 @@ const RegisterPage = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
 
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="role-select-label">Rol</InputLabel>
+              <Select
+                labelId="role-select-label"
+                value={role}
+                label="Rol"
+                onChange={(e) => setRole(e.target.value)}
+              >
+                {ROLES.map((r) => (
+                  <MenuItem key={r} value={r}>
+                    {r}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Button
+              variant="outlined"
+              component="label"
+              fullWidth
+              sx={{ mt: 2 }}
+            >
+              {profileImage ? "Imagine selectata" : "Incarca imagine profil"}
+              <input
+                type="file"
+                hidden
+                accept="image/*"
+                onChange={(e) => setProfileImage(e.target.files?.[0] ?? null)}
+              />
+            </Button>
+
             {error && (
               <Typography color="error" variant="body2" sx={{ mt: 1 }}>
                 {error}
@@ -92,14 +138,18 @@ const RegisterPage = () => {
               color="primary"
               fullWidth
               sx={{ mt: 3 }}
-              disabled={isPending}
+              disabled={isRegistering || isUploading}
             >
-              {isPending ? <CircularProgress size={24} /> : "Inregistreaza-te"}
+              {isRegistering || isUploading ? (
+                <CircularProgress size={24} />
+              ) : (
+                "Inregistreaza-te"
+              )}
             </Button>
 
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <Typography variant="body2">
-                Nu ai un cont?{" "}
+                Ai deja un cont?{" "}
                 <MuiLink
                   component={Link}
                   to="/login"

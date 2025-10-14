@@ -4,6 +4,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  role?: "CEO" | "MANAGER" | "AGENT";
+  profilePicture?: string;
 }
 
 export interface AuthState {

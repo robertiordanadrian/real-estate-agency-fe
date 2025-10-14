@@ -40,14 +40,14 @@ export const EditProperty: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: propertyFromQuery } = usePropertyQuery(id ?? "");
-  const { refetch } = usePropertiesQuery(); // pentru reîncărcare la final
+  const { refetch } = usePropertiesQuery();
 
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState<IProperty | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [contractFile, setContractFile] = useState<File | null>(null); // 🔹 nou
+  const [contractFile, setContractFile] = useState<File | null>(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -291,7 +291,7 @@ export const EditProperty: React.FC = () => {
             disabled={isSubmitting}
             size="large"
           >
-            {isSubmitting ? "Se actualizează..." : "Actualizează proprietatea"}
+            {isSubmitting ? "Se actualizeaza..." : "Actualizeaza proprietatea"}
           </Button>
         ) : (
           <Button variant="contained" color="primary" onClick={handleNext}>
