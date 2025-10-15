@@ -3,7 +3,7 @@ import { store } from "../app/store";
 import { logout, setCredentials } from "../features/auth/authSlice";
 import { selectAuth, selectAccessToken } from "../features/auth/authSelectors";
 
-const baseURL = "http://localhost:3000";
+const baseURL = import.meta.env.VITE_API_URL;
 
 export const http: AxiosInstance = axios.create({
   baseURL,
