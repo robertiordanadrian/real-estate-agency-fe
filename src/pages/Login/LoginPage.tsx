@@ -26,7 +26,10 @@ const LoginPage = () => {
 
     try {
       await mutateAsync({ email, password });
-      navigate("/");
+
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 100);
     } catch (err: any) {
       const message =
         err?.response?.data?.message ||

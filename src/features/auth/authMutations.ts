@@ -33,8 +33,11 @@ export const useLogin = () => {
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
           user: {
-            ...data.user,
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
             role: data.user.role as "CEO" | "MANAGER" | "AGENT" | undefined,
+            profilePicture: data.user.profilePicture,
           },
         })
       );
@@ -81,7 +84,7 @@ export const useRegister = () => {
           user: {
             ...data.user,
             role: data.user.role as "CEO" | "MANAGER" | "AGENT" | undefined,
-          }
+          },
         })
       );
     },
