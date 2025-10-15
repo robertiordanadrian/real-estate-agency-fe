@@ -1,6 +1,22 @@
 import { http } from "../../services/http";
 
 export const UsersApi = {
+  getMe: async () => {
+    const { data } = await http.get("/users/me");
+    return data;
+  },
+
+  updateMe: async (payload: {
+    name?: string;
+    email?: string;
+    role?: string;
+    password?: string;
+    confirmPassword?: string;
+  }) => {
+    const { data } = await http.patch("/users/me", payload);
+    return data;
+  },
+
   uploadProfilePicture: async (file: File) => {
     const formData = new FormData();
     formData.append("avatar", file);
@@ -25,11 +41,6 @@ export const UsersApi = {
 
   updateRole: async (userId: string, role: "CEO" | "MANAGER" | "AGENT") => {
     const { data } = await http.patch(`/users/${userId}/role`, { role });
-    return data;
-  },
-
-  getMe: async () => {
-    const { data } = await http.get("/auth/me");
     return data;
   },
 };

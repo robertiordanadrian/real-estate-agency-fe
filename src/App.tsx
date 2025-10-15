@@ -8,6 +8,7 @@ import { ProtectedRoute } from "./features/auth/ProtectedRoute";
 import { AddProperty } from "./pages/AddProperty/AddProperty";
 import { EditProperty } from "./pages/EditProperty/EditProperty";
 import PropertyDetail from "./components/PropertyDetails/PropertyDetails";
+import Settings from "./pages/Settings/Settings";
 
 function App() {
   return (
@@ -19,11 +20,11 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="properties/add" element={<AddProperty />} />
-            <Route path="properties/:id" element={<PropertyDetail />} />{" "}
+            <Route path="properties/:id" element={<PropertyDetail />} />
             <Route path="/properties/edit/:id" element={<EditProperty />} />
-
           </Route>
         </Route>
 

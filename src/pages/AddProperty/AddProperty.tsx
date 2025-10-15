@@ -8,6 +8,9 @@ import {
   Typography,
   Snackbar,
   Alert,
+  Container,
+  Paper,
+  Divider,
 } from "@mui/material";
 import { GeneralDetailsStep } from "../../components/PropertySteps/GeneralDetailsStep";
 import { CharacteristicsStep } from "../../components/PropertySteps/CharacteristicsStep";
@@ -176,7 +179,7 @@ const defaultPrice: IPrice = {
     contractNumber: "",
     signDate: new Date(),
     expirationDate: new Date(),
-  contractFile: null,
+    contractFile: null,
   },
 };
 
@@ -350,45 +353,121 @@ export const AddProperty: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", p: 2 }}>
-      <Typography variant="h4" mb={3}>
-        Adauga o proprietate
-      </Typography>
-
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-
-      <Box sx={{ mt: 4 }}>{renderStep()}</Box>
-
-      <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
-        <Button
-          disabled={activeStep === 0}
-          onClick={handleBack}
-          variant="outlined"
+    <Box
+      sx={{
+        width: "100%",
+        minHeight: "calc(100vh - 32px)",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        py: 1,
+      }}
+    >
+      <Container
+        maxWidth="xl"
+        disableGutters
+        sx={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            flex: 1,
+            p: 4,
+            borderRadius: 3,
+            background: "linear-gradient(135deg, #1e293b, #0f172a)",
+            color: "#e2e8f0",
+            width: "100%",
+            height: "100%",
+            boxShadow: "0 0 25px rgba(56,189,248,0.15)",
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
-          Inapoi
-        </Button>
-        {activeStep === steps.length - 1 ? (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            size="large"
+          <Typography
+            variant="h5"
+            mb={3}
+            fontWeight={600}
           >
-            {isSubmitting ? "Se trimite..." : "Finaleaza"}
-          </Button>
-        ) : (
-          <Button variant="contained" color="primary" onClick={handleNext}>
-            Urmatorul pas
-          </Button>
-        )}
-      </Box>
+            Adauga o proprietate
+          </Typography>
+
+          <Divider sx={{ mb: 3, borderColor: "rgba(255,255,255,0.1)" }} />
+
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+
+          <Box sx={{ mt: 4, flex: 1, overflowY: "auto" }}>{renderStep()}</Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              mt: 3,
+              pt: 2,
+              borderTop: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <Button
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              variant="outlined"
+              sx={{
+                color: "#38bdf8",
+                borderColor: "#38bdf8",
+                "&:hover": {
+                  borderColor: "#0ea5e9",
+                  background: "rgba(14,165,233,0.1)",
+                },
+              }}
+            >
+              Inapoi
+            </Button>
+
+            {activeStep === steps.length - 1 ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                size="large"
+                sx={{
+                  fontWeight: 600,
+                  backgroundColor: "#0ea5e9",
+                  color: "#ffffff",
+                  "&:hover": { backgroundColor: "#0284c7" },
+                }}
+              >
+                {isSubmitting ? "Se trimite..." : "Trimite"}
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+                size="large"
+                sx={{
+                  fontWeight: 600,
+                  backgroundColor: "#0ea5e9",
+                  color: "#ffffff",
+                  "&:hover": { backgroundColor: "#0284c7" },
+                }}
+              >
+                Urmatorul pas
+              </Button>
+            )}
+          </Box>
+        </Paper>
+      </Container>
 
       <Snackbar
         open={snackbar.open}

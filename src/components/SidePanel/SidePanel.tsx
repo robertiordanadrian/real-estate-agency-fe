@@ -18,17 +18,20 @@ import {
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
-import { selectUser } from "../../features/auth/authSelectors";
 import { useLogout } from "../../features/auth/authMutations";
-import { useAppSelector } from "../../app/hook";
+import { useUserQuery } from "../../features/users/usersQueries";
 
 export const SidePanel = () => {
-  const user = useAppSelector(selectUser);
+  const { data: user } = useUserQuery();
   const { mutate: logout, isPending } = useLogout();
   const location = useLocation();
 
-  const isActive = (path: string) => location.pathname.startsWith(path);
-
+  const isActive = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
   return (
     <Box
       sx={{
@@ -57,7 +60,7 @@ export const SidePanel = () => {
         >
           <Box sx={{ position: "relative" }}>
             <Avatar
-              src={user?.profilePicture || undefined}
+              src={user?.profilePicture}
               sx={{
                 width: 56,
                 height: 56,
@@ -65,7 +68,7 @@ export const SidePanel = () => {
                 bgcolor: blue[400],
               }}
             >
-              {!user?.profilePicture && (user?.name?.[0] ?? "?")}
+              <Typography>{user?.name ?? "User"}</Typography>
             </Avatar>
             <Box
               sx={{
@@ -101,7 +104,7 @@ export const SidePanel = () => {
 
         <List>
           {[
-            { icon: <Dashboard />, label: "Dashboard", path: "/dashboard" },
+            { icon: <Dashboard />, label: "Dashboard", path: "/" },
             {
               icon: <RealEstateAgent />,
               label: "Proprietati",

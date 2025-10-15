@@ -1,25 +1,33 @@
-import { useMutation } from "@tanstack/react-query";
-import { useAppDispatch, useAppSelector } from "../../app/hook";
-import { selectAuth } from "../auth/authSelectors";
-import { setCredentials } from "../auth/authSlice";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { UsersApi } from "./usersApi";
 
-export const useUploadProfilePicture = () => {
-  const dispatch = useAppDispatch();
-  const auth = useAppSelector(selectAuth);
+export const usersKeys = {
+  me: ["me"] as const,
+};
 
+export const useUserQuery = () =>
+  useQuery({
+    queryKey: usersKeys.me,
+    queryFn: UsersApi.getMe,
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const useUpdateUser = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: UsersApi.updateMe,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: usersKeys.me });
+    },
+  });
+};
+
+export const useUploadProfilePicture = () => {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: UsersApi.uploadProfilePicture,
-    onSuccess: (data) => {
-      if (auth.user && auth.accessToken && auth.refreshToken) {
-        dispatch(
-          setCredentials({
-            user: { ...auth.user, profilePicture: data.profilePicture },
-            accessToken: auth.accessToken,
-            refreshToken: auth.refreshToken,
-          })
-        );
-      }
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: usersKeys.me });
     },
   });
 };
