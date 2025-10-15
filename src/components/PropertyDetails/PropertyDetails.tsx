@@ -38,6 +38,8 @@ import { usePropertyQuery } from "../../features/properties/propertiesQueries";
 import { useOwnerByIdQuery } from "../../features/owners/ownersQueries";
 import { useAppSelector } from "../../app/hook";
 import { selectUser } from "../../features/auth/authSelectors";
+import PropertyMap from "../PropertyMap/PropertyMap";
+import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const ImageModal = ({
   open,
@@ -1626,6 +1628,15 @@ export default function PropertyDetail() {
                       </Stack>
                     </Stack>
                   </Box>
+                </DetailSection>
+
+                <DetailSection title="Harta" icon={<LocationOn />}>
+                  <PropertyMap
+                    address={`${generalDetails.location.street ?? ""} ${
+                      generalDetails.location.number ?? ""
+                    }, ${generalDetails.location.city ?? ""}`}
+                    apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+                  />
                 </DetailSection>
 
                 <Button
