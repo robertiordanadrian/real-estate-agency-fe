@@ -26,3 +26,18 @@ export const useCreateOwner = () =>
     mutationFn: (payload: Omit<IOwner, "_id" | "createdAt" | "updatedAt">) =>
       OwnersApi.create(payload),
   });
+
+export const useOwnersBatchQuery = (ownerIds: string[]) =>
+  useQuery({
+    queryKey: ["owners", "batch", ownerIds],
+    queryFn: async () => {
+      const unique = [...new Set(ownerIds.filter(Boolean))];
+      const results = await Promise.all(
+        unique.map((id) => OwnersApi.getById(id))
+      );
+      const map: Record<string, IOwner> = {};
+      results.forEach((o) => (map[o._id] = o));
+      return map;
+    },
+    enabled: ownerIds.length > 0,
+  });

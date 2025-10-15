@@ -45,6 +45,8 @@ export default function Properties() {
             width: "100%",
             minHeight: "80vh",
             boxShadow: "0 0 25px rgba(56,189,248,0.15)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <Box
@@ -55,6 +57,7 @@ export default function Properties() {
               mb: 3,
               flexWrap: "wrap",
               gap: 2,
+              flexShrink: 0,
             }}
           >
             <Typography variant="h5" fontWeight={600}>
@@ -77,9 +80,18 @@ export default function Properties() {
             </Button>
           </Box>
 
-          <Divider sx={{ mb: 3, borderColor: "rgba(255,255,255,0.1)" }} />
+          <Divider
+            sx={{ mb: 3, borderColor: "rgba(255,255,255,0.1)", flexShrink: 0 }}
+          />
 
-          <Box sx={{ mt: 3 }}>
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <PropertiesList />
           </Box>
         </Paper>
