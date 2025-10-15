@@ -9,13 +9,13 @@ import { AddProperty } from "./pages/AddProperty/AddProperty";
 import { EditProperty } from "./pages/EditProperty/EditProperty";
 import PropertyDetail from "./components/PropertyDetails/PropertyDetails";
 import Settings from "./pages/Settings/Settings";
+import { CEOProtectedRoute } from "./features/auth/CEOProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
@@ -26,6 +26,10 @@ function App() {
             <Route path="properties/:id" element={<PropertyDetail />} />
             <Route path="/properties/edit/:id" element={<EditProperty />} />
           </Route>
+        </Route>
+
+        <Route element={<CEOProtectedRoute />}>
+          <Route path="/register" element={<RegisterPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

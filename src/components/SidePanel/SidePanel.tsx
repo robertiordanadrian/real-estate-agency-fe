@@ -8,13 +8,16 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  Card,
+  CardContent,
 } from "@mui/material";
-import { blue, grey } from "@mui/material/colors";
+import { blue, grey, green, orange } from "@mui/material/colors";
 import {
   Logout,
   RealEstateAgent,
   Dashboard,
   Settings,
+  PersonAdd,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
@@ -32,6 +35,33 @@ export const SidePanel = () => {
     }
     return location.pathname.startsWith(path);
   };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case "CEO":
+        return blue[500];
+      case "MANAGER":
+        return orange[500];
+      case "AGENT":
+        return green[500];
+      default:
+        return green[500];
+    }
+  };
+
+  const getRoleDisplayText = (role: string) => {
+    switch (role) {
+      case "CEO":
+        return "Chief Executive Officer";
+      case "MANAGER":
+        return "Property Manager";
+      case "AGENT":
+        return "Real Estate Agent";
+      default:
+        return "User";
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -47,60 +77,135 @@ export const SidePanel = () => {
       }}
     >
       <Box>
-        <Box
+        <Card
           sx={{
-            display: "flex",
-            alignItems: "center",
             mb: 5,
-            p: 2,
             borderRadius: 3,
-            backgroundColor: "rgba(255,255,255,0.05)",
-            backdropFilter: "blur(8px)",
+            background: "rgba(255, 255, 255, 0.05)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+            overflow: "visible",
+            position: "relative",
           }}
         >
-          <Box sx={{ position: "relative" }}>
-            <Avatar
-              src={user?.profilePicture}
-              sx={{
-                width: 56,
-                height: 56,
-                border: "2px solid #60a5fa",
-                bgcolor: blue[400],
-              }}
-            >
-              <Typography>{user?.name ?? "User"}</Typography>
-            </Avatar>
+          <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
             <Box
               sx={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                width: 12,
-                height: 12,
-                borderRadius: "50%",
-                bgcolor: "#22c55e",
-                border: "2px solid #0f172a",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
               }}
-            />
-          </Box>
-          <Box sx={{ ml: 2 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              {user?.name ?? "User"}
-            </Typography>
-            {user?.role && (
+            >
+              <Box sx={{ position: "relative", mb: 2 }}>
+                <Avatar
+                  src={user?.profilePicture}
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    border: `3px solid ${getRoleColor(user?.role || "")}`,
+                    bgcolor: blue[400],
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                    fontSize: "2rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                    {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                  </Typography>
+                </Avatar>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 4,
+                    right: 4,
+                    width: 16,
+                    height: 16,
+                    borderRadius: "50%",
+                    bgcolor: "#22c55e",
+                    border: "2px solid #0f172a",
+                    boxShadow: "0 2px 8px rgba(34, 197, 94, 0.4)",
+                  }}
+                />
+              </Box>
+
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 0.5,
+                  background: "linear-gradient(45deg, #e2e8f0, #f8fafc)",
+                  backgroundClip: "text",
+                  WebkitBackgroundClip: "text",
+                  color: "transparent",
+                }}
+              >
+                {user?.name ?? "User"}
+              </Typography>
+
               <Typography
                 variant="body2"
                 sx={{
-                  color: grey[400],
-                  textTransform: "capitalize",
-                  fontSize: 13,
+                  color: grey[300],
+                  mb: 1,
+                  fontSize: "0.9rem",
                 }}
               >
-                {user.role.toUpperCase()}
+                {user?.email ?? "user@example.com"}
               </Typography>
-            )}
-          </Box>
-        </Box>
+
+              <Box
+                sx={{
+                  px: 2,
+                  py: 0.5,
+                  borderRadius: 4,
+                  bgcolor: getRoleColor(user?.role || ""),
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    bgcolor: "white",
+                    opacity: 0.8,
+                  }}
+                />
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "white",
+                    fontWeight: 600,
+                    fontSize: "0.7rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  {getRoleDisplayText(user?.role || "")}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 4,
+              background: `linear-gradient(90deg, ${getRoleColor(
+                user?.role || ""
+              )}, transparent)`,
+              borderTopLeftRadius: 12,
+              borderTopRightRadius: 12,
+            }}
+          />
+        </Card>
 
         <List>
           {[
@@ -110,6 +215,15 @@ export const SidePanel = () => {
               label: "Proprietati",
               path: "/properties",
             },
+            ...(user?.role === "CEO"
+              ? [
+                  {
+                    icon: <PersonAdd />,
+                    label: "Inregistrare Agent",
+                    path: "/register",
+                  },
+                ]
+              : []),
             { icon: <Settings />, label: "Setari", path: "/settings" },
           ].map((item) => (
             <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
@@ -131,8 +245,13 @@ export const SidePanel = () => {
                       : "transparent",
                     "&:hover": {
                       backgroundColor: "rgba(96,165,250,0.15)",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
                     },
                     transition: "all 0.2s ease-in-out",
+                    border: isActive(item.path)
+                      ? "1px solid rgba(96,165,250,0.3)"
+                      : "1px solid transparent",
                   }}
                 >
                   <ListItemIcon
@@ -149,6 +268,7 @@ export const SidePanel = () => {
                     primary={item.label}
                     primaryTypographyProps={{
                       fontWeight: isActive(item.path) ? 600 : 400,
+                      fontSize: "0.95rem",
                     }}
                   />
                 </ListItemButton>
@@ -171,11 +291,16 @@ export const SidePanel = () => {
               borderRadius: 2,
               py: 1.2,
               backgroundColor: "rgba(255,255,255,0.08)",
-              "&:hover": { backgroundColor: "rgba(255,255,255,0.15)" },
+              "&:hover": {
+                backgroundColor: "rgba(255,59,48,0.2)",
+                color: "#ff3b30",
+              },
               fontWeight: 500,
+              border: "1px solid rgba(255,255,255,0.1)",
+              transition: "all 0.2s ease-in-out",
             }}
           >
-            {isPending ? "Logging out..." : "Logout"}
+            {isPending ? "Deconectare..." : "Deconectare"}
           </Button>
         </motion.div>
       </Box>

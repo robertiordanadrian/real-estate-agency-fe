@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { http } from "../../services/http";
-import { setCredentials, logout } from "./authSlice";
+import { logout, setCredentials } from "./authSlice";
 import { useAppDispatch } from "../../app/hook";
 
 type LoginPayload = { email: string; password: string };
@@ -16,7 +16,12 @@ type LoginResponse = {
   };
 };
 
-type RegisterPayload = { name: string; email: string; password: string };
+type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+};
 type RegisterResponse = LoginResponse;
 
 export const useLogin = () => {
@@ -66,8 +71,6 @@ export const useLogout = () => {
 };
 
 export const useRegister = () => {
-  const dispatch = useAppDispatch();
-
   return useMutation({
     mutationFn: async (payload: RegisterPayload) => {
       const { data } = await http.post<RegisterResponse>(
@@ -75,18 +78,6 @@ export const useRegister = () => {
         payload
       );
       return data;
-    },
-    onSuccess: (data) => {
-      dispatch(
-        setCredentials({
-          accessToken: data.access_token,
-          refreshToken: data.refresh_token,
-          user: {
-            ...data.user,
-            role: data.user.role as "CEO" | "MANAGER" | "AGENT" | undefined,
-          },
-        })
-      );
     },
   });
 };

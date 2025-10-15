@@ -31,3 +31,10 @@ export const useUploadProfilePicture = () => {
     },
   });
 };
+
+export const useUploadProfilePictureForUser = () => {
+  return useMutation({
+    mutationFn: ({ userId, file }: { userId: string; file: File }) =>
+      UsersApi.uploadProfilePictureForUser(userId, file),
+  });
+};

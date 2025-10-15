@@ -90,20 +90,6 @@ const LoginPage = () => {
             >
               {isPending ? <CircularProgress size={24} /> : "Login"}
             </Button>
-
-            <Box sx={{ mt: 2, textAlign: "center" }}>
-              <Typography variant="body2">
-                Nu ai un cont?{" "}
-                <MuiLink
-                  component={Link}
-                  to="/register"
-                  underline="hover"
-                  sx={{ fontWeight: 500 }}
-                >
-                  Inregistreaza-te
-                </MuiLink>
-              </Typography>
-            </Box>
           </Box>
         </Paper>
       </Box>
