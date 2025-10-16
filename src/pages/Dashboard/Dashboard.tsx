@@ -8,21 +8,31 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  useTheme,
 } from "@mui/material";
 import { Home } from "@mui/icons-material";
 import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
 
 export default function Dashboard() {
+  const theme = useTheme();
   const { data: properties, isLoading, error } = usePropertiesQuery();
 
   const totalProperties = properties?.length ?? 0;
+
+  const gradientBg =
+    theme.palette.mode === "dark"
+      ? `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`
+      : `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`;
+
+  const accentColor = theme.palette.primary.main;
+  const textPrimary = theme.palette.text.primary;
+  const textSecondary = theme.palette.text.secondary;
 
   return (
     <Box
       sx={{
         width: "100%",
         minHeight: "calc(100vh - 32px)",
-        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
@@ -33,7 +43,6 @@ export default function Dashboard() {
         maxWidth="xl"
         disableGutters
         sx={{
-          height: "100%",
           display: "flex",
           flexDirection: "column",
         }}
@@ -44,11 +53,11 @@ export default function Dashboard() {
             flex: 1,
             p: 4,
             borderRadius: 3,
-            background: "linear-gradient(135deg, #1e293b, #0f172a)",
-            color: "#e2e8f0",
+            background: gradientBg,
+            color: textPrimary,
             width: "100%",
             height: "100%",
-            boxShadow: "0 0 25px rgba(56,189,248,0.15)",
+            boxShadow: theme.shadows[6],
             display: "flex",
             flexDirection: "column",
           }}
@@ -57,7 +66,15 @@ export default function Dashboard() {
             Dashboard
           </Typography>
 
-          <Divider sx={{ mb: 3, borderColor: "rgba(255,255,255,0.1)" }} />
+          <Divider
+            sx={{
+              mb: 3,
+              borderColor:
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.1)",
+            }}
+          />
 
           <Box sx={{ flex: 1, overflowY: "auto", mt: 2 }}>
             {isLoading ? (
@@ -69,7 +86,7 @@ export default function Dashboard() {
                   height: "50vh",
                 }}
               >
-                <CircularProgress sx={{ color: "#38bdf8" }} />
+                <CircularProgress color="primary" />
               </Box>
             ) : error ? (
               <Typography color="error">
@@ -81,14 +98,16 @@ export default function Dashboard() {
                   <Card
                     sx={{
                       background:
-                        "linear-gradient(135deg, rgba(56,189,248,0.15), rgba(14,165,233,0.1))",
-                      border: "1px solid rgba(56,189,248,0.2)",
+                        theme.palette.mode === "dark"
+                          ? `linear-gradient(135deg, ${accentColor}22, ${accentColor}11)`
+                          : `linear-gradient(135deg, ${accentColor}11, ${accentColor}05)`,
+                      border: `1px solid ${accentColor}33`,
                       borderRadius: 3,
-                      color: "#e2e8f0",
-                      boxShadow: "0 0 15px rgba(56,189,248,0.1)",
+                      color: textPrimary,
+                      boxShadow: `0 0 15px ${accentColor}11`,
                       transition: "all 0.2s ease",
                       "&:hover": {
-                        boxShadow: "0 0 20px rgba(56,189,248,0.25)",
+                        boxShadow: `0 0 25px ${accentColor}33`,
                       },
                     }}
                   >
@@ -103,7 +122,7 @@ export default function Dashboard() {
                         <Box>
                           <Typography
                             variant="subtitle2"
-                            sx={{ opacity: 0.8, mb: 0.5 }}
+                            sx={{ opacity: 0.8, mb: 0.5, color: textSecondary }}
                           >
                             Total Proprietati
                           </Typography>
@@ -111,13 +130,13 @@ export default function Dashboard() {
                             variant="h4"
                             sx={{
                               fontWeight: 700,
-                              color: "#38bdf8",
+                              color: accentColor,
                             }}
                           >
                             {totalProperties}
                           </Typography>
                         </Box>
-                        <Home sx={{ fontSize: 40, color: "#38bdf8" }} />
+                        <Home sx={{ fontSize: 40, color: accentColor }} />
                       </Box>
                     </CardContent>
                   </Card>

@@ -17,6 +17,7 @@ import {
   Modal,
   IconButton,
   InputAdornment,
+  useTheme,
 } from "@mui/material";
 import {
   LocationOn,
@@ -41,6 +42,8 @@ import { selectUser } from "../../features/auth/authSelectors";
 import PropertyMap from "../PropertyMap/PropertyMap";
 import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+/* --------------------------- Subcomponents (theme-aware) --------------------------- */
+
 const ImageModal = ({
   open,
   onClose,
@@ -51,56 +54,59 @@ const ImageModal = ({
   onClose: () => void;
   image: string;
   title: string;
-}) => (
-  <Modal
-    open={open}
-    onClose={onClose}
-    sx={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      backdropFilter: "blur(4px)",
-    }}
-  >
-    <Box
+}) => {
+  const theme = useTheme();
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
       sx={{
-        position: "relative",
-        maxWidth: "90vw",
-        maxHeight: "90vh",
-        outline: "none",
-        bgcolor: "background.paper",
-        borderRadius: 2,
-        overflow: "hidden",
-        boxShadow: 24,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backdropFilter: "blur(4px)",
       }}
     >
-      <IconButton
-        onClick={onClose}
+      <Box
         sx={{
-          position: "absolute",
-          top: 8,
-          right: 8,
-          bgcolor: "rgba(0,0,0,0.5)",
-          color: "white",
-          zIndex: 1,
-          "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+          position: "relative",
+          maxWidth: "90vw",
+          maxHeight: "90vh",
+          outline: "none",
+          bgcolor: theme.palette.background.paper,
+          borderRadius: 2,
+          overflow: "hidden",
+          boxShadow: 24,
         }}
       >
-        <Close />
-      </IconButton>
-      <img
-        src={image}
-        alt={title}
-        style={{
-          width: "100%",
-          height: "auto",
-          maxHeight: "90vh",
-          display: "block",
-        }}
-      />
-    </Box>
-  </Modal>
-);
+        <IconButton
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            bgcolor: "rgba(0,0,0,0.5)",
+            color: "#fff",
+            zIndex: 1,
+            "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+          }}
+        >
+          <Close />
+        </IconButton>
+        <img
+          src={image}
+          alt={title}
+          style={{
+            width: "100%",
+            height: "auto",
+            maxHeight: "90vh",
+            display: "block",
+          }}
+        />
+      </Box>
+    </Modal>
+  );
+};
 
 const DetailSection = ({
   title,
@@ -110,41 +116,63 @@ const DetailSection = ({
   title: string;
   children: React.ReactNode;
   icon?: React.ReactNode;
-}) => (
-  <Paper elevation={1} sx={{ p: 3, borderRadius: 2 }}>
-    <Typography
-      variant="h6"
-      gutterBottom
-      fontWeight="bold"
-      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+}) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.primary.main;
+  return (
+    <Paper
+      elevation={1}
+      sx={{
+        p: 3,
+        borderRadius: 2,
+        bgcolor: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+        boxShadow: isDark ? `0 0 14px ${accent}14` : `0 0 8px ${accent}0F`,
+      }}
     >
-      {icon}
-      {title}
-    </Typography>
-    <Divider sx={{ mb: 2 }} />
-    {children}
-  </Paper>
-);
-
-const EnumChipList = ({ items }: { items: string[] }) => (
-  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-    {items && items.length > 0 ? (
-      items.map((item, i) => (
-        <Chip
-          key={i}
-          label={item}
-          size="small"
-          variant="outlined"
-          color="primary"
-        />
-      ))
-    ) : (
-      <Typography variant="body2" color="text.secondary">
-        Niciunul
+      <Typography
+        variant="h6"
+        gutterBottom
+        fontWeight="bold"
+        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      >
+        {icon}
+        {title}
       </Typography>
-    )}
-  </Box>
-);
+      <Divider sx={{ mb: 2, borderColor: theme.palette.divider }} />
+      {children}
+    </Paper>
+  );
+};
+
+const EnumChipList = ({ items }: { items: string[] }) => {
+  const theme = useTheme();
+  return (
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+      {items && items.length > 0 ? (
+        items.map((item, i) => (
+          <Chip
+            key={i}
+            label={item}
+            size="small"
+            variant="outlined"
+            color="primary"
+            sx={{
+              borderColor: theme.palette.primary.main,
+            }}
+          />
+        ))
+      ) : (
+        <Typography variant="body2" color="text.secondary">
+          Niciunul
+        </Typography>
+      )}
+    </Box>
+  );
+};
+
+/* --------------------------- Helpers (nemodificate logic) --------------------------- */
 
 const getStatusColor = (status: EStatus) => {
   switch (status) {
@@ -165,7 +193,13 @@ const getStatusColor = (status: EStatus) => {
 const getTransactionTypeColor = (type: EType) =>
   type === EType.SALE ? "primary" : "secondary";
 
+/* ---------------------------------- Component ---------------------------------- */
+
 export default function PropertyDetail() {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.primary.main;
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -181,6 +215,7 @@ export default function PropertyDetail() {
         <Typography variant="h6">Se incarca...</Typography>
       </Box>
     );
+
   if (isError || !property)
     return (
       <Container>
@@ -243,7 +278,6 @@ export default function PropertyDetail() {
       sx={{
         width: "100%",
         minHeight: "calc(100vh - 32px)",
-        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
@@ -265,17 +299,17 @@ export default function PropertyDetail() {
             flex: 1,
             p: 4,
             borderRadius: 3,
-            background: "linear-gradient(135deg, #1e293b, #0f172a)",
-            color: "#e2e8f0",
+            background: `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`,
+            color: theme.palette.text.primary,
             width: "100%",
             height: "100%",
-            boxShadow: "0 0 25px rgba(56,189,248,0.15)",
+            boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
             display: "flex",
             flexDirection: "column",
             overflowY: "auto",
           }}
         >
-          {" "}
+          {/* Header */}
           <Box sx={{ mb: 4 }}>
             <Typography
               variant="h5"
@@ -286,6 +320,7 @@ export default function PropertyDetail() {
             >
               {description?.title || "Proprietate fara titlu"}
             </Typography>
+
             <Typography
               variant="subtitle1"
               color="text.secondary"
@@ -298,6 +333,7 @@ export default function PropertyDetail() {
               {generalDetails.location.number &&
                 ` ${generalDetails.location.number}`}
             </Typography>
+
             <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
               <Chip
                 label={`${
@@ -309,7 +345,9 @@ export default function PropertyDetail() {
                   fontSize: "1.1rem",
                   fontWeight: "bold",
                   px: 2,
-                  color: "#ffffff",
+                  color: theme.palette.getContrastText(
+                    theme.palette.primary.main
+                  ),
                 }}
               />
               <Chip
@@ -317,19 +355,27 @@ export default function PropertyDetail() {
                 color={getStatusColor(generalDetails.status)}
                 variant="filled"
                 sx={{
-                  color: "#ffffff",
+                  color:
+                    getStatusColor(generalDetails.status) === "default"
+                      ? theme.palette.text.primary
+                      : theme.palette.getContrastText(
+                          theme.palette.success.main
+                        ),
                 }}
               />
               <Chip
                 label={generalDetails.transactionType}
-                color="primary"
+                color={getTransactionTypeColor(generalDetails.transactionType)}
                 variant="outlined"
               />
             </Stack>
           </Box>
+
           <Grid container spacing={3}>
+            {/* Col stanga */}
             <Grid size={{ xs: 12, lg: 8 }}>
               <Stack spacing={3}>
+                {/* Galerie */}
                 <DetailSection title="Galerie Proprietate" icon={<Apartment />}>
                   {images?.length ? (
                     <>
@@ -338,8 +384,9 @@ export default function PropertyDetail() {
                         color="text.secondary"
                         sx={{ mb: 2 }}
                       >
-                        {images.length} fotografii • Click pentru a mari
+                        {images.length} fotografii • click pentru a mari
                       </Typography>
+
                       <ImageList variant="masonry" cols={3} gap={12}>
                         {images.map((img, index) => (
                           <ImageListItem
@@ -348,11 +395,12 @@ export default function PropertyDetail() {
                               cursor: "pointer",
                               borderRadius: 2,
                               overflow: "hidden",
-                              boxShadow: 2,
+                              boxShadow: isDark ? 3 : 2,
                               "&:hover": {
                                 transform: "scale(1.02)",
-                                boxShadow: 6,
+                                boxShadow: isDark ? 8 : 6,
                               },
+                              transition: "all 0.15s ease",
                             }}
                             onClick={() => setSelectedImage(img)}
                           >
@@ -365,7 +413,7 @@ export default function PropertyDetail() {
                               title={`Imagine ${index + 1}`}
                               actionIcon={
                                 <IconButton
-                                  sx={{ color: "white" }}
+                                  sx={{ color: "#fff" }}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedImage(img);
@@ -378,6 +426,7 @@ export default function PropertyDetail() {
                           </ImageListItem>
                         ))}
                       </ImageList>
+
                       <ImageModal
                         open={!!selectedImage}
                         onClose={() => setSelectedImage(null)}
@@ -392,6 +441,7 @@ export default function PropertyDetail() {
                   )}
                 </DetailSection>
 
+                {/* Detalii Generale */}
                 <DetailSection title="Detalii Generale" icon={<Description />}>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -400,11 +450,7 @@ export default function PropertyDetail() {
                         value={generalDetails.agent || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
 
@@ -414,11 +460,7 @@ export default function PropertyDetail() {
                         value={generalDetails.status || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
 
@@ -428,11 +470,7 @@ export default function PropertyDetail() {
                         value={generalDetails.transactionType || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
 
@@ -442,11 +480,7 @@ export default function PropertyDetail() {
                         value={generalDetails.category || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
 
@@ -456,11 +490,7 @@ export default function PropertyDetail() {
                         value={generalDetails.ownerID || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
 
@@ -470,16 +500,13 @@ export default function PropertyDetail() {
                         value={generalDetails.residentialComplex || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                   </Grid>
                 </DetailSection>
 
+                {/* Locatie */}
                 <DetailSection title="Locatie" icon={<LocationOn />}>
                   <Grid container spacing={2}>
                     {Object.entries(generalDetails.location)
@@ -496,22 +523,19 @@ export default function PropertyDetail() {
                             value={value || "N/A"}
                             fullWidth
                             size="small"
-                            slotProps={{
-                              input: {
-                                readOnly: true,
-                              },
-                            }}
+                            slotProps={{ input: { readOnly: true } }}
                           />
                         </Grid>
                       ))}
                   </Grid>
                 </DetailSection>
 
+                {/* Caracteristici */}
                 <DetailSection title="Caracteristici" icon={<Apartment />}>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12 }}>
                       <Typography variant="subtitle1" gutterBottom>
-                        Detalii Generale
+                        Detalii generale
                       </Typography>
                     </Grid>
 
@@ -521,11 +545,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.type || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -536,11 +556,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -549,11 +565,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.destination || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -562,11 +574,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.comfort || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -575,11 +583,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.rooms || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -588,11 +592,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.bedrooms || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -601,11 +601,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.bathrooms || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -614,11 +610,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.kitchens || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -627,11 +619,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.balconies || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -640,11 +628,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.terraces || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -653,11 +637,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.floor || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -668,11 +648,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -683,11 +659,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -696,11 +668,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.parkingLots || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -709,11 +677,7 @@ export default function PropertyDetail() {
                         value={characteristics.details.garages || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -724,11 +688,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -739,11 +699,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -754,11 +710,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -769,11 +721,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
 
@@ -902,11 +850,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -915,11 +859,7 @@ export default function PropertyDetail() {
                         value={characteristics.building.type || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -928,11 +868,7 @@ export default function PropertyDetail() {
                         value={characteristics.building.structure || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -941,11 +877,7 @@ export default function PropertyDetail() {
                         value={characteristics.building.seismicRisk || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -954,11 +886,7 @@ export default function PropertyDetail() {
                         value={characteristics.building.height || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
 
@@ -980,11 +908,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1010,7 +934,7 @@ export default function PropertyDetail() {
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
-                        label="Indice Emisii CO₂"
+                        label="Indice Emisii CO2"
                         value={
                           characteristics.energyPerformance
                             .co2EquivalentEmissionIndex || "N/A"
@@ -1022,7 +946,7 @@ export default function PropertyDetail() {
                             readOnly: true,
                             endAdornment: (
                               <InputAdornment position="end">
-                                kgCO₂/m²an
+                                kgCO2/m²an
                               </InputAdornment>
                             ),
                           },
@@ -1053,6 +977,7 @@ export default function PropertyDetail() {
                   </Grid>
                 </DetailSection>
 
+                {/* Utilitati si Echipamente */}
                 <DetailSection title="Utilitati si Echipamente" icon={<Wifi />}>
                   <Grid container spacing={2}>
                     {utilitiesSections.map(({ label, data }) => (
@@ -1066,6 +991,7 @@ export default function PropertyDetail() {
                   </Grid>
                 </DetailSection>
 
+                {/* Pret */}
                 <DetailSection title="Pret" icon={<Euro />}>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12 }}>
@@ -1095,11 +1021,7 @@ export default function PropertyDetail() {
                         value={price.priceDetails.currency || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1126,11 +1048,7 @@ export default function PropertyDetail() {
                         value={price.priceDetails.paymentMethod || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1187,11 +1105,7 @@ export default function PropertyDetail() {
                         value={price.priceDetails.privateNotePrice || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1200,11 +1114,7 @@ export default function PropertyDetail() {
                         value={price.priceDetails.tva ? "Da" : "Nu"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1213,11 +1123,7 @@ export default function PropertyDetail() {
                         value={price.priceDetails.negociablePrice ? "Da" : "Nu"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1226,11 +1132,7 @@ export default function PropertyDetail() {
                         value={price.priceDetails.requestPrice ? "Da" : "Nu"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1239,11 +1141,7 @@ export default function PropertyDetail() {
                         value={price.priceDetails.showPricePerMp ? "Da" : "Nu"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
 
@@ -1278,11 +1176,7 @@ export default function PropertyDetail() {
                         value={price.commissions.buyerCommission || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1307,11 +1201,7 @@ export default function PropertyDetail() {
                         value={price.commissions.ownerCommissionValue || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
 
@@ -1330,11 +1220,7 @@ export default function PropertyDetail() {
                         value={price.contact.type || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1343,11 +1229,7 @@ export default function PropertyDetail() {
                         value={price.contact.signedContract || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1356,11 +1238,7 @@ export default function PropertyDetail() {
                         value={price.contact.contractNumber || "N/A"}
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1375,16 +1253,12 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
-                        label="Data Expirarii"
+                        label="Data expirarii"
                         value={
                           price.contact.expirationDate
                             ? new Date(
@@ -1394,11 +1268,7 @@ export default function PropertyDetail() {
                         }
                         fullWidth
                         size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                          },
-                        }}
+                        slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -1419,8 +1289,10 @@ export default function PropertyDetail() {
                             height: 40,
                             textTransform: "none",
                             justifyContent: "flex-start",
-                            borderColor: "#90caf9",
-                            "&:hover": { borderColor: "rgba(255, 255, 255)" },
+                            borderColor: theme.palette.primary.light,
+                            "&:hover": {
+                              borderColor: theme.palette.primary.main,
+                            },
                           }}
                         >
                           Descarca contract
@@ -1431,27 +1303,21 @@ export default function PropertyDetail() {
                           value="N/A"
                           fullWidth
                           size="small"
-                          slotProps={{
-                            input: {
-                              readOnly: true,
-                            },
-                          }}
+                          slotProps={{ input: { readOnly: true } }}
                         />
                       )}
                     </Grid>
                   </Grid>
                 </DetailSection>
+
+                {/* Descriere */}
                 <DetailSection title="Descriere" icon={<Description />}>
                   <Stack spacing={2}>
                     <TextField
                       label="Titlu"
                       value={description?.title || "N/A"}
                       fullWidth
-                      slotProps={{
-                        input: {
-                          readOnly: true,
-                        },
-                      }}
+                      slotProps={{ input: { readOnly: true } }}
                     />
                     <TextField
                       label="Descriere"
@@ -1459,49 +1325,35 @@ export default function PropertyDetail() {
                       fullWidth
                       multiline
                       rows={4}
-                      slotProps={{
-                        input: {
-                          readOnly: true,
-                        },
-                      }}
+                      slotProps={{ input: { readOnly: true } }}
                     />
                     <TextField
                       label="Disponibilitate"
                       value={description?.disponibility || "N/A"}
                       fullWidth
-                      slotProps={{
-                        input: {
-                          readOnly: true,
-                        },
-                      }}
+                      slotProps={{ input: { readOnly: true } }}
                     />
                     <TextField
                       label="Link video YouTube"
                       value={description?.videoYoutubeLink || "N/A"}
                       fullWidth
-                      slotProps={{
-                        input: {
-                          readOnly: true,
-                        },
-                      }}
+                      slotProps={{ input: { readOnly: true } }}
                     />
                     <TextField
                       label="Link tur virtual"
                       value={description?.virtualTour || "N/A"}
                       fullWidth
-                      slotProps={{
-                        input: {
-                          readOnly: true,
-                        },
-                      }}
+                      slotProps={{ input: { readOnly: true } }}
                     />
                   </Stack>
                 </DetailSection>
               </Stack>
             </Grid>
 
+            {/* Col dreapta */}
             <Grid size={{ xs: 12, lg: 4 }}>
               <Stack spacing={3}>
+                {/* -------------------- Agent -------------------- */}
                 <DetailSection title="Agent" icon={<Person />}>
                   <Stack
                     direction="column"
@@ -1512,7 +1364,14 @@ export default function PropertyDetail() {
                       textAlign: "center",
                       p: 2,
                       borderRadius: 2,
-                      background: "linear-gradient(135deg, #1e293b, #0f172a)",
+                      bgcolor: isDark
+                        ? theme.palette.background.paper // aceeași nuanță coerentă cu dark mode
+                        : theme.palette.grey[50],
+                      color: theme.palette.text.primary,
+                      boxShadow: isDark
+                        ? `0 0 10px ${accent}22`
+                        : `0 0 8px ${accent}11`,
+                      transition: "background-color 0.3s ease",
                     }}
                   >
                     <Avatar
@@ -1520,25 +1379,23 @@ export default function PropertyDetail() {
                       sx={{
                         width: 90,
                         height: 90,
-                        border: "2px solid #38bdf8",
-                        bgcolor: "#1e293b",
-                        boxShadow: "0 0 12px rgba(56,189,248,0.5)",
+                        border: `2px solid ${accent}`,
+                        bgcolor: theme.palette.background.default,
+                        boxShadow: `0 0 8px ${accent}33`,
                       }}
                     >
-                      {!user?.profilePicture && (user?.name?.charAt(0) ?? "A")}
+                      {!user?.profilePicture &&
+                        (user?.name?.charAt(0).toUpperCase() ?? "A")}
                     </Avatar>
 
-                    <Typography
-                      variant="h6"
-                      sx={{ color: "#e2e8f0", fontWeight: 600 }}
-                    >
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       {user?.name ?? "Neatribuit"}
                     </Typography>
 
                     <Typography
                       variant="body2"
                       sx={{
-                        color: "#38bdf8",
+                        color: theme.palette.primary.main,
                         fontWeight: 500,
                         letterSpacing: "0.5px",
                         textTransform: "capitalize",
@@ -1549,24 +1406,23 @@ export default function PropertyDetail() {
                   </Stack>
                 </DetailSection>
 
+                {/* -------------------- Proprietar -------------------- */}
                 <DetailSection title="Proprietar" icon={<Person />}>
                   <Box
                     sx={{
                       p: 2,
                       borderRadius: 2,
-                      background: "linear-gradient(135deg, #1e293b, #0f172a)",
-                      textAlign: "left",
-                      color: "#e2e8f0",
+                      bgcolor: isDark
+                        ? theme.palette.background.paper
+                        : theme.palette.grey[50],
+                      color: theme.palette.text.primary,
+                      boxShadow: isDark
+                        ? `0 0 10px ${accent}22`
+                        : `0 0 8px ${accent}11`,
+                      transition: "background-color 0.3s ease",
                     }}
                   >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 600,
-                        color: "#e2e8f0",
-                        mb: 2,
-                      }}
-                    >
+                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                       {owner
                         ? `${owner.surname ?? ""} ${
                             owner.lastname ?? ""
@@ -1576,20 +1432,16 @@ export default function PropertyDetail() {
 
                     <Stack spacing={2}>
                       <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Phone sx={{ color: "#38bdf8", fontSize: 20 }} />
+                        <Phone sx={{ color: accent, fontSize: 20 }} />
                         {owner?.phone ? (
                           <Typography
                             variant="body2"
                             component="a"
                             href={`tel:${owner.phone}`}
                             sx={{
-                              color: "text.secondary",
+                              color: theme.palette.text.secondary,
                               textDecoration: "none",
-                              transition: "color 0.2s ease",
-                              "&:hover": {
-                                color: "#38bdf8",
-                                textDecoration: "underline",
-                              },
+                              "&:hover": { color: accent },
                             }}
                           >
                             {owner.phone}
@@ -1602,20 +1454,16 @@ export default function PropertyDetail() {
                       </Stack>
 
                       <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Email sx={{ color: "#38bdf8", fontSize: 20 }} />
+                        <Email sx={{ color: accent, fontSize: 20 }} />
                         {owner?.email ? (
                           <Typography
                             variant="body2"
                             component="a"
                             href={`mailto:${owner.email}`}
                             sx={{
-                              color: "text.secondary",
+                              color: theme.palette.text.secondary,
                               textDecoration: "none",
-                              transition: "color 0.2s ease",
-                              "&:hover": {
-                                color: "#38bdf8",
-                                textDecoration: "underline",
-                              },
+                              "&:hover": { color: accent },
                             }}
                           >
                             {owner.email}
@@ -1644,14 +1492,13 @@ export default function PropertyDetail() {
                   startIcon={<Edit />}
                   onClick={() => navigate(`/properties/edit/${id}`)}
                   sx={{
-                    color: "#ffffff",
                     textTransform: "none",
-                    fontWeight: 500,
-                    letterSpacing: 0.3,
-                    background: "linear-gradient(90deg, #38bdf8, #0ea5e9)",
-                    "&:hover": {
-                      background: "linear-gradient(90deg, #0ea5e9, #0284c7)",
-                    },
+                    fontWeight: 600,
+                    bgcolor: theme.palette.primary.main,
+                    color: theme.palette.getContrastText(
+                      theme.palette.primary.main
+                    ),
+                    "&:hover": { bgcolor: theme.palette.primary.dark },
                   }}
                 >
                   Editeaza proprietatea

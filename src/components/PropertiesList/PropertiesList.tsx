@@ -14,6 +14,7 @@ import {
   TablePagination,
   TableRow,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,10 +22,14 @@ import { usePropertiesQuery } from "../../features/properties/propertiesQueries"
 import { IProperty } from "../../common/interfaces/property.interface";
 
 export const PropertiesList = () => {
-  const { data: properties, isLoading, error } = usePropertiesQuery();
+  const theme = useTheme();
   const navigate = useNavigate();
+  const { data: properties, isLoading, error } = usePropertiesQuery();
+
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.primary.main;
 
   if (isLoading)
     return (
@@ -33,11 +38,11 @@ export const PropertiesList = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#94a3b8",
+          color: theme.palette.text.secondary,
           height: "100%",
         }}
       >
-        <CircularProgress sx={{ color: "#38bdf8" }} />
+        <CircularProgress color="primary" />
       </Box>
     );
 
@@ -55,7 +60,7 @@ export const PropertiesList = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#94a3b8",
+          color: theme.palette.text.secondary,
           height: "100%",
         }}
       >
@@ -76,24 +81,19 @@ export const PropertiesList = () => {
         flexDirection: "column",
         borderRadius: 3,
         overflow: "hidden",
-        background: "linear-gradient(135deg, #1e293b, #0f172a)",
-        boxShadow: "0 0 25px rgba(56,189,248,0.1)",
+        background: isDark
+          ? `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`
+          : theme.palette.background.paper,
+        boxShadow: isDark ? `0 0 25px ${accent}11` : `0 0 10px ${accent}11`,
         height: "100%",
       }}
     >
-      <TableContainer
-        sx={{
-          flex: 1,
-          minHeight: 0,
-        }}
-      >
+      <TableContainer sx={{ flex: 1, minHeight: 0 }}>
         <Table
           stickyHeader
           sx={{
             minWidth: 1200,
-            "& .MuiTableCell-root": {
-              whiteSpace: "nowrap",
-            },
+            "& .MuiTableCell-root": { whiteSpace: "nowrap" },
           }}
         >
           <TableHead>
@@ -116,10 +116,10 @@ export const PropertiesList = () => {
                 <TableCell
                   key={header}
                   sx={{
-                    color: "#93c5fd",
+                    color: accent,
                     fontWeight: 600,
-                    borderBottom: "1px solid rgba(255,255,255,0.1)",
-                    backgroundColor: "#0f172a",
+                    borderBottom: `1px solid ${accent}22`,
+                    backgroundColor: theme.palette.background.paper,
                   }}
                 >
                   {header}
@@ -139,10 +139,12 @@ export const PropertiesList = () => {
                   hover
                   sx={{
                     "&:hover": {
-                      backgroundColor: "rgba(59,130,246,0.08)",
+                      backgroundColor: `${accent}11`,
                       cursor: "pointer",
                     },
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                    borderBottom: `1px solid ${
+                      isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                    }`,
                   }}
                 >
                   <TableCell>
@@ -159,7 +161,7 @@ export const PropertiesList = () => {
                       label={generalDetails?.status ?? "-"}
                       size="small"
                       sx={{
-                        backgroundColor: "#0ea5e9",
+                        backgroundColor: accent,
                         color: "#fff",
                         fontWeight: 500,
                       }}
@@ -192,15 +194,14 @@ export const PropertiesList = () => {
                       <Button
                         variant="outlined"
                         size="small"
-                        color="info"
                         onClick={() => navigate(`/properties/${property._id}`)}
                         sx={{
                           textTransform: "none",
-                          borderColor: "#38bdf8",
-                          color: "#38bdf8",
+                          borderColor: accent,
+                          color: accent,
                           "&:hover": {
-                            borderColor: "#0ea5e9",
-                            background: "rgba(14,165,233,0.1)",
+                            borderColor: accent,
+                            backgroundColor: `${accent}11`,
                           },
                         }}
                       >
@@ -217,9 +218,7 @@ export const PropertiesList = () => {
                         }}
                         sx={{
                           textTransform: "none",
-                          backgroundColor: "#22c55e",
-                          color: "#ffffff",
-                          "&:hover": { backgroundColor: "#16a34a" },
+                          boxShadow: `0 0 8px ${theme.palette.success.main}33`,
                         }}
                       >
                         Editeaza
@@ -236,8 +235,10 @@ export const PropertiesList = () => {
       <Box
         sx={{
           flexShrink: 0,
-          borderTop: "1px solid rgba(255,255,255,0.1)",
-          backgroundColor: "rgba(15,23,42,0.9)",
+          borderTop: `1px solid ${
+            isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
+          }`,
+          backgroundColor: theme.palette.background.paper,
         }}
       >
         <TablePagination
@@ -248,8 +249,8 @@ export const PropertiesList = () => {
           rowsPerPage={rowsPerPage}
           rowsPerPageOptions={[10]}
           sx={{
-            color: "#e2e8f0",
-            "& .MuiTablePagination-actions button": { color: "#38bdf8" },
+            color: theme.palette.text.primary,
+            "& .MuiTablePagination-actions button": { color: accent },
           }}
         />
       </Box>

@@ -50,7 +50,7 @@ const AddressAutocomplete: React.FC<{
   React.useEffect(() => {
     if (!places || !inputRef.current) return;
 
-    // Initialize Autocomplete pe inputul real, nu pe componenta MUI
+    
     const autocomplete = new places.Autocomplete(inputRef.current, {
       fields: ["address_components", "formatted_address"],
       types: ["address"],
@@ -78,12 +78,12 @@ const AddressAutocomplete: React.FC<{
 
   return (
     <TextField
-      inputRef={inputRef} // 👈 folosește inputRef, nu ref
-      label="Caută adresă (Stradă și Număr)"
+  inputRef={inputRef}
+  label="Cauta adresa (Strada si Numar)"
       value={inputValue}
       onChange={(e) => setInputValue(e.target.value)}
       fullWidth
-      placeholder="Începe să tastezi o adresă din România..."
+  placeholder="Incepe sa tastezi o adresa din Romania..."
     />
   );
 };

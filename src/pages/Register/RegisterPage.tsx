@@ -17,6 +17,7 @@ import {
   CardContent,
   Divider,
   IconButton,
+  useTheme,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useRegister } from "../../features/auth/authMutations";
@@ -28,6 +29,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 const ROLES = ["MANAGER", "AGENT"];
 
 const RegisterPage = () => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const currentUser = useAppSelector(selectUser);
   const { mutateAsync: register, isPending: isRegistering } = useRegister();
@@ -43,6 +45,9 @@ const RegisterPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.primary.main;
+
   useEffect(() => {
     if (currentUser && currentUser.role !== "CEO") {
       navigate("/", { replace: true });
@@ -54,7 +59,6 @@ const RegisterPage = () => {
       const timer = setTimeout(() => {
         navigate("/");
       }, 2500);
-
       return () => clearTimeout(timer);
     }
   }, [success, navigate]);
@@ -94,8 +98,7 @@ const RegisterPage = () => {
         });
       }
 
-      setSuccess(`Utilizator ${name} a fost creat cu succes!`);
-
+      setSuccess(`Utilizatorul ${name} a fost creat cu succes!`);
       setName("");
       setEmail("");
       setPassword("");
@@ -106,7 +109,7 @@ const RegisterPage = () => {
       const message =
         err?.response?.data?.message ||
         err?.message ||
-        "Inregistrarea a esuat. Te rugam sa incerci din nou.";
+        "Inregistrarea a esuat. Incearca din nou.";
       setError(message);
     }
   };
@@ -141,34 +144,37 @@ const RegisterPage = () => {
           py: 4,
         }}
       >
-        <Paper sx={{ p: 4, bgcolor: "background.paper", width: "100%" }}>
+        <Paper
+          sx={{
+            p: 4,
+            bgcolor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            width: "100%",
+            boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 12px ${accent}11`,
+          }}
+        >
           <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
             <IconButton
               onClick={handleBack}
               sx={{
                 mr: 2,
-                color: "primary.main",
+                color: accent,
                 "&:hover": {
-                  backgroundColor: "rgba(25, 118, 210, 0.04)",
+                  backgroundColor: `${accent}11`,
                 },
               }}
             >
               <ArrowBackIcon />
             </IconButton>
-            <Typography
-              variant="h4"
-              component="h1"
-              align="center"
-              sx={{ flex: 1 }}
-            >
-              Inregistrare Agent/Manager
+            <Typography variant="h4" align="center" sx={{ flex: 1 }}>
+              Inregistrare Agent / Manager
             </Typography>
             <Box sx={{ width: 40 }} />
           </Box>
 
           <Alert severity="info" sx={{ mb: 3 }}>
-            Doar utilizatorii cu rolul de CEO pot crea conturi noi. Vei ramane
-            logat ca CEO dupa crearea utilizatorului.
+            Doar utilizatorii cu rolul de <b>CEO</b> pot crea conturi noi. Vei
+            ramane logat ca CEO dupa crearea utilizatorului.
           </Alert>
 
           <Box component="form" onSubmit={handleSubmit}>
@@ -231,7 +237,22 @@ const RegisterPage = () => {
                   </FormControl>
                 </Box>
 
-                <Button variant="outlined" component="label" fullWidth>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  fullWidth
+                  sx={{
+                    mt: "auto",
+                    py: 1.2,
+                    fontWeight: 600,
+                    borderColor: accent,
+                    color: accent,
+                    "&:hover": {
+                      backgroundColor: `${accent}11`,
+                      borderColor: accent,
+                    },
+                  }}
+                >
                   {profileImage ? "Schimba imaginea" : "Incarca imagine profil"}
                   <input
                     type="file"
@@ -242,107 +263,104 @@ const RegisterPage = () => {
                 </Button>
               </Box>
 
-              <Box
+              <Card
+                variant="outlined"
                 sx={{
                   display: "flex",
                   flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  bgcolor: theme.palette.background.default,
+                  color: theme.palette.text.primary,
                   height: "100%",
+                  boxShadow: isDark
+                    ? `0 0 20px ${accent}22`
+                    : `0 0 10px ${accent}11`,
                 }}
               >
-                <Card
-                  variant="outlined"
+                <CardContent
                   sx={{
-                    height: "100%",
+                    flex: 1,
+                    width: "100%",
                     display: "flex",
                     flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    gap: 2,
                   }}
                 >
-                  <CardContent
+                  <Typography variant="h6">Preview Profil</Typography>
+
+                  <Avatar
+                    src={imagePreview || undefined}
                     sx={{
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
+                      width: 100,
+                      height: 100,
+                      mb: 1,
+                      border: `3px solid ${
+                        imagePreview ? accent : theme.palette.divider
+                      }`,
+                      bgcolor: theme.palette.primary.light,
+                      color: theme.palette.getContrastText(
+                        theme.palette.primary.light
+                      ),
+                      fontWeight: "bold",
                     }}
                   >
-                    <Typography variant="h6" gutterBottom align="center">
-                      Preview Profil
-                    </Typography>
+                    {!imagePreview &&
+                      (name ? name.charAt(0).toUpperCase() : "U")}
+                  </Avatar>
 
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        mb: 2,
-                        flex: 1,
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Avatar
-                        src={imagePreview || undefined}
-                        sx={{
-                          width: 100,
-                          height: 100,
-                          mb: 2,
-                          border: imagePreview
-                            ? "3px solid #1976d2"
-                            : "2px dashed #ccc",
-                        }}
-                      >
-                        {!imagePreview &&
-                          (name ? name.charAt(0).toUpperCase() : "U")}
-                      </Avatar>
+                  <Typography variant="h6">
+                    {name || "Nume utilizator"}
+                  </Typography>
+                  <Typography color="text.secondary">
+                    {email || "email@exemplu.com"}
+                  </Typography>
 
-                      <Typography variant="h6" align="center" gutterBottom>
-                        {name || "Nume Utilizator"}
-                      </Typography>
-                      <Typography
-                        color="textSecondary"
-                        align="center"
-                        gutterBottom
-                      >
-                        {email || "email@exemplu.com"}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          mt: 1,
-                          p: 0.5,
-                          borderRadius: 1,
-                          backgroundColor:
-                            role === "MANAGER" ? "#ff9800" : "#4caf50",
-                          color: "white",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {role || "ROL"}
-                      </Typography>
-                    </Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mt: 1,
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: 1,
+                      backgroundColor:
+                        role === "MANAGER"
+                          ? theme.palette.warning.main
+                          : theme.palette.success.main,
+                      color: theme.palette.getContrastText(
+                        role === "MANAGER"
+                          ? theme.palette.warning.main
+                          : theme.palette.success.main
+                      ),
+                      fontWeight: 600,
+                      display: "inline-block",
+                    }}
+                  >
+                    {role || "ROL"}
+                  </Typography>
 
-                    <Divider sx={{ my: 2 }} />
+                  <Divider sx={{ width: "100%", my: 2 }} />
 
-                    <Typography
-                      variant="body2"
-                      color="textSecondary"
-                      align="center"
-                    >
-                      {!imagePreview && "Nu a fost selectata nicio imagine"}
-                      {imagePreview && "Imagine de profil selectata"}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Box>
+                  <Typography variant="body2" color="text.secondary">
+                    {!imagePreview
+                      ? "Nu a fost selectata nicio imagine"
+                      : "Imagine de profil selectata"}
+                  </Typography>
+                </CardContent>
+              </Card>
             </Box>
 
             {error && (
-              <Alert severity="error" sx={{ mt: 2 }}>
+              <Alert severity="error" sx={{ mt: 3 }}>
                 {error}
               </Alert>
             )}
 
             {success && (
-              <Alert severity="success" sx={{ mt: 2 }}>
+              <Alert severity="success" sx={{ mt: 3 }}>
                 {success}
                 <Typography variant="body2" sx={{ mt: 1 }}>
                   Redirectionare automata in 2-3 secunde...
@@ -350,23 +368,21 @@ const RegisterPage = () => {
               </Alert>
             )}
 
-            <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ py: 1.5 }}
-                disabled={isRegistering || isUploading}
-                size="large"
-              >
-                {isRegistering || isUploading ? (
-                  <CircularProgress size={24} />
-                ) : (
-                  "Trimite"
-                )}
-              </Button>
-            </Box>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 4, py: 1.5, fontWeight: 600 }}
+              disabled={isRegistering || isUploading}
+              size="large"
+            >
+              {isRegistering || isUploading ? (
+                <CircularProgress size={24} />
+              ) : (
+                "Trimite"
+              )}
+            </Button>
           </Box>
         </Paper>
       </Box>

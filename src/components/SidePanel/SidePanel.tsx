@@ -10,8 +10,9 @@ import {
   Typography,
   Card,
   CardContent,
+  useTheme,
 } from "@mui/material";
-import { blue, grey, green, orange } from "@mui/material/colors";
+import { blue, green, orange } from "@mui/material/colors";
 import {
   Logout,
   RealEstateAgent,
@@ -25,27 +26,25 @@ import { useLogout } from "../../features/auth/authMutations";
 import { useUserQuery } from "../../features/users/usersQueries";
 
 export const SidePanel = () => {
+  const theme = useTheme();
   const { data: user } = useUserQuery();
   const { mutate: logout, isPending } = useLogout();
   const location = useLocation();
 
   const isActive = (path: string) => {
-    if (path === "/") {
-      return location.pathname === "/";
-    }
+    if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
 
   const getRoleColor = (role: string) => {
     switch (role) {
       case "CEO":
-        return blue[500];
+        return blue[400];
       case "MANAGER":
-        return orange[500];
+        return orange[400];
       case "AGENT":
-        return green[500];
       default:
-        return green[500];
+        return green[400];
     }
   };
 
@@ -62,6 +61,20 @@ export const SidePanel = () => {
     }
   };
 
+  const isDark = theme.palette.mode === "dark";
+
+  const panelBg = isDark
+    ? "linear-gradient(180deg, #0f172a 0%, #1e293b 100%)"
+    : "linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)";
+
+  const textColor = theme.palette.text.primary;
+  const iconActive = theme.palette.primary.main;
+  const iconInactive = isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)";
+  const cardGlass = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)";
+  const borderGlass = isDark
+    ? "1px solid rgba(255,255,255,0.08)"
+    : "1px solid rgba(0,0,0,0.08)";
+
   return (
     <Box
       sx={{
@@ -70,9 +83,11 @@ export const SidePanel = () => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        background: "linear-gradient(180deg, #0f172a 0%, #1e293b 100%)",
-        color: "white",
-        boxShadow: "4px 0 15px rgba(0, 0, 0, 0.4)",
+        background: panelBg,
+        color: textColor,
+        boxShadow: isDark
+          ? "4px 0 15px rgba(0, 0, 0, 0.4)"
+          : "4px 0 15px rgba(0, 0, 0, 0.1)",
         p: 3,
       }}
     >
@@ -81,11 +96,13 @@ export const SidePanel = () => {
           sx={{
             mb: 5,
             borderRadius: 3,
-            background: "rgba(255, 255, 255, 0.05)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-            overflow: "visible",
+            borderTopLeftRadius: 0,
+            background: cardGlass,
+            backdropFilter: "blur(10px)",
+            border: borderGlass,
+            boxShadow: isDark
+              ? "0 8px 32px rgba(0, 0, 0, 0.3)"
+              : "0 8px 32px rgba(0, 0, 0, 0.05)",
             position: "relative",
           }}
         >
@@ -106,14 +123,12 @@ export const SidePanel = () => {
                     height: 80,
                     border: `3px solid ${getRoleColor(user?.role || "")}`,
                     bgcolor: blue[400],
-                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                    boxShadow: `0 0 20px ${getRoleColor(user?.role || "")}44`,
                     fontSize: "2rem",
                     fontWeight: "bold",
                   }}
                 >
-                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                    {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-                  </Typography>
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                 </Avatar>
                 <Box
                   sx={{
@@ -124,8 +139,8 @@ export const SidePanel = () => {
                     height: 16,
                     borderRadius: "50%",
                     bgcolor: "#22c55e",
-                    border: "2px solid #0f172a",
-                    boxShadow: "0 2px 8px rgba(34, 197, 94, 0.4)",
+                    border: `2px solid ${isDark ? "#0f172a" : "#f8fafc"}`,
+                    boxShadow: "0 0 8px rgba(34,197,94,0.4)",
                   }}
                 />
               </Box>
@@ -135,7 +150,9 @@ export const SidePanel = () => {
                 sx={{
                   fontWeight: 700,
                   mb: 0.5,
-                  background: "linear-gradient(45deg, #e2e8f0, #f8fafc)",
+                  background: isDark
+                    ? "linear-gradient(45deg, #e2e8f0, #38bdf8)"
+                    : "linear-gradient(45deg, #0f172a, #2563eb)",
                   backgroundClip: "text",
                   WebkitBackgroundClip: "text",
                   color: "transparent",
@@ -147,7 +164,7 @@ export const SidePanel = () => {
               <Typography
                 variant="body2"
                 sx={{
-                  color: grey[300],
+                  color: isDark ? "#cbd5e1" : "#475569",
                   mb: 1,
                   fontSize: "0.9rem",
                 }}
@@ -237,28 +254,26 @@ export const SidePanel = () => {
                   to={item.path}
                   sx={{
                     borderRadius: 2,
-                    color: isActive(item.path)
-                      ? blue[200]
-                      : "rgba(255,255,255,0.85)",
+                    color: isActive(item.path) ? iconActive : iconInactive,
                     backgroundColor: isActive(item.path)
-                      ? "rgba(96,165,250,0.1)"
+                      ? `${iconActive}11`
                       : "transparent",
                     "&:hover": {
-                      backgroundColor: "rgba(96,165,250,0.15)",
+                      backgroundColor: `${iconActive}1A`,
                       transform: "translateY(-1px)",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+                      boxShadow: isDark
+                        ? "0 4px 12px rgba(0,0,0,0.3)"
+                        : "0 4px 12px rgba(0,0,0,0.1)",
                     },
                     transition: "all 0.2s ease-in-out",
                     border: isActive(item.path)
-                      ? "1px solid rgba(96,165,250,0.3)"
+                      ? `1px solid ${iconActive}33`
                       : "1px solid transparent",
                   }}
                 >
                   <ListItemIcon
                     sx={{
-                      color: isActive(item.path)
-                        ? blue[300]
-                        : "rgba(255,255,255,0.7)",
+                      color: isActive(item.path) ? iconActive : iconInactive,
                       minWidth: 40,
                     }}
                   >
@@ -278,6 +293,7 @@ export const SidePanel = () => {
         </List>
       </Box>
 
+      
       <Box sx={{ mt: "auto", pt: 3 }}>
         <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
           <Button
@@ -286,17 +302,19 @@ export const SidePanel = () => {
             disabled={isPending}
             fullWidth
             sx={{
-              color: "white",
+              color: isDark ? "white" : "#0f172a",
               textTransform: "none",
               borderRadius: 2,
               py: 1.2,
-              backgroundColor: "rgba(255,255,255,0.08)",
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(0,0,0,0.04)",
               "&:hover": {
-                backgroundColor: "rgba(255,59,48,0.2)",
+                backgroundColor: "rgba(255,59,48,0.15)",
                 color: "#ff3b30",
               },
               fontWeight: 500,
-              border: "1px solid rgba(255,255,255,0.1)",
+              border: borderGlass,
               transition: "all 0.2s ease-in-out",
             }}
           >

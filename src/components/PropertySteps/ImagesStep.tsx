@@ -39,7 +39,7 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".webp"],
+  "image/*": [".jpeg", ".jpg", ".png", ".webp"],
     },
     maxFiles: 20,
   maxSize: 10 * 1024 * 1024,

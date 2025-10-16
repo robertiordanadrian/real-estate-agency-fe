@@ -19,12 +19,14 @@ import {
   Stack,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { normalizeRole } from "../../common/utils/normalize-role.util";
 import { ERole } from "../../common/enums/role.enums";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function Settings() {
+  const theme = useTheme();
   const qc = useQueryClient();
   const { data: user } = useUserQuery();
   const updateUser = useUpdateUser();
@@ -86,14 +88,17 @@ export default function Settings() {
         message: "Datele au fost salvate cu succes!",
         severity: "success",
       });
-    } catch (err) {
+    } catch {
       setToast({
         open: true,
-        message: "A apărut o eroare la salvare. Încearcă din nou.",
+        message: "A aparut o eroare la salvare. Incearca din nou.",
         severity: "error",
       });
     }
   };
+
+  const accent = theme.palette.primary.main;
+  const isDark = theme.palette.mode === "dark";
 
   return (
     <Box
@@ -101,6 +106,7 @@ export default function Settings() {
         minHeight: "calc(100vh - 32px)",
         display: "grid",
         placeItems: "center",
+        bgcolor: theme.palette.background.default,
       }}
     >
       <Container maxWidth="md" disableGutters>
@@ -109,18 +115,25 @@ export default function Settings() {
           sx={{
             p: 4,
             borderRadius: 3,
-            background: "linear-gradient(135deg, #1e293b, #0f172a)",
-            color: "#e2e8f0",
+            bgcolor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
             width: "100%",
             maxWidth: 800,
             mx: "auto",
+            boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
+            transition: "all 0.3s ease",
           }}
         >
           <Typography variant="h5" mb={3} fontWeight={600}>
             Setari
           </Typography>
 
-          <Divider sx={{ mb: 3, borderColor: "rgba(255,255,255,0.1)" }} />
+          <Divider
+            sx={{
+              mb: 3,
+              borderColor: theme.palette.divider,
+            }}
+          />
 
           <Stack alignItems="center" spacing={2} sx={{ mb: 4 }}>
             <Avatar
@@ -128,24 +141,25 @@ export default function Settings() {
               sx={{
                 width: 100,
                 height: 100,
-                border: "2px solid #38bdf8",
-                boxShadow: "0 0 12px rgba(56,189,248,0.5)",
-                bgcolor: "#1e293b",
+                border: `2px solid ${accent}`,
+                boxShadow: `0 0 12px ${accent}55`,
+                bgcolor: theme.palette.background.default,
                 transition: "all 0.3s ease",
               }}
             >
-              {!user?.profilePicture && user?.name?.charAt(0)}
+              {!user?.profilePicture && user?.name?.charAt(0).toUpperCase()}
             </Avatar>
 
             <Button
               variant="outlined"
               component="label"
               sx={{
-                color: "#38bdf8",
-                borderColor: "#38bdf8",
+                color: accent,
+                borderColor: accent,
+                fontWeight: 600,
                 "&:hover": {
-                  borderColor: "#0ea5e9",
-                  background: "rgba(14,165,233,0.1)",
+                  borderColor: accent,
+                  backgroundColor: `${accent}11`,
                 },
               }}
             >
@@ -159,6 +173,7 @@ export default function Settings() {
             </Button>
           </Stack>
 
+          {/* FORM */}
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -176,7 +191,6 @@ export default function Settings() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 fullWidth
-                slotProps={{ input: { style: { color: "#e2e8f0" } } }}
               />
 
               <TextField
@@ -185,7 +199,6 @@ export default function Settings() {
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 fullWidth
-                slotProps={{ input: { style: { color: "#e2e8f0" } } }}
               />
 
               <TextField
@@ -199,7 +212,6 @@ export default function Settings() {
                   })
                 }
                 fullWidth
-                slotProps={{ input: { style: { color: "#e2e8f0" } } }}
               >
                 {Object.values(ERole).map((r) => (
                   <MenuItem key={r} value={r}>
@@ -216,13 +228,10 @@ export default function Settings() {
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 fullWidth
-                slotProps={{
-                  input: {
-                    style: { color: "#e2e8f0" },
-                    endAdornment: (
-                      <InputAdornment position="end">🔒</InputAdornment>
-                    ),
-                  },
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">🔒</InputAdornment>
+                  ),
                 }}
               />
 
@@ -234,13 +243,10 @@ export default function Settings() {
                   setForm({ ...form, confirmPassword: e.target.value })
                 }
                 fullWidth
-                slotProps={{
-                  input: {
-                    style: { color: "#e2e8f0" },
-                    endAdornment: (
-                      <InputAdornment position="end">🔒</InputAdornment>
-                    ),
-                  },
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">🔒</InputAdornment>
+                  ),
                 }}
               />
             </Box>
@@ -252,14 +258,20 @@ export default function Settings() {
               disabled={updateUser.isPending || uploadAvatar.isPending}
               sx={{
                 mt: 4,
-                backgroundColor: "#0ea5e9",
-                "&:hover": { backgroundColor: "#0284c7" },
+                py: 1.4,
+                backgroundColor: accent,
+                color: theme.palette.getContrastText(accent),
                 fontWeight: 600,
-                color: "#ffffff",
+                "&:hover": {
+                  backgroundColor: theme.palette.primary.dark,
+                },
               }}
             >
               {updateUser.isPending || uploadAvatar.isPending ? (
-                <CircularProgress size={24} sx={{ color: "white" }} />
+                <CircularProgress
+                  size={24}
+                  sx={{ color: theme.palette.getContrastText(accent) }}
+                />
               ) : (
                 "Salveaza"
               )}
@@ -267,6 +279,7 @@ export default function Settings() {
           </Box>
         </Paper>
       </Container>
+
       <Snackbar
         open={toast.open}
         autoHideDuration={3000}

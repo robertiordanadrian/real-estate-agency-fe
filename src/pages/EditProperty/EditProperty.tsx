@@ -13,6 +13,7 @@ import {
   Paper,
   Divider,
   Container,
+  useTheme,
 } from "@mui/material";
 import { GeneralDetailsStep } from "../../components/PropertySteps/GeneralDetailsStep";
 import { CharacteristicsStep } from "../../components/PropertySteps/CharacteristicsStep";
@@ -24,7 +25,6 @@ import type { IProperty } from "../../common/interfaces/property.interface";
 
 import {
   propertiesKeys,
-  usePropertiesQuery,
   usePropertyQuery,
 } from "../../features/properties/propertiesQueries";
 import { PropertiesApi } from "../../features/properties/propertiesApi";
@@ -43,6 +43,9 @@ const steps = [
 export const EditProperty: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.primary.main;
 
   const { data: propertyFromQuery } = usePropertyQuery(id ?? "");
 
@@ -95,7 +98,7 @@ export const EditProperty: React.FC = () => {
         setFormData(fetchedProperty ?? null);
       } catch (err) {
         console.error("Error fetching property:", err);
-        showSnackbar("Eroare la incarcarea proprietatilor", "error");
+        showSnackbar("Eroare la incarcarea proprietatii", "error");
         navigate("/");
       } finally {
         setIsLoading(false);
@@ -122,13 +125,11 @@ export const EditProperty: React.FC = () => {
         await PropertiesApi.uploadContract(id, contractFile);
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: propertiesKeys.all,
-      });
+      await queryClient.invalidateQueries({ queryKey: propertiesKeys.all });
 
       showSnackbar("Proprietate actualizata cu succes!", "success");
 
-      setTimeout(() => navigate(`/properties`), 2000);
+      setTimeout(() => navigate(`/properties`), 1500);
       setContractFile(null);
     } catch (error: any) {
       let errorMessage = "A aparut o eroare. Te rugam sa incerci din nou.";
@@ -139,8 +140,7 @@ export const EditProperty: React.FC = () => {
           errorMessage =
             "Fisierele sunt prea mari. Redu dimensiunea imaginilor.";
         else if (status === 415)
-          errorMessage =
-            "Tip de fisier neacceptat. Doar imagini (JPEG, PNG, WebP).";
+          errorMessage = "Tip de fisier neacceptat. Incarca doar imagini.";
         else if (status === 400)
           errorMessage = "Date invalide. Verifica toate campurile.";
         else if (error.response.data?.message)
@@ -233,23 +233,23 @@ export const EditProperty: React.FC = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading)
     return (
       <Box
         sx={{
           display: "flex",
-          justifyContent: "center",
           alignItems: "center",
+          justifyContent: "center",
           height: "50vh",
+          color: theme.palette.text.secondary,
         }}
       >
-        <CircularProgress />
+        <CircularProgress color="primary" />
         <Typography sx={{ ml: 2 }}>Se incarca proprietatea...</Typography>
       </Box>
     );
-  }
 
-  if (!formData) {
+  if (!formData)
     return (
       <Box sx={{ p: 3 }}>
         <Typography variant="h5" color="error">
@@ -258,46 +258,34 @@ export const EditProperty: React.FC = () => {
         <Button
           variant="contained"
           sx={{ mt: 2 }}
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/properties")}
         >
           Inapoi la lista
         </Button>
       </Box>
     );
-  }
 
   return (
     <Box
       sx={{
         width: "100%",
         minHeight: "calc(100vh - 32px)",
-        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
         py: 1,
       }}
     >
-      <Container
-        maxWidth="xl"
-        disableGutters
-        sx={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+      <Container maxWidth="xl" disableGutters>
         <Paper
           elevation={3}
           sx={{
             flex: 1,
             p: 4,
             borderRadius: 3,
-            background: "linear-gradient(135deg, #1e293b, #0f172a)",
-            color: "#e2e8f0",
-            width: "100%",
-            height: "100%",
-            boxShadow: "0 0 25px rgba(56,189,248,0.15)",
+            background: `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`,
+            color: theme.palette.text.primary,
+            boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
             display: "flex",
             flexDirection: "column",
           }}
@@ -306,7 +294,7 @@ export const EditProperty: React.FC = () => {
             Editeaza proprietatea
           </Typography>
 
-          <Divider sx={{ mb: 3, borderColor: "rgba(255,255,255,0.1)" }} />
+          <Divider sx={{ mb: 3, borderColor: theme.palette.divider }} />
 
           <Stepper activeStep={activeStep} alternativeLabel>
             {steps.map((label) => (
@@ -318,22 +306,45 @@ export const EditProperty: React.FC = () => {
 
           <Box sx={{ mt: 4, flex: 1, overflowY: "auto" }}>{renderStep()}</Box>
 
-          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              mt: 3,
+              pt: 2,
+              borderTop: `1px solid ${theme.palette.divider}`,
+            }}
+          >
             <Button
               disabled={activeStep === 0}
               onClick={handleBack}
               variant="outlined"
+              sx={{
+                color: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+                "&:hover": {
+                  borderColor: theme.palette.primary.dark,
+                  background: `${accent}11`,
+                },
+              }}
             >
               Inapoi
             </Button>
+
             {activeStep === steps.length - 1 ? (
               <Button
                 variant="contained"
-                color="primary"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 size="large"
-                sx={{ color: "#ffffff" }}
+                sx={{
+                  fontWeight: 600,
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.getContrastText(
+                    theme.palette.primary.main
+                  ),
+                  "&:hover": { bgcolor: theme.palette.primary.dark },
+                }}
               >
                 {isSubmitting
                   ? "Se actualizeaza..."
@@ -342,9 +353,16 @@ export const EditProperty: React.FC = () => {
             ) : (
               <Button
                 variant="contained"
-                color="primary"
                 onClick={handleNext}
-                sx={{ color: "#ffffff" }}
+                size="large"
+                sx={{
+                  fontWeight: 600,
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.getContrastText(
+                    theme.palette.primary.main
+                  ),
+                  "&:hover": { bgcolor: theme.palette.primary.dark },
+                }}
               >
                 Urmatorul pas
               </Button>

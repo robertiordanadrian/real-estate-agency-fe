@@ -11,6 +11,7 @@ import {
   Container,
   Paper,
   Divider,
+  useTheme,
 } from "@mui/material";
 import { GeneralDetailsStep } from "../../components/PropertySteps/GeneralDetailsStep";
 import { CharacteristicsStep } from "../../components/PropertySteps/CharacteristicsStep";
@@ -47,10 +48,7 @@ import {
   EContactType,
   ESignedContract,
 } from "../../common/enums/price.enums";
-import {
-  propertiesKeys,
-  usePropertiesQuery,
-} from "../../features/properties/propertiesQueries";
+import { propertiesKeys } from "../../features/properties/propertiesQueries";
 import { PropertiesApi } from "../../features/properties/propertiesApi";
 import { queryClient } from "../../services/queryClient";
 
@@ -196,6 +194,10 @@ const defaultDescription: IDescription = {
 };
 
 export const AddProperty: React.FC = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.primary.main;
+
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<IProperty>({
@@ -231,9 +233,7 @@ export const AddProperty: React.FC = () => {
       const newProperty = await PropertiesApi.create(propertyPayload);
       const propertyId = newProperty._id;
 
-      if (!propertyId) {
-        throw new Error("Property ID not returned from backend");
-      }
+      if (!propertyId) throw new Error("Property ID not returned from backend");
 
       if (imageFiles.length > 0) {
         await PropertiesApi.uploadImages(propertyId, imageFiles);
@@ -243,9 +243,7 @@ export const AddProperty: React.FC = () => {
         await PropertiesApi.uploadContract(propertyId, contractFile);
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: propertiesKeys.all,
-      });
+      await queryClient.invalidateQueries({ queryKey: propertiesKeys.all });
 
       showSnackbar("Proprietate creata cu succes!", "success");
 
@@ -262,26 +260,8 @@ export const AddProperty: React.FC = () => {
         setContractFile(null);
         setActiveStep(0);
       }, 1500);
-    } catch (error: any) {
-      let errorMessage = "A aparut o eroare. Te rugam sa incerci din nou.";
-
-      if (error.response) {
-        const status = error.response.status;
-        if (status === 413)
-          errorMessage =
-            "Fisierul este prea mare. Redu dimensiunea imaginilor.";
-        else if (status === 415)
-          errorMessage =
-            "Tip de fisier neacceptat. Incarca doar imagini (JPEG, PNG, WebP).";
-        else if (status === 400)
-          errorMessage = "Date invalide. Verifica toate campurile.";
-        else if (error.response.data?.message)
-          errorMessage = error.response.data.message;
-      } else if (error.request) {
-        errorMessage = "Eroare de retea. Verifica conexiunea la internet.";
-      }
-
-      showSnackbar(errorMessage, "error");
+    } catch {
+      showSnackbar("A aparut o eroare. Te rugam sa incerci din nou.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -362,7 +342,6 @@ export const AddProperty: React.FC = () => {
       sx={{
         width: "100%",
         minHeight: "calc(100vh - 32px)",
-        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
@@ -384,11 +363,9 @@ export const AddProperty: React.FC = () => {
             flex: 1,
             p: 4,
             borderRadius: 3,
-            background: "linear-gradient(135deg, #1e293b, #0f172a)",
-            color: "#e2e8f0",
-            width: "100%",
-            height: "100%",
-            boxShadow: "0 0 25px rgba(56,189,248,0.15)",
+            background: `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`,
+            color: theme.palette.text.primary,
+            boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
             display: "flex",
             flexDirection: "column",
           }}
@@ -397,7 +374,7 @@ export const AddProperty: React.FC = () => {
             Adauga o proprietate
           </Typography>
 
-          <Divider sx={{ mb: 3, borderColor: "rgba(255,255,255,0.1)" }} />
+          <Divider sx={{ mb: 3, borderColor: theme.palette.divider }} />
 
           <Stepper activeStep={activeStep} alternativeLabel>
             {steps.map((label) => (
@@ -415,7 +392,7 @@ export const AddProperty: React.FC = () => {
               justifyContent: "space-between",
               mt: 3,
               pt: 2,
-              borderTop: "1px solid rgba(255,255,255,0.1)",
+              borderTop: `1px solid ${theme.palette.divider}`,
             }}
           >
             <Button
@@ -423,11 +400,11 @@ export const AddProperty: React.FC = () => {
               onClick={handleBack}
               variant="outlined"
               sx={{
-                color: "#38bdf8",
-                borderColor: "#38bdf8",
+                color: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
                 "&:hover": {
-                  borderColor: "#0ea5e9",
-                  background: "rgba(14,165,233,0.1)",
+                  borderColor: theme.palette.primary.dark,
+                  background: `${accent}11`,
                 },
               }}
             >
@@ -437,15 +414,16 @@ export const AddProperty: React.FC = () => {
             {activeStep === steps.length - 1 ? (
               <Button
                 variant="contained"
-                color="primary"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 size="large"
                 sx={{
                   fontWeight: 600,
-                  backgroundColor: "#0ea5e9",
-                  color: "#ffffff",
-                  "&:hover": { backgroundColor: "#0284c7" },
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.getContrastText(
+                    theme.palette.primary.main
+                  ),
+                  "&:hover": { bgcolor: theme.palette.primary.dark },
                 }}
               >
                 {isSubmitting ? "Se trimite..." : "Trimite"}
@@ -453,14 +431,15 @@ export const AddProperty: React.FC = () => {
             ) : (
               <Button
                 variant="contained"
-                color="primary"
                 onClick={handleNext}
                 size="large"
                 sx={{
                   fontWeight: 600,
-                  backgroundColor: "#0ea5e9",
-                  color: "#ffffff",
-                  "&:hover": { backgroundColor: "#0284c7" },
+                  bgcolor: theme.palette.primary.main,
+                  color: theme.palette.getContrastText(
+                    theme.palette.primary.main
+                  ),
+                  "&:hover": { bgcolor: theme.palette.primary.dark },
                 }}
               >
                 Urmatorul pas

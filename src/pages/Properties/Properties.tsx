@@ -5,6 +5,7 @@ import {
   Paper,
   Typography,
   Divider,
+  useTheme,
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +13,10 @@ import { PropertiesList } from "../../components/PropertiesList/PropertiesList";
 
 export default function Properties() {
   const navigate = useNavigate();
+  const theme = useTheme();
+
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.primary.main;
 
   return (
     <Box
@@ -40,11 +45,13 @@ export default function Properties() {
             flex: 1,
             p: 4,
             borderRadius: 3,
-            background: "linear-gradient(135deg, #1e293b, #0f172a)",
-            color: "#e2e8f0",
+            background: isDark
+              ? `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`
+              : `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`,
+            color: theme.palette.text.primary,
             width: "100%",
             minHeight: "80vh",
-            boxShadow: "0 0 25px rgba(56,189,248,0.15)",
+            boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
             display: "flex",
             flexDirection: "column",
           }}
@@ -66,14 +73,19 @@ export default function Properties() {
 
             <Button
               variant="contained"
-              color="success"
               startIcon={<Add />}
               onClick={() => navigate("/properties/add")}
               sx={{
                 textTransform: "none",
                 fontWeight: 600,
-                boxShadow: "0 0 12px rgba(34,197,94,0.3)",
-                color: "#ffffff",
+                backgroundColor: theme.palette.success.main,
+                color: theme.palette.getContrastText(
+                  theme.palette.success.main
+                ),
+                boxShadow: `0 0 12px ${theme.palette.success.main}44`,
+                "&:hover": {
+                  backgroundColor: theme.palette.success.dark,
+                },
               }}
             >
               Adauga Proprietate
@@ -81,7 +93,14 @@ export default function Properties() {
           </Box>
 
           <Divider
-            sx={{ mb: 3, borderColor: "rgba(255,255,255,0.1)", flexShrink: 0 }}
+            sx={{
+              mb: 3,
+              borderColor:
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.1)",
+              flexShrink: 0,
+            }}
           />
 
           <Box
