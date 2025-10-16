@@ -25,7 +25,11 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useLogout } from "../../features/auth/authMutations";
 import { useUserQuery } from "../../features/users/usersQueries";
 
-export const SidePanel = () => {
+interface SidePanelProps {
+  onNavigate?: () => void; // 👈 nouă prop opțională pentru mobile drawer
+}
+
+export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
   const theme = useTheme();
   const { data: user } = useUserQuery();
   const { mutate: logout, isPending } = useLogout();
@@ -78,8 +82,8 @@ export const SidePanel = () => {
   return (
     <Box
       sx={{
-        width: 400,
-        height: "100vh",
+        width: "100%",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -91,6 +95,7 @@ export const SidePanel = () => {
         p: 3,
       }}
     >
+      {/* HEADER USER CARD */}
       <Box>
         <Card
           sx={{
@@ -224,6 +229,7 @@ export const SidePanel = () => {
           />
         </Card>
 
+        {/* NAV LINKS */}
         <List>
           {[
             { icon: <Dashboard />, label: "Dashboard", path: "/" },
@@ -252,6 +258,7 @@ export const SidePanel = () => {
                 <ListItemButton
                   component={NavLink}
                   to={item.path}
+                  onClick={() => onNavigate?.()} // 👈 închide Drawer pe mobile
                   sx={{
                     borderRadius: 2,
                     color: isActive(item.path) ? iconActive : iconInactive,
@@ -293,7 +300,7 @@ export const SidePanel = () => {
         </List>
       </Box>
 
-      
+      {/* FOOTER LOGOUT */}
       <Box sx={{ mt: "auto", pt: 3 }}>
         <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
           <Button

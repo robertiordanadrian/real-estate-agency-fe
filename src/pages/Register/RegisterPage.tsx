@@ -17,6 +17,7 @@ import {
   CardContent,
   Divider,
   IconButton,
+  Grid,
   useTheme,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +29,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const ROLES = ["MANAGER", "AGENT"];
 
-const RegisterPage = () => {
+export default function RegisterPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const currentUser = useAppSelector(selectUser);
@@ -56,9 +57,7 @@ const RegisterPage = () => {
 
   useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => {
-        navigate("/");
-      }, 2500);
+      const timer = setTimeout(() => navigate("/"), 2500);
       return () => clearTimeout(timer);
     }
   }, [success, navigate]);
@@ -69,9 +68,7 @@ const RegisterPage = () => {
 
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
+      reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
     } else {
       setImagePreview(null);
@@ -84,7 +81,7 @@ const RegisterPage = () => {
     setSuccess("");
 
     if (!name || !email || !password) {
-      setError("Toate campurile sunt obligatorii");
+      setError("Toate câmpurile sunt obligatorii");
       return;
     }
 
@@ -109,13 +106,9 @@ const RegisterPage = () => {
       const message =
         err?.response?.data?.message ||
         err?.message ||
-        "Inregistrarea a esuat. Incearca din nou.";
+        "Înregistrarea a eșuat. Încearcă din nou.";
       setError(message);
     }
-  };
-
-  const handleBack = () => {
-    navigate(-1);
   };
 
   if (!currentUser || currentUser.role !== "CEO") {
@@ -134,115 +127,103 @@ const RegisterPage = () => {
   }
 
   return (
-    <Container maxWidth="md">
-      <Box
+    <Container maxWidth="md" sx={{ py: { xs: 2, sm: 4 } }}>
+      <Paper
         sx={{
-          minHeight: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          py: 4,
+          p: { xs: 3, sm: 5 },
+          borderRadius: 3,
+          bgcolor: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+          boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
         }}
       >
-        <Paper
-          sx={{
-            p: 4,
-            bgcolor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            width: "100%",
-            boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 12px ${accent}11`,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-            <IconButton
-              onClick={handleBack}
-              sx={{
-                mr: 2,
-                color: accent,
-                "&:hover": {
-                  backgroundColor: `${accent}11`,
-                },
-              }}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-            <Typography variant="h4" align="center" sx={{ flex: 1 }}>
-              Inregistrare Agent / Manager
-            </Typography>
-            <Box sx={{ width: 40 }} />
-          </Box>
+        {/* Header */}
+        <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+          <IconButton
+            onClick={() => navigate(-1)}
+            sx={{
+              mr: 2,
+              color: accent,
+              "&:hover": { backgroundColor: `${accent}11` },
+            }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography
+            variant="h5"
+            fontWeight={700}
+            sx={{
+              flex: 1,
+              background: isDark
+                ? "linear-gradient(45deg, #38bdf8, #818cf8)"
+                : "linear-gradient(45deg, #0f172a, #2563eb)",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              color: "transparent",
+              textAlign: "center",
+            }}
+          >
+            Înregistrare Agent / Manager
+          </Typography>
+          <Box sx={{ width: 40 }} />
+        </Box>
 
-          <Alert severity="info" sx={{ mb: 3 }}>
-            Doar utilizatorii cu rolul de <b>CEO</b> pot crea conturi noi. Vei
-            ramane logat ca CEO dupa crearea utilizatorului.
-          </Alert>
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Doar utilizatorii cu rolul de <b>CEO</b> pot crea conturi noi. Vei
+          rămâne logat ca CEO după crearea utilizatorului.
+        </Alert>
 
-          <Box component="form" onSubmit={handleSubmit}>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-                gap: 3,
-                alignItems: "stretch",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  height: "100%",
-                  gap: 2,
-                }}
-              >
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <TextField
-                    label="Nume complet"
-                    fullWidth
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                  <TextField
-                    label="Email"
-                    type="email"
-                    fullWidth
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <TextField
-                    label="Parola"
-                    type="password"
-                    fullWidth
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-
-                  <FormControl fullWidth>
-                    <InputLabel id="role-select-label">Rol</InputLabel>
-                    <Select
-                      labelId="role-select-label"
-                      value={role}
-                      label="Rol"
-                      onChange={(e) => setRole(e.target.value)}
-                    >
-                      {ROLES.map((r) => (
-                        <MenuItem key={r} value={r}>
-                          {r}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Box>
+        {/* === FORM === */}
+        <Box component="form" onSubmit={handleSubmit}>
+          <Grid container spacing={3}>
+            {/* === Left Column === */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <TextField
+                  label="Nume complet"
+                  fullWidth
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <TextField
+                  label="Email"
+                  type="email"
+                  fullWidth
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <TextField
+                  label="Parolă"
+                  type="password"
+                  fullWidth
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <FormControl fullWidth>
+                  <InputLabel id="role-select-label">Rol</InputLabel>
+                  <Select
+                    labelId="role-select-label"
+                    value={role}
+                    label="Rol"
+                    onChange={(e) => setRole(e.target.value)}
+                  >
+                    {ROLES.map((r) => (
+                      <MenuItem key={r} value={r}>
+                        {r}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
                 <Button
                   variant="outlined"
                   component="label"
                   fullWidth
                   sx={{
-                    mt: "auto",
+                    mt: 1,
                     py: 1.2,
                     fontWeight: 600,
                     borderColor: accent,
@@ -253,7 +234,7 @@ const RegisterPage = () => {
                     },
                   }}
                 >
-                  {profileImage ? "Schimba imaginea" : "Incarca imagine profil"}
+                  {profileImage ? "Schimbă imaginea" : "Încarcă imagine profil"}
                   <input
                     type="file"
                     hidden
@@ -262,17 +243,17 @@ const RegisterPage = () => {
                   />
                 </Button>
               </Box>
+            </Grid>
 
+            {/* === Right Column (Preview) === */}
+            <Grid size={{ xs: 12, md: 6 }}>
               <Card
                 variant="outlined"
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
+                  height: "100%",
+                  borderRadius: 3,
                   bgcolor: theme.palette.background.default,
                   color: theme.palette.text.primary,
-                  height: "100%",
                   boxShadow: isDark
                     ? `0 0 20px ${accent}22`
                     : `0 0 10px ${accent}11`,
@@ -280,24 +261,24 @@ const RegisterPage = () => {
               >
                 <CardContent
                   sx={{
-                    flex: 1,
-                    width: "100%",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    textAlign: "center",
                     gap: 2,
+                    height: "100%",
+                    textAlign: "center",
                   }}
                 >
-                  <Typography variant="h6">Preview Profil</Typography>
+                  <Typography variant="h6" fontWeight={600}>
+                    Preview Profil
+                  </Typography>
 
                   <Avatar
                     src={imagePreview || undefined}
                     sx={{
                       width: 100,
                       height: 100,
-                      mb: 1,
                       border: `3px solid ${
                         imagePreview ? accent : theme.palette.divider
                       }`,
@@ -305,6 +286,7 @@ const RegisterPage = () => {
                       color: theme.palette.getContrastText(
                         theme.palette.primary.light
                       ),
+                      fontSize: "2rem",
                       fontWeight: "bold",
                     }}
                   >
@@ -346,48 +328,57 @@ const RegisterPage = () => {
 
                   <Typography variant="body2" color="text.secondary">
                     {!imagePreview
-                      ? "Nu a fost selectata nicio imagine"
-                      : "Imagine de profil selectata"}
+                      ? "Nu a fost selectată nicio imagine"
+                      : "Imagine de profil selectată"}
                   </Typography>
                 </CardContent>
               </Card>
-            </Box>
+            </Grid>
+          </Grid>
 
-            {error && (
-              <Alert severity="error" sx={{ mt: 3 }}>
-                {error}
-              </Alert>
+          {/* === Alerts & Submit === */}
+          {error && (
+            <Alert severity="error" sx={{ mt: 3 }}>
+              {error}
+            </Alert>
+          )}
+
+          {success && (
+            <Alert severity="success" sx={{ mt: 3 }}>
+              {success}
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Redirecționare automată în 2-3 secunde...
+              </Typography>
+            </Alert>
+          )}
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 4,
+              py: 1.4,
+              fontWeight: 700,
+              fontSize: "1rem",
+              backgroundColor: accent,
+              color: theme.palette.getContrastText(accent),
+              borderRadius: 2,
+              "&:hover": { backgroundColor: theme.palette.primary.dark },
+            }}
+            disabled={isRegistering || isUploading}
+          >
+            {isRegistering || isUploading ? (
+              <CircularProgress
+                size={24}
+                sx={{ color: theme.palette.getContrastText(accent) }}
+              />
+            ) : (
+              "Creează utilizator"
             )}
-
-            {success && (
-              <Alert severity="success" sx={{ mt: 3 }}>
-                {success}
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  Redirectionare automata in 2-3 secunde...
-                </Typography>
-              </Alert>
-            )}
-
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 4, py: 1.5, fontWeight: 600 }}
-              disabled={isRegistering || isUploading}
-              size="large"
-            >
-              {isRegistering || isUploading ? (
-                <CircularProgress size={24} />
-              ) : (
-                "Trimite"
-              )}
-            </Button>
-          </Box>
-        </Paper>
-      </Box>
+          </Button>
+        </Box>
+      </Paper>
     </Container>
   );
-};
-
-export default RegisterPage;
+}

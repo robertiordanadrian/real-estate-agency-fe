@@ -6,6 +6,7 @@ import {
   Typography,
   Divider,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -14,9 +15,9 @@ import { PropertiesList } from "../../components/PropertiesList/PropertiesList";
 export default function Properties() {
   const navigate = useNavigate();
   const theme = useTheme();
-
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
     <Box
@@ -26,31 +27,32 @@ export default function Properties() {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        py: 1,
-        height: "100%",
+        py: { xs: 2, md: 3 },
+        px: { xs: 2, sm: 3 },
+        boxSizing: "border-box",
       }}
     >
       <Container
         maxWidth="xl"
         disableGutters
         sx={{
-          height: "100%",
           display: "flex",
           flexDirection: "column",
+          height: "100%",
         }}
       >
         <Paper
           elevation={3}
           sx={{
             flex: 1,
-            p: 4,
+            p: { xs: 2, sm: 3, md: 4 },
             borderRadius: 3,
             background: isDark
               ? `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`
               : `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`,
             color: theme.palette.text.primary,
             width: "100%",
-            minHeight: "80vh",
+            minHeight: "75vh",
             boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
             display: "flex",
             flexDirection: "column",
@@ -60,20 +62,24 @@ export default function Properties() {
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-              flexWrap: "wrap",
+              alignItems: { xs: "stretch", sm: "center" },
+              mb: { xs: 2, md: 3 },
+              flexDirection: { xs: "column", sm: "row" },
               gap: 2,
-              flexShrink: 0,
             }}
           >
-            <Typography variant="h5" fontWeight={600}>
-              Proprietati
+            <Typography
+              variant={isMobile ? "h6" : "h5"}
+              fontWeight={600}
+              sx={{ textAlign: { xs: "center", sm: "left" } }}
+            >
+              Proprietăți
             </Typography>
 
             <Button
               variant="contained"
               startIcon={<Add />}
+              fullWidth={isMobile}
               onClick={() => navigate("/properties/add")}
               sx={{
                 textTransform: "none",
@@ -88,7 +94,7 @@ export default function Properties() {
                 },
               }}
             >
-              Adauga Proprietate
+              Adaugă Proprietate
             </Button>
           </Box>
 
@@ -106,9 +112,9 @@ export default function Properties() {
           <Box
             sx={{
               flex: 1,
-              minHeight: 0,
-              display: "flex",
-              flexDirection: "column",
+              overflowX: "auto",
+              overflowY: "hidden",
+              borderRadius: 2,
             }}
           >
             <PropertiesList />

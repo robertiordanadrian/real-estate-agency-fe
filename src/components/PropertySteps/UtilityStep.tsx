@@ -11,6 +11,8 @@ import {
   OutlinedInput,
   Chip,
   Grid,
+  Paper,
+  useTheme,
 } from "@mui/material";
 import type { IUtilities } from "../../common/interfaces/utilities.interface";
 import {
@@ -41,6 +43,9 @@ interface UtilityStepProps {
 }
 
 export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   const handleChangeArray = <K extends keyof IUtilities>(
     key: K,
     value: string[]
@@ -96,204 +101,221 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
   );
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <Card>
-        <CardContent>
-          <Typography variant="subtitle1" mb={2}>
-            Utilitati generale
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Utilitati generale",
-                Object.values(EGeneral),
-                data.generals,
-                (v) => handleChangeArray("generals", v)
-              )}
-            </Grid>
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Sistem irigatie",
-                Object.values(EIrigationSystem),
-                data.irigationSystem,
-                (v) => handleChangeArray("irigationSystem", v)
-              )}
-            </Grid>
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Aer conditionat",
-                Object.values(EAirConditioning),
-                data.airConditioning,
-                (v) => handleChangeArray("airConditioning", v)
-              )}
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
+    <Paper
+      elevation={2}
+      sx={{
+        p: 3,
+        borderRadius: 3,
+        background: isDark
+          ? theme.palette.background.paper
+          : theme.palette.background.default,
+      }}
+    >
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {/* === UTILITĂȚI GENERALE === */}
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2} fontWeight={600}>
+              Utilitati generale
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Utilitati generale",
+                  Object.values(EGeneral),
+                  data.generals,
+                  (v) => handleChangeArray("generals", v)
+                )}
+              </Grid>
 
-      <Card>
-        <CardContent>
-          <Typography variant="subtitle1" mb={2}>
-            Finisaje
-          </Typography>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Sistem irigatie",
+                  Object.values(EIrigationSystem),
+                  data.irigationSystem,
+                  (v) => handleChangeArray("irigationSystem", v)
+                )}
+              </Grid>
 
-          <Grid container spacing={2}>
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Stadiu finisaje",
-                Object.values(EFinishesStatus),
-                data.finishes.status,
-                (v) => handleNestedChange("finishes", "status", v)
-              )}
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Aer conditionat",
+                  Object.values(EAirConditioning),
+                  data.airConditioning,
+                  (v) => handleChangeArray("airConditioning", v)
+                )}
+              </Grid>
             </Grid>
+          </CardContent>
+        </Card>
 
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Izolatii",
-                Object.values(EFinishesInsulation),
-                data.finishes.insulation,
-                (v) => handleNestedChange("finishes", "insulation", v)
-              )}
+        {/* === FINISAJE === */}
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2} fontWeight={600}>
+              Finisaje
+            </Typography>
+
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Stadiu finisaje",
+                  Object.values(EFinishesStatus),
+                  data.finishes.status,
+                  (v) => handleNestedChange("finishes", "status", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Izolatii",
+                  Object.values(EFinishesInsulation),
+                  data.finishes.insulation,
+                  (v) => handleNestedChange("finishes", "insulation", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Pereti",
+                  Object.values(EFinishesWalls),
+                  data.finishes.walls,
+                  (v) => handleNestedChange("finishes", "walls", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Pardoseli",
+                  Object.values(EFinishesFlooring),
+                  data.finishes.flooring,
+                  (v) => handleNestedChange("finishes", "flooring", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Ferestre",
+                  Object.values(EFinishesWindows),
+                  data.finishes.windows,
+                  (v) => handleNestedChange("finishes", "windows", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Obloane",
+                  Object.values(EFinishesLouver),
+                  data.finishes.louver,
+                  (v) => handleNestedChange("finishes", "louver", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Usi intrare",
+                  Object.values(EFinishesEnteringDoor),
+                  data.finishes.enteringDoor,
+                  (v) => handleNestedChange("finishes", "enteringDoor", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Usi interioare",
+                  Object.values(EFinishesInteriorDoors),
+                  data.finishes.interiorDoors,
+                  (v) => handleNestedChange("finishes", "interiorDoors", v)
+                )}
+              </Grid>
             </Grid>
+          </CardContent>
+        </Card>
 
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Pereti",
-                Object.values(EFinishesWalls),
-                data.finishes.walls,
-                (v) => handleNestedChange("finishes", "walls", v)
-              )}
+        {/* === ECHIPAMENTE === */}
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2} fontWeight={600}>
+              Echipamente
+            </Typography>
+
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Mobilier",
+                  Object.values(EFurnished),
+                  data.equipment.furnished,
+                  (v) => handleNestedChange("equipment", "furnished", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Spatii aditionale",
+                  Object.values(EAdditionalSpaces),
+                  data.equipment.additionalSpaces,
+                  (v) => handleNestedChange("equipment", "additionalSpaces", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Bucatarie",
+                  Object.values(EKitchen),
+                  data.equipment.kitchen,
+                  (v) => handleNestedChange("equipment", "kitchen", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Aparate electrocasnice",
+                  Object.values(EAppliances),
+                  data.equipment.appliances,
+                  (v) => handleNestedChange("equipment", "appliances", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Imobile incluse",
+                  Object.values(EImmobile),
+                  data.equipment.immobile,
+                  (v) => handleNestedChange("equipment", "immobile", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Spatii recreative",
+                  Object.values(ERecreationalSpaces),
+                  data.equipment.recreationalSpaces,
+                  (v) =>
+                    handleNestedChange("equipment", "recreationalSpaces", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Exterior",
+                  Object.values(EExterior),
+                  data.equipment.exterior,
+                  (v) => handleNestedChange("equipment", "exterior", v)
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                {renderMultiSelect(
+                  "Contorizare",
+                  Object.values(EAccounting),
+                  data.equipment.accounting,
+                  (v) => handleNestedChange("equipment", "accounting", v)
+                )}
+              </Grid>
             </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Pardoseli",
-                Object.values(EFinishesFlooring),
-                data.finishes.flooring,
-                (v) => handleNestedChange("finishes", "flooring", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Ferestre",
-                Object.values(EFinishesWindows),
-                data.finishes.windows,
-                (v) => handleNestedChange("finishes", "windows", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Obloane",
-                Object.values(EFinishesLouver),
-                data.finishes.louver,
-                (v) => handleNestedChange("finishes", "louver", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Usi intrare",
-                Object.values(EFinishesEnteringDoor),
-                data.finishes.enteringDoor,
-                (v) => handleNestedChange("finishes", "enteringDoor", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Usi interioare",
-                Object.values(EFinishesInteriorDoors),
-                data.finishes.interiorDoors,
-                (v) => handleNestedChange("finishes", "interiorDoors", v)
-              )}
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent>
-          <Typography variant="subtitle1" mb={2}>
-            Echipamente
-          </Typography>
-
-          <Grid container spacing={2}>
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Mobilier",
-                Object.values(EFurnished),
-                data.equipment.furnished,
-                (v) => handleNestedChange("equipment", "furnished", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Spatii aditionale",
-                Object.values(EAdditionalSpaces),
-                data.equipment.additionalSpaces,
-                (v) => handleNestedChange("equipment", "additionalSpaces", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Bucatarie",
-                Object.values(EKitchen),
-                data.equipment.kitchen,
-                (v) => handleNestedChange("equipment", "kitchen", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Aparate electrocasnice",
-                Object.values(EAppliances),
-                data.equipment.appliances,
-                (v) => handleNestedChange("equipment", "appliances", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Imobile incluse",
-                Object.values(EImmobile),
-                data.equipment.immobile,
-                (v) => handleNestedChange("equipment", "immobile", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Spatii recreative",
-                Object.values(ERecreationalSpaces),
-                data.equipment.recreationalSpaces,
-                (v) => handleNestedChange("equipment", "recreationalSpaces", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Exterior",
-                Object.values(EExterior),
-                data.equipment.exterior,
-                (v) => handleNestedChange("equipment", "exterior", v)
-              )}
-            </Grid>
-
-            <Grid size={4}>
-              {renderMultiSelect(
-                "Contorizare",
-                Object.values(EAccounting),
-                data.equipment.accounting,
-                (v) => handleNestedChange("equipment", "accounting", v)
-              )}
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-    </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    </Paper>
   );
 };

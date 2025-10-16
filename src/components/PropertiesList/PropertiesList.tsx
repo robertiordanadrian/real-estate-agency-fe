@@ -15,6 +15,7 @@ import {
   TableRow,
   Typography,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,7 @@ export const PropertiesList = () => {
   const rowsPerPage = 10;
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   if (isLoading)
     return (
@@ -49,7 +51,7 @@ export const PropertiesList = () => {
   if (error)
     return (
       <Typography color="error" textAlign="center" mt={4}>
-        Eroare la incarcarea proprietatilor.
+        Eroare la încărcarea proprietăților.
       </Typography>
     );
 
@@ -64,7 +66,7 @@ export const PropertiesList = () => {
           height: "100%",
         }}
       >
-        Nu exista proprietati.
+        Nu există proprietăți.
       </Box>
     );
 
@@ -79,7 +81,7 @@ export const PropertiesList = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        borderRadius: 3,
+        borderRadius: 2,
         overflow: "hidden",
         background: isDark
           ? `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`
@@ -88,12 +90,33 @@ export const PropertiesList = () => {
         height: "100%",
       }}
     >
-      <TableContainer sx={{ flex: 1, minHeight: 0 }}>
+      {/* Scroll orizontal pe ecrane mici */}
+      <TableContainer
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflowX: "auto",
+          "&::-webkit-scrollbar": {
+            height: 8,
+            backgroundColor: theme.palette.background.default,
+            borderRadius: 8,
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: accent,
+            borderRadius: 8,
+          },
+        }}
+      >
         <Table
           stickyHeader
           sx={{
-            minWidth: 1200,
-            "& .MuiTableCell-root": { whiteSpace: "nowrap" },
+            minWidth: isMobile ? 800 : 1200,
+            "& .MuiTableCell-root": {
+              whiteSpace: "nowrap",
+              fontSize: { xs: "0.8rem", sm: "0.9rem" },
+              px: { xs: 1.5, sm: 2 },
+              py: { xs: 1, sm: 1.5 },
+            },
           }}
         >
           <TableHead>
@@ -101,17 +124,17 @@ export const PropertiesList = () => {
               {[
                 "Imagine",
                 "Status",
-                "Tranzactie",
+                "Tranzacție",
                 "Tip",
-                "Pret (€)",
+                "Preț (€)",
                 "Camere",
-                "Suprafata (mp)",
+                "Suprafață (mp)",
                 "Etaj",
-                "Zona",
-                "Strada",
+                "Zonă",
+                "Stradă",
                 "Agent",
                 "Proprietar",
-                "Actiuni",
+                "Acțiuni",
               ].map((header) => (
                 <TableCell
                   key={header}
@@ -152,7 +175,7 @@ export const PropertiesList = () => {
                       variant="rounded"
                       src={img}
                       alt="property"
-                      sx={{ width: 60, height: 60 }}
+                      sx={{ width: 50, height: 50 }}
                     />
                   </TableCell>
 
@@ -190,7 +213,11 @@ export const PropertiesList = () => {
                   <TableCell>{generalDetails?.ownerID ?? "-"}</TableCell>
 
                   <TableCell>
-                    <Stack direction="row" spacing={1}>
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={1}
+                      alignItems="flex-start"
+                    >
                       <Button
                         variant="outlined"
                         size="small"
@@ -199,13 +226,14 @@ export const PropertiesList = () => {
                           textTransform: "none",
                           borderColor: accent,
                           color: accent,
+                          width: { xs: "100%", sm: "auto" },
                           "&:hover": {
                             borderColor: accent,
                             backgroundColor: `${accent}11`,
                           },
                         }}
                       >
-                        Vizualizeaza
+                        Vizualizează
                       </Button>
 
                       <Button
@@ -218,10 +246,11 @@ export const PropertiesList = () => {
                         }}
                         sx={{
                           textTransform: "none",
+                          width: { xs: "100%", sm: "auto" },
                           boxShadow: `0 0 8px ${theme.palette.success.main}33`,
                         }}
                       >
-                        Editeaza
+                        Editează
                       </Button>
                     </Stack>
                   </TableCell>
@@ -232,6 +261,7 @@ export const PropertiesList = () => {
         </Table>
       </TableContainer>
 
+      {/* Paginare */}
       <Box
         sx={{
           flexShrink: 0,

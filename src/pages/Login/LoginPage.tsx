@@ -8,17 +8,23 @@ import {
   Typography,
   CircularProgress,
   Link as MuiLink,
+  useTheme,
+  Alert,
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import { useLogin } from "../../features/auth/authMutations";
 
-const LoginPage = () => {
+export default function LoginPage() {
   const navigate = useNavigate();
+  const theme = useTheme();
   const { mutateAsync, isPending } = useLogin();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  const accent = theme.palette.primary.main;
+  const isDark = theme.palette.mode === "dark";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,15 +32,12 @@ const LoginPage = () => {
 
     try {
       await mutateAsync({ email, password });
-
-      setTimeout(() => {
-        navigate("/", { replace: true });
-      }, 100);
+      setTimeout(() => navigate("/", { replace: true }), 100);
     } catch (err: any) {
       const message =
         err?.response?.data?.message ||
         err?.message ||
-        "Login failed. Please try again.";
+        "Autentificarea a eșuat. Încearcă din nou.";
       setError(message);
     }
   };
@@ -47,14 +50,51 @@ const LoginPage = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          bgcolor: theme.palette.background.default,
+          py: 3,
         }}
       >
-        <Paper sx={{ p: 4, bgcolor: "background.paper", width: "100%" }}>
-          <Typography variant="h5" component="h1" gutterBottom>
-            Logheaza-te
+        <Paper
+          elevation={3}
+          sx={{
+            p: { xs: 3, sm: 5 },
+            width: "100%",
+            borderRadius: 3,
+            bgcolor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
+            transition: "all 0.3s ease",
+          }}
+        >
+          {/* === Header === */}
+          <Typography
+            variant="h5"
+            align="center"
+            fontWeight={700}
+            gutterBottom
+            sx={{
+              background: isDark
+                ? "linear-gradient(45deg, #38bdf8, #818cf8)"
+                : "linear-gradient(45deg, #0f172a, #2563eb)",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            Autentificare în cont
           </Typography>
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+          <Typography
+            variant="body2"
+            align="center"
+            color="text.secondary"
+            mb={3}
+          >
+            Introdu datele tale de acces pentru a continua.
+          </Typography>
+
+          {/* === Form === */}
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               label="Email"
               type="email"
@@ -64,8 +104,9 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+
             <TextField
-              label="Parola"
+              label="Parolă"
               type="password"
               fullWidth
               required
@@ -75,26 +116,41 @@ const LoginPage = () => {
             />
 
             {error && (
-              <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
                 {error}
-              </Typography>
+              </Alert>
             )}
 
             <Button
               type="submit"
               variant="contained"
-              color="primary"
               fullWidth
-              sx={{ mt: 3 }}
               disabled={isPending}
+              sx={{
+                mt: 4,
+                py: 1.4,
+                fontWeight: 700,
+                fontSize: "1rem",
+                backgroundColor: accent,
+                color: theme.palette.getContrastText(accent),
+                borderRadius: 2,
+                "&:hover": {
+                  backgroundColor: theme.palette.primary.dark,
+                },
+              }}
             >
-              {isPending ? <CircularProgress size={24} /> : "Login"}
+              {isPending ? (
+                <CircularProgress
+                  size={24}
+                  sx={{ color: theme.palette.getContrastText(accent) }}
+                />
+              ) : (
+                "Loghează-te"
+              )}
             </Button>
           </Box>
         </Paper>
       </Box>
     </Container>
   );
-};
-
-export default LoginPage;
+}

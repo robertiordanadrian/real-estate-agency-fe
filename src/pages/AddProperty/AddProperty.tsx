@@ -12,7 +12,9 @@ import {
   Paper,
   Divider,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
+
 import { GeneralDetailsStep } from "../../components/PropertySteps/GeneralDetailsStep";
 import { CharacteristicsStep } from "../../components/PropertySteps/CharacteristicsStep";
 import { UtilityStep } from "../../components/PropertySteps/UtilityStep";
@@ -48,6 +50,7 @@ import {
   EContactType,
   ESignedContract,
 } from "../../common/enums/price.enums";
+
 import { propertiesKeys } from "../../features/properties/propertiesQueries";
 import { PropertiesApi } from "../../features/properties/propertiesApi";
 import { queryClient } from "../../services/queryClient";
@@ -55,12 +58,13 @@ import { queryClient } from "../../services/queryClient";
 const steps = [
   "Detalii generale",
   "Caracteristici",
-  "Utilitati",
-  "Pret",
+  "Utilități",
+  "Preț",
   "Descriere",
   "Imagini",
 ];
 
+// ================== DEFAULT VALUES ==================
 const defaultGeneralDetails: IGeneralDetails = {
   agent: "",
   status: EStatus.ACTIV_COLD,
@@ -193,10 +197,12 @@ const defaultDescription: IDescription = {
   virtualTour: "",
 };
 
+// ================== COMPONENT ==================
 export const AddProperty: React.FC = () => {
   const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
+  const isDark = theme.palette.mode === "dark";
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -208,44 +214,39 @@ export const AddProperty: React.FC = () => {
     description: defaultDescription,
     images: [],
   });
-
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [contractFile, setContractFile] = useState<File | null>(null);
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error",
   });
 
-  const showSnackbar = (message: string, severity: "success" | "error") => {
+  const showSnackbar = (message: string, severity: "success" | "error") =>
     setSnackbar({ open: true, message, severity });
-  };
-  const handleCloseSnackbar = () => setSnackbar((s) => ({ ...s, open: false }));
+
+  const handleCloseSnackbar = () =>
+    setSnackbar((prev) => ({ ...prev, open: false }));
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const propertyPayload = {
-        ...formData,
-        images: [],
-      };
-
+      const propertyPayload = { ...formData, images: [] };
       const newProperty = await PropertiesApi.create(propertyPayload);
       const propertyId = newProperty._id;
 
-      if (!propertyId) throw new Error("Property ID not returned from backend");
+      if (!propertyId) throw new Error("Property ID missing");
 
-      if (imageFiles.length > 0) {
+      if (imageFiles.length)
         await PropertiesApi.uploadImages(propertyId, imageFiles);
-      }
 
-      if (contractFile) {
+      if (contractFile)
         await PropertiesApi.uploadContract(propertyId, contractFile);
-      }
 
       await queryClient.invalidateQueries({ queryKey: propertiesKeys.all });
 
-      showSnackbar("Proprietate creata cu succes!", "success");
+      showSnackbar("Proprietate creată cu succes!", "success");
 
       setTimeout(() => {
         setFormData({
@@ -261,7 +262,7 @@ export const AddProperty: React.FC = () => {
         setActiveStep(0);
       }, 1500);
     } catch {
-      showSnackbar("A aparut o eroare. Te rugam sa incerci din nou.", "error");
+      showSnackbar("A apărut o eroare. Încearcă din nou.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -345,23 +346,16 @@ export const AddProperty: React.FC = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        py: 1,
+        py: { xs: 2, sm: 3 },
+        px: { xs: 2, sm: 3, md: 4 },
       }}
     >
-      <Container
-        maxWidth="xl"
-        disableGutters
-        sx={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+      <Container maxWidth="xl" disableGutters>
         <Paper
           elevation={3}
           sx={{
             flex: 1,
-            p: 4,
+            p: { xs: 2, sm: 3, md: 4 },
             borderRadius: 3,
             background: `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`,
             color: theme.palette.text.primary,
@@ -370,13 +364,23 @@ export const AddProperty: React.FC = () => {
             flexDirection: "column",
           }}
         >
-          <Typography variant="h5" mb={3} fontWeight={600}>
-            Adauga o proprietate
+          <Typography
+            variant={isMobile ? "h6" : "h5"}
+            mb={2}
+            fontWeight={600}
+            textAlign={{ xs: "center", sm: "left" }}
+          >
+            Adaugă o proprietate
           </Typography>
 
           <Divider sx={{ mb: 3, borderColor: theme.palette.divider }} />
 
-          <Stepper activeStep={activeStep} alternativeLabel>
+          <Stepper
+            activeStep={activeStep}
+            alternativeLabel={!isMobile}
+            orientation={isMobile ? "vertical" : "horizontal"}
+            sx={{ mb: 3 }}
+          >
             {steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
@@ -384,12 +388,15 @@ export const AddProperty: React.FC = () => {
             ))}
           </Stepper>
 
-          <Box sx={{ mt: 4, flex: 1, overflowY: "auto" }}>{renderStep()}</Box>
+          <Box sx={{ mt: 2, flex: 1, overflowY: "auto" }}>{renderStep()}</Box>
 
           <Box
             sx={{
               display: "flex",
+              flexDirection: { xs: "column-reverse", sm: "row" },
               justifyContent: "space-between",
+              alignItems: "center",
+              gap: 2,
               mt: 3,
               pt: 2,
               borderTop: `1px solid ${theme.palette.divider}`,
@@ -399,6 +406,7 @@ export const AddProperty: React.FC = () => {
               disabled={activeStep === 0}
               onClick={handleBack}
               variant="outlined"
+              fullWidth={isMobile}
               sx={{
                 color: theme.palette.primary.main,
                 borderColor: theme.palette.primary.main,
@@ -408,43 +416,32 @@ export const AddProperty: React.FC = () => {
                 },
               }}
             >
-              Inapoi
+              Înapoi
             </Button>
 
-            {activeStep === steps.length - 1 ? (
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                size="large"
-                sx={{
-                  fontWeight: 600,
-                  bgcolor: theme.palette.primary.main,
-                  color: theme.palette.getContrastText(
-                    theme.palette.primary.main
-                  ),
-                  "&:hover": { bgcolor: theme.palette.primary.dark },
-                }}
-              >
-                {isSubmitting ? "Se trimite..." : "Trimite"}
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                size="large"
-                sx={{
-                  fontWeight: 600,
-                  bgcolor: theme.palette.primary.main,
-                  color: theme.palette.getContrastText(
-                    theme.palette.primary.main
-                  ),
-                  "&:hover": { bgcolor: theme.palette.primary.dark },
-                }}
-              >
-                Urmatorul pas
-              </Button>
-            )}
+            <Button
+              variant="contained"
+              onClick={
+                activeStep === steps.length - 1 ? handleSubmit : handleNext
+              }
+              disabled={isSubmitting}
+              fullWidth={isMobile}
+              size="large"
+              sx={{
+                fontWeight: 600,
+                bgcolor: theme.palette.primary.main,
+                color: theme.palette.getContrastText(
+                  theme.palette.primary.main
+                ),
+                "&:hover": { bgcolor: theme.palette.primary.dark },
+              }}
+            >
+              {isSubmitting
+                ? "Se trimite..."
+                : activeStep === steps.length - 1
+                ? "Trimite"
+                : "Următorul pas"}
+            </Button>
           </Box>
         </Paper>
       </Container>

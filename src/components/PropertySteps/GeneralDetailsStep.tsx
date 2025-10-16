@@ -17,6 +17,8 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Paper,
+  useTheme,
 } from "@mui/material";
 import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
 import {
@@ -36,6 +38,8 @@ interface GeneralDetailsStepProps {
   onChange: (updated: IGeneralDetails) => void;
 }
 
+// ---------------------- Address Autocomplete ----------------------
+
 const AddressAutocomplete: React.FC<{
   onAddressSelect: (address: {
     street: string;
@@ -50,7 +54,6 @@ const AddressAutocomplete: React.FC<{
   React.useEffect(() => {
     if (!places || !inputRef.current) return;
 
-    
     const autocomplete = new places.Autocomplete(inputRef.current, {
       fields: ["address_components", "formatted_address"],
       types: ["address"],
@@ -78,20 +81,25 @@ const AddressAutocomplete: React.FC<{
 
   return (
     <TextField
-  inputRef={inputRef}
-  label="Cauta adresa (Strada si Numar)"
+      inputRef={inputRef}
+      label="Cauta adresa (Strada si Numar)"
       value={inputValue}
       onChange={(e) => setInputValue(e.target.value)}
       fullWidth
-  placeholder="Incepe sa tastezi o adresa din Romania..."
+      placeholder="Incepe sa tastezi o adresa din Romania..."
     />
   );
 };
+
+// ---------------------- Component ----------------------
 
 export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
   data,
   onChange,
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   const [owners, setOwners] = React.useState<IOwner[]>([]);
   const [openOwnerDialog, setOpenOwnerDialog] = React.useState(false);
   const [newOwner, setNewOwner] = React.useState({
@@ -133,7 +141,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
     number: string;
     city: string;
   }) => {
-    // Update multiple location fields at once
     onChange({
       ...data,
       location: {
@@ -202,293 +209,308 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
     } catch {}
   };
 
-  // Wrap your component with APIProvider
+  // ---------------------- UI ----------------------
+
   return (
     <APIProvider apiKey={apiKey}>
-      <Box
+      <Paper
+        elevation={2}
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 3,
-          overflow: "auto",
+          p: 3,
+          borderRadius: 3,
+          background: isDark
+            ? theme.palette.background.paper
+            : theme.palette.background.default,
         }}
       >
-        <Card>
-          <CardContent>
-            <Typography variant="subtitle1" mb={2}>
-              Detalii generale
-            </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {/* === Detalii Generale === */}
+          <Card sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" mb={2} fontWeight={600}>
+                Detalii generale
+              </Typography>
 
-            <Grid container spacing={2}>
-              <Grid size={3}>
-                <TextField
-                  label="Agent"
-                  value={data.agent}
-                  onChange={(e) => onChange({ ...data, agent: e.target.value })}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid size={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={data.status}
-                    label="Status"
-                    onChange={(e) =>
-                      onChange({ ...data, status: e.target.value as EStatus })
-                    }
-                  >
-                    {Object.values(EStatus).map((opt) => (
-                      <MenuItem key={opt} value={opt}>
-                        {opt}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid size={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Tip tranzactie</InputLabel>
-                  <Select
-                    value={data.transactionType}
-                    label="Tip tranzactie"
-                    onChange={(e) =>
-                      onChange({
-                        ...data,
-                        transactionType: e.target.value as EType,
-                      })
-                    }
-                  >
-                    {Object.values(EType).map((opt) => (
-                      <MenuItem key={opt} value={opt}>
-                        {opt}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid size={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Categorie</InputLabel>
-                  <Select
-                    value={data.category}
-                    label="Categorie"
-                    onChange={(e) =>
-                      onChange({
-                        ...data,
-                        category: e.target.value as ECategory,
-                      })
-                    }
-                  >
-                    {Object.values(ECategory).map((opt) => (
-                      <MenuItem key={opt} value={opt}>
-                        {opt}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid size={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Proprietar</InputLabel>
-                  <Select
-                    value={data.ownerID || ""}
-                    label="Proprietar"
-                    onChange={(e) => {
-                      const v = e.target.value as string;
-                      if (v === ADD_NEW_OWNER) return setOpenOwnerDialog(true);
-                      onChange({ ...data, ownerID: v });
-                    }}
-                  >
-                    {owners.map((o) => (
-                      <MenuItem key={o._id} value={o._id}>
-                        {o.surname} {o.lastname}
-                      </MenuItem>
-                    ))}
-                    <MenuItem value={ADD_NEW_OWNER}>
-                      + Adauga proprietar
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid size={3}>
-                <TextField
-                  label="Complex rezidential"
-                  value={data.residentialComplex}
-                  onChange={(e) =>
-                    onChange({ ...data, residentialComplex: e.target.value })
-                  }
-                  fullWidth
-                />
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <Typography variant="subtitle1" mb={2}>
-              Locatie
-            </Typography>
-
-            <Grid container spacing={2}>
-              {/* Autocomplete Input */}
-              <Grid size={6}>
-                <AddressAutocomplete onAddressSelect={handleAddressSelect} />
-                <Typography variant="caption" color="textSecondary">
-                  Începe să tastezi o adresă pentru sugestii automate
-                </Typography>
-              </Grid>
-
-              {/* Existing location fields */}
-              {locationFields.map((field) => (
-                <Grid size={3} key={field.key}>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <TextField
-                    label={field.label}
-                    value={data.location[field.key] ?? ""}
+                    label="Agent"
+                    value={data.agent}
                     onChange={(e) =>
-                      handleLocationChange(field.key, e.target.value)
+                      onChange({ ...data, agent: e.target.value })
                     }
                     fullWidth
                   />
                 </Grid>
-              ))}
 
-              <Grid size={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Puncte de interes din jur</InputLabel>
-                  <Select
-                    multiple
-                    value={data.location.surroundings}
-                    onChange={handleSurroundingsChange as any}
-                    input={<OutlinedInput label="Puncte de interes din jur" />}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {(selected as string[]).map((value) => (
-                          <Chip key={value} label={value} />
-                        ))}
-                      </Box>
-                    )}
-                  >
-                    {Object.values(ESurroundings).map((val) => (
-                      <MenuItem key={val} value={val}>
-                        {val}
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                      value={data.status}
+                      label="Status"
+                      onChange={(e) =>
+                        onChange({ ...data, status: e.target.value as EStatus })
+                      }
+                    >
+                      {Object.values(EStatus).map((opt) => (
+                        <MenuItem key={opt} value={opt}>
+                          {opt}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Tip tranzactie</InputLabel>
+                    <Select
+                      value={data.transactionType}
+                      label="Tip tranzactie"
+                      onChange={(e) =>
+                        onChange({
+                          ...data,
+                          transactionType: e.target.value as EType,
+                        })
+                      }
+                    >
+                      {Object.values(EType).map((opt) => (
+                        <MenuItem key={opt} value={opt}>
+                          {opt}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Categorie</InputLabel>
+                    <Select
+                      value={data.category}
+                      label="Categorie"
+                      onChange={(e) =>
+                        onChange({
+                          ...data,
+                          category: e.target.value as ECategory,
+                        })
+                      }
+                    >
+                      {Object.values(ECategory).map((opt) => (
+                        <MenuItem key={opt} value={opt}>
+                          {opt}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Proprietar</InputLabel>
+                    <Select
+                      value={data.ownerID || ""}
+                      label="Proprietar"
+                      onChange={(e) => {
+                        const v = e.target.value as string;
+                        if (v === "__add_new_owner__")
+                          return setOpenOwnerDialog(true);
+                        onChange({ ...data, ownerID: v });
+                      }}
+                    >
+                      {owners.map((o) => (
+                        <MenuItem key={o._id} value={o._id}>
+                          {o.surname} {o.lastname}
+                        </MenuItem>
+                      ))}
+                      <MenuItem value="__add_new_owner__">
+                        + Adauga proprietar
                       </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <TextField
+                    label="Complex rezidential"
+                    value={data.residentialComplex}
+                    onChange={(e) =>
+                      onChange({
+                        ...data,
+                        residentialComplex: e.target.value,
+                      })
+                    }
+                    fullWidth
+                  />
+                </Grid>
               </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Rest of your existing components (Memo card and Owner Dialog) remain unchanged */}
-        <Card>
-          <CardContent>
-            <Typography variant="subtitle1" mb={2}>
-              Memo privat
-            </Typography>
-            <TextField
-              label="Memo privat"
-              value={data.privatMemo}
-              onChange={(e) =>
-                onChange({ ...data, privatMemo: e.target.value })
-              }
-              multiline
-              rows={3}
-              fullWidth
-            />
-          </CardContent>
-        </Card>
+          {/* === Locație === */}
+          <Card sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" mb={2} fontWeight={600}>
+                Locatie
+              </Typography>
 
-        <Dialog
-          open={openOwnerDialog}
-          onClose={() => setOpenOwnerDialog(false)}
-          fullWidth
-          maxWidth="sm"
-        >
-          <DialogTitle>Adauga proprietar</DialogTitle>
-          <DialogContent>
-            <Box
-              sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
-            >
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12 }}>
+                  <AddressAutocomplete onAddressSelect={handleAddressSelect} />
+                </Grid>
+
+                {locationFields.map((field) => (
+                  <Grid key={field.key} size={{ xs: 12, sm: 6, md: 4 }}>
+                    <TextField
+                      label={field.label}
+                      value={data.location[field.key] ?? ""}
+                      onChange={(e) =>
+                        handleLocationChange(field.key, e.target.value)
+                      }
+                      fullWidth
+                    />
+                  </Grid>
+                ))}
+
+                <Grid size={{ xs: 12 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Puncte de interes din jur</InputLabel>
+                    <Select
+                      multiple
+                      value={data.location.surroundings}
+                      onChange={handleSurroundingsChange as any}
+                      input={
+                        <OutlinedInput label="Puncte de interes din jur" />
+                      }
+                      renderValue={(selected) => (
+                        <Box
+                          sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
+                        >
+                          {(selected as string[]).map((value) => (
+                            <Chip key={value} label={value} />
+                          ))}
+                        </Box>
+                      )}
+                    >
+                      {Object.values(ESurroundings).map((val) => (
+                        <MenuItem key={val} value={val}>
+                          {val}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+
+          {/* === Memo === */}
+          <Card sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" mb={2} fontWeight={600}>
+                Memo privat
+              </Typography>
               <TextField
-                label="Nume"
-                fullWidth
-                value={newOwner.surname}
+                label="Memo privat"
+                value={data.privatMemo}
                 onChange={(e) =>
-                  setNewOwner((s) => ({ ...s, surname: e.target.value }))
+                  onChange({ ...data, privatMemo: e.target.value })
                 }
-              />
-              <TextField
-                label="Prenume"
-                fullWidth
-                value={newOwner.lastname}
-                onChange={(e) =>
-                  setNewOwner((s) => ({ ...s, lastname: e.target.value }))
-                }
-              />
-              <TextField
-                label="Email"
-                fullWidth
-                type="email"
-                value={newOwner.email}
-                onChange={(e) =>
-                  setNewOwner((s) => ({ ...s, email: e.target.value }))
-                }
-              />
-              <TextField
-                label="Telefon"
-                fullWidth
-                value={newOwner.phone}
-                onChange={(e) =>
-                  setNewOwner((s) => ({ ...s, phone: e.target.value }))
-                }
-              />
-              <TextField
-                label="Companie"
-                fullWidth
-                value={newOwner.companyWhereHeWorks}
-                onChange={(e) =>
-                  setNewOwner((s) => ({
-                    ...s,
-                    companyWhereHeWorks: e.target.value,
-                  }))
-                }
-              />
-              <TextField
-                label="Tag-uri (separate prin virgula)"
-                fullWidth
-                value={newOwner.tags}
-                onChange={(e) =>
-                  setNewOwner((s) => ({ ...s, tags: e.target.value }))
-                }
-              />
-              <TextField
-                label="Memo"
-                fullWidth
                 multiline
-                minRows={3}
-                value={newOwner.memo}
-                onChange={(e) =>
-                  setNewOwner((s) => ({ ...s, memo: e.target.value }))
-                }
+                rows={3}
+                fullWidth
               />
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenOwnerDialog(false)}>Anuleaza</Button>
-            <Button variant="contained" onClick={handleCreateOwner}>
-              Salveaza
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
+            </CardContent>
+          </Card>
+
+          {/* === Dialog Proprietar === */}
+          <Dialog
+            open={openOwnerDialog}
+            onClose={() => setOpenOwnerDialog(false)}
+            fullWidth
+            maxWidth="sm"
+          >
+            <DialogTitle>Adauga proprietar</DialogTitle>
+            <DialogContent>
+              <Box
+                sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+              >
+                <TextField
+                  label="Nume"
+                  fullWidth
+                  value={newOwner.surname}
+                  onChange={(e) =>
+                    setNewOwner((s) => ({ ...s, surname: e.target.value }))
+                  }
+                />
+                <TextField
+                  label="Prenume"
+                  fullWidth
+                  value={newOwner.lastname}
+                  onChange={(e) =>
+                    setNewOwner((s) => ({ ...s, lastname: e.target.value }))
+                  }
+                />
+                <TextField
+                  label="Email"
+                  fullWidth
+                  type="email"
+                  value={newOwner.email}
+                  onChange={(e) =>
+                    setNewOwner((s) => ({ ...s, email: e.target.value }))
+                  }
+                />
+                <TextField
+                  label="Telefon"
+                  fullWidth
+                  value={newOwner.phone}
+                  onChange={(e) =>
+                    setNewOwner((s) => ({ ...s, phone: e.target.value }))
+                  }
+                />
+                <TextField
+                  label="Companie"
+                  fullWidth
+                  value={newOwner.companyWhereHeWorks}
+                  onChange={(e) =>
+                    setNewOwner((s) => ({
+                      ...s,
+                      companyWhereHeWorks: e.target.value,
+                    }))
+                  }
+                />
+                <TextField
+                  label="Tag-uri (separate prin virgula)"
+                  fullWidth
+                  value={newOwner.tags}
+                  onChange={(e) =>
+                    setNewOwner((s) => ({ ...s, tags: e.target.value }))
+                  }
+                />
+                <TextField
+                  label="Memo"
+                  fullWidth
+                  multiline
+                  minRows={3}
+                  value={newOwner.memo}
+                  onChange={(e) =>
+                    setNewOwner((s) => ({ ...s, memo: e.target.value }))
+                  }
+                />
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenOwnerDialog(false)}>
+                Anuleaza
+              </Button>
+              <Button variant="contained" onClick={handleCreateOwner}>
+                Salveaza
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </Box>
+      </Paper>
     </APIProvider>
   );
 };
