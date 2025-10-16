@@ -73,7 +73,7 @@ export default function Properties() {
               fontWeight={600}
               sx={{ textAlign: { xs: "center", sm: "left" } }}
             >
-              Proprietăți
+              Proprietati
             </Typography>
 
             <Button
@@ -94,7 +94,7 @@ export default function Properties() {
                 },
               }}
             >
-              Adaugă Proprietate
+              Adauga Proprietate
             </Button>
           </Box>
 

@@ -18,7 +18,7 @@ import {
   EFinishesLouver,
   EFinishesEnteringDoor,
   EFinishesInteriorDoors,
-} from '../enums/utilities.enums';
+} from "../enums/utilities.enums";
 
 export interface IUtilities {
   generals: EGeneral[];

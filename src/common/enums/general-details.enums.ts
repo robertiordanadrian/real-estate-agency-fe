@@ -1,28 +1,28 @@
 export enum EStatus {
-  ACTIV_NOT_SET = 'Activa - Not set',
-  ACTIV_COLD = 'Activa - Cold',
-  ACTIV_WARM = 'Activa - Warm',
-  ACTIV_HOT = 'Activa - Hot',
-  ACTIV_RESERVED = 'Activa - Rezervata',
-  WAITING = 'In Asteptare',
-  RETREAT = 'Retrasa',
-  TRADED_WIN = 'Tranzactionata - Won',
-  LOST = 'Pierduta - Lost',
+  ACTIV_NOT_SET = "Activa - Not set",
+  ACTIV_COLD = "Activa - Cold",
+  ACTIV_WARM = "Activa - Warm",
+  ACTIV_HOT = "Activa - Hot",
+  ACTIV_RESERVED = "Activa - Rezervata",
+  WAITING = "In Asteptare",
+  RETREAT = "Retrasa",
+  TRADED_WIN = "Tranzactionata - Won",
+  LOST = "Pierduta - Lost",
 }
 
 export enum EType {
-  SALE = 'Vanzare',
-  RENT = 'Inchiriere',
+  SALE = "Vanzare",
+  RENT = "Inchiriere",
 }
 
 export enum ECategory {
-  APARTMENT = 'Apartament',
-  HOUSE = 'Casa / Vila',
-  LAND = 'Teren',
-  OFFICE_SPACE = 'Spatiu birou',
-  COMMERCIAL_SPACE = 'Spatiu comercial',
-  INDUSTRIAL_SPACE = 'Spatiu industrial',
-  HOTEL = 'Hotel / Pensiune',
+  APARTMENT = "Apartament",
+  HOUSE = "Casa / Vila",
+  LAND = "Teren",
+  OFFICE_SPACE = "Spatiu birou",
+  COMMERCIAL_SPACE = "Spatiu comercial",
+  INDUSTRIAL_SPACE = "Spatiu industrial",
+  HOTEL = "Hotel / Pensiune",
 }
 export enum ESurroundings {
   SCHOOLS = "Scoli",

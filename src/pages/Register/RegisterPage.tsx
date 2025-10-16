@@ -137,7 +137,6 @@ export default function RegisterPage() {
           boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
         }}
       >
-        {/* Header */}
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
           <IconButton
             onClick={() => navigate(-1)}
@@ -163,20 +162,18 @@ export default function RegisterPage() {
               textAlign: "center",
             }}
           >
-            Înregistrare Agent / Manager
+            Inregistrare Agent / Manager
           </Typography>
           <Box sx={{ width: 40 }} />
         </Box>
 
         <Alert severity="info" sx={{ mb: 3 }}>
           Doar utilizatorii cu rolul de <b>CEO</b> pot crea conturi noi. Vei
-          rămâne logat ca CEO după crearea utilizatorului.
+          ramane logat ca CEO după crearea utilizatorului.
         </Alert>
 
-        {/* === FORM === */}
         <Box component="form" onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            {/* === Left Column === */}
             <Grid size={{ xs: 12, md: 6 }}>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <TextField
@@ -195,7 +192,7 @@ export default function RegisterPage() {
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 <TextField
-                  label="Parolă"
+                  label="Parola"
                   type="password"
                   fullWidth
                   required
@@ -245,7 +242,6 @@ export default function RegisterPage() {
               </Box>
             </Grid>
 
-            {/* === Right Column (Preview) === */}
             <Grid size={{ xs: 12, md: 6 }}>
               <Card
                 variant="outlined"
@@ -336,7 +332,6 @@ export default function RegisterPage() {
             </Grid>
           </Grid>
 
-          {/* === Alerts & Submit === */}
           {error && (
             <Alert severity="error" sx={{ mt: 3 }}>
               {error}
@@ -347,7 +342,7 @@ export default function RegisterPage() {
             <Alert severity="success" sx={{ mt: 3 }}>
               {success}
               <Typography variant="body2" sx={{ mt: 1 }}>
-                Redirecționare automată în 2-3 secunde...
+                Redirectionarea automata in 2-3 secunde...
               </Typography>
             </Alert>
           )}
@@ -374,7 +369,7 @@ export default function RegisterPage() {
                 sx={{ color: theme.palette.getContrastText(accent) }}
               />
             ) : (
-              "Creează utilizator"
+              "Creeaza agent"
             )}
           </Button>
         </Box>

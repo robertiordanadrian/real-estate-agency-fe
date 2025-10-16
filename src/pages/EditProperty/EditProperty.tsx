@@ -101,7 +101,7 @@ export const EditProperty: React.FC = () => {
         setFormData(fetchedProperty ?? null);
       } catch (err) {
         console.error("Error fetching property:", err);
-        showSnackbar("Eroare la încărcarea proprietății.", "error");
+        showSnackbar("Eroare la incarcarea proprietatii.", "error");
         navigate("/properties");
       } finally {
         setIsLoading(false);
@@ -135,21 +135,21 @@ export const EditProperty: React.FC = () => {
       setTimeout(() => navigate(`/properties`), 1500);
       setContractFile(null);
     } catch (error: any) {
-      let errorMessage = "A apărut o eroare. Te rugăm să încerci din nou.";
+      let errorMessage = "A aparut o eroare. Te rugam sa incerci din nou.";
 
       if (error.response) {
         const status = error.response.status;
         if (status === 413)
           errorMessage =
-            "Fișierele sunt prea mari. Redu dimensiunea imaginilor.";
+            "Fisierele sunt prea mari. Redu dimensiunea imaginilor.";
         else if (status === 415)
-          errorMessage = "Tip de fișier neacceptat. Încarcă doar imagini.";
+          errorMessage = "Tip de fisier neacceptat. Incearca doar imagini.";
         else if (status === 400)
-          errorMessage = "Date invalide. Verifică toate câmpurile.";
+          errorMessage = "Date invalide. Verifica toate campurile.";
         else if (error.response.data?.message)
           errorMessage = error.response.data.message;
       } else if (error.request) {
-        errorMessage = "Eroare de rețea. Verifică conexiunea la internet.";
+        errorMessage = "Eroare de retea. Verifica conexiunea la internet.";
       }
 
       showSnackbar(errorMessage, "error");
@@ -248,7 +248,7 @@ export const EditProperty: React.FC = () => {
         }}
       >
         <CircularProgress color="primary" />
-        <Typography sx={{ ml: 2 }}>Se încarcă proprietatea...</Typography>
+        <Typography sx={{ ml: 2 }}>Se incarca proprietatea...</Typography>
       </Box>
     );
 
@@ -256,14 +256,14 @@ export const EditProperty: React.FC = () => {
     return (
       <Box sx={{ p: 3 }}>
         <Typography variant="h5" color="error">
-          Proprietatea nu a putut fi găsită.
+          Proprietatea nu a putut fi gasita.
         </Typography>
         <Button
           variant="contained"
           sx={{ mt: 2 }}
           onClick={() => navigate("/properties")}
         >
-          Înapoi la listă
+          Inapoi la lista
         </Button>
       </Box>
     );
@@ -300,7 +300,7 @@ export const EditProperty: React.FC = () => {
             fontWeight={600}
             textAlign={{ xs: "center", sm: "left" }}
           >
-            Editează proprietatea
+            Editeaza proprietatea
           </Typography>
 
           <Divider sx={{ mb: 3, borderColor: theme.palette.divider }} />
@@ -346,7 +346,7 @@ export const EditProperty: React.FC = () => {
                 },
               }}
             >
-              Înapoi
+              Inapoi
             </Button>
 
             <Button

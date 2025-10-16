@@ -136,12 +136,11 @@ export default function Settings() {
               color: "transparent",
             }}
           >
-            Setări utilizator
+            Setari utilizator
           </Typography>
 
           <Divider sx={{ mb: 4, borderColor: theme.palette.divider }} />
 
-          {/* === Avatar Section === */}
           <Grid
             container
             spacing={2}
@@ -190,7 +189,7 @@ export default function Settings() {
                   },
                 }}
               >
-                Încarcă imagine de profil
+                Incarca imagine de profil
                 <input
                   type="file"
                   hidden
@@ -201,7 +200,6 @@ export default function Settings() {
             </Grid>
           </Grid>
 
-          {/* === Form === */}
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -250,7 +248,7 @@ export default function Settings() {
 
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
-                  label="Parolă nouă"
+                  label="Parola noua"
                   type="password"
                   value={form.password}
                   onChange={(e) =>
@@ -267,7 +265,7 @@ export default function Settings() {
 
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
-                  label="Confirmă parolă"
+                  label="Confirma parola"
                   type="password"
                   value={form.confirmPassword}
                   onChange={(e) =>
@@ -307,14 +305,13 @@ export default function Settings() {
                   sx={{ color: theme.palette.getContrastText(accent) }}
                 />
               ) : (
-                "Salvează modificările"
+                "Salveaza modificarile"
               )}
             </Button>
           </Box>
         </Paper>
       </Container>
 
-      {/* === Snackbar === */}
       <Snackbar
         open={toast.open}
         autoHideDuration={3000}

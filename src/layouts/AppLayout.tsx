@@ -5,7 +5,6 @@ import {
   Drawer,
   AppBar,
   Toolbar,
-  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";

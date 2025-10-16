@@ -95,7 +95,6 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
         p: 3,
       }}
     >
-      {/* HEADER USER CARD */}
       <Box>
         <Card
           sx={{
@@ -229,7 +228,6 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
           />
         </Card>
 
-        {/* NAV LINKS */}
         <List>
           {[
             { icon: <Dashboard />, label: "Dashboard", path: "/" },
@@ -258,7 +256,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
                 <ListItemButton
                   component={NavLink}
                   to={item.path}
-                  onClick={() => onNavigate?.()} // 👈 închide Drawer pe mobile
+                  onClick={() => onNavigate?.()}
                   sx={{
                     borderRadius: 2,
                     color: isActive(item.path) ? iconActive : iconInactive,
@@ -300,7 +298,6 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
         </List>
       </Box>
 
-      {/* FOOTER LOGOUT */}
       <Box sx={{ mt: "auto", pt: 3 }}>
         <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
           <Button

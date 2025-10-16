@@ -7,7 +7,7 @@ import {
   EConstructionStage,
   EDestination,
   EEnergyClass,
-} from '../enums/characteristics.enums';
+} from "../enums/characteristics.enums";
 
 export interface ICharacteristics {
   details: IDetails;

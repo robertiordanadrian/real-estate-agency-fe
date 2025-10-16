@@ -42,8 +42,6 @@ import { selectUser } from "../../features/auth/authSelectors";
 import PropertyMap from "../PropertyMap/PropertyMap";
 import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-/* --------------------------- Subcomponents (theme-aware) --------------------------- */
-
 const ImageModal = ({
   open,
   onClose,
@@ -172,8 +170,6 @@ const EnumChipList = ({ items }: { items: string[] }) => {
   );
 };
 
-/* --------------------------- Helpers (nemodificate logic) --------------------------- */
-
 const getStatusColor = (status: EStatus) => {
   switch (status) {
     case EStatus.ACTIV_HOT:
@@ -192,8 +188,6 @@ const getStatusColor = (status: EStatus) => {
 
 const getTransactionTypeColor = (type: EType) =>
   type === EType.SALE ? "primary" : "secondary";
-
-/* ---------------------------------- Component ---------------------------------- */
 
 export default function PropertyDetail() {
   const theme = useTheme();
@@ -309,7 +303,6 @@ export default function PropertyDetail() {
             overflowY: "auto",
           }}
         >
-          {/* Header */}
           <Box sx={{ mb: 4 }}>
             <Typography
               variant="h5"
@@ -372,10 +365,8 @@ export default function PropertyDetail() {
           </Box>
 
           <Grid container spacing={3}>
-            {/* Col stanga */}
             <Grid size={{ xs: 12, lg: 8 }}>
               <Stack spacing={3}>
-                {/* Galerie */}
                 <DetailSection title="Galerie Proprietate" icon={<Apartment />}>
                   {images?.length ? (
                     <>
@@ -441,7 +432,6 @@ export default function PropertyDetail() {
                   )}
                 </DetailSection>
 
-                {/* Detalii Generale */}
                 <DetailSection title="Detalii Generale" icon={<Description />}>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 6, md: 4 }}>
@@ -506,7 +496,6 @@ export default function PropertyDetail() {
                   </Grid>
                 </DetailSection>
 
-                {/* Locatie */}
                 <DetailSection title="Locatie" icon={<LocationOn />}>
                   <Grid container spacing={2}>
                     {Object.entries(generalDetails.location)
@@ -530,7 +519,6 @@ export default function PropertyDetail() {
                   </Grid>
                 </DetailSection>
 
-                {/* Caracteristici */}
                 <DetailSection title="Caracteristici" icon={<Apartment />}>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12 }}>
@@ -977,7 +965,6 @@ export default function PropertyDetail() {
                   </Grid>
                 </DetailSection>
 
-                {/* Utilitati si Echipamente */}
                 <DetailSection title="Utilitati si Echipamente" icon={<Wifi />}>
                   <Grid container spacing={2}>
                     {utilitiesSections.map(({ label, data }) => (
@@ -991,7 +978,6 @@ export default function PropertyDetail() {
                   </Grid>
                 </DetailSection>
 
-                {/* Pret */}
                 <DetailSection title="Pret" icon={<Euro />}>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12 }}>
@@ -1310,7 +1296,6 @@ export default function PropertyDetail() {
                   </Grid>
                 </DetailSection>
 
-                {/* Descriere */}
                 <DetailSection title="Descriere" icon={<Description />}>
                   <Stack spacing={2}>
                     <TextField
@@ -1350,10 +1335,8 @@ export default function PropertyDetail() {
               </Stack>
             </Grid>
 
-            {/* Col dreapta */}
             <Grid size={{ xs: 12, lg: 4 }}>
               <Stack spacing={3}>
-                {/* -------------------- Agent -------------------- */}
                 <DetailSection title="Agent" icon={<Person />}>
                   <Stack
                     direction="column"
@@ -1406,7 +1389,6 @@ export default function PropertyDetail() {
                   </Stack>
                 </DetailSection>
 
-                {/* -------------------- Proprietar -------------------- */}
                 <DetailSection title="Proprietar" icon={<Person />}>
                   <Box
                     sx={{

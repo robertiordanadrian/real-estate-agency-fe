@@ -7,11 +7,11 @@ import {
   TextField,
   Typography,
   CircularProgress,
-  Link as MuiLink,
+  Link,
   useTheme,
   Alert,
 } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../features/auth/authMutations";
 
 export default function LoginPage() {
@@ -37,7 +37,7 @@ export default function LoginPage() {
       const message =
         err?.response?.data?.message ||
         err?.message ||
-        "Autentificarea a eșuat. Încearcă din nou.";
+        "Autentificarea a esuat. Incearca din nou.";
       setError(message);
     }
   };
@@ -66,7 +66,6 @@ export default function LoginPage() {
             transition: "all 0.3s ease",
           }}
         >
-          {/* === Header === */}
           <Typography
             variant="h5"
             align="center"
@@ -93,7 +92,6 @@ export default function LoginPage() {
             Introdu datele tale de acces pentru a continua.
           </Typography>
 
-          {/* === Form === */}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               label="Email"
@@ -145,7 +143,7 @@ export default function LoginPage() {
                   sx={{ color: theme.palette.getContrastText(accent) }}
                 />
               ) : (
-                "Loghează-te"
+                "Logheaza-te"
               )}
             </Button>
           </Box>

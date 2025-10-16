@@ -112,7 +112,6 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        {/* === UTILITĂȚI GENERALE === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>
@@ -149,7 +148,6 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
           </CardContent>
         </Card>
 
-        {/* === FINISAJE === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>
@@ -232,7 +230,6 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
           </CardContent>
         </Card>
 
-        {/* === ECHIPAMENTE === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>

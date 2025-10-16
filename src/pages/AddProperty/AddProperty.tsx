@@ -64,7 +64,6 @@ const steps = [
   "Imagini",
 ];
 
-// ================== DEFAULT VALUES ==================
 const defaultGeneralDetails: IGeneralDetails = {
   agent: "",
   status: EStatus.ACTIV_COLD,
@@ -197,7 +196,6 @@ const defaultDescription: IDescription = {
   virtualTour: "",
 };
 
-// ================== COMPONENT ==================
 export const AddProperty: React.FC = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;
@@ -246,7 +244,7 @@ export const AddProperty: React.FC = () => {
 
       await queryClient.invalidateQueries({ queryKey: propertiesKeys.all });
 
-      showSnackbar("Proprietate creată cu succes!", "success");
+      showSnackbar("Proprietate creata cu succes!", "success");
 
       setTimeout(() => {
         setFormData({
@@ -262,7 +260,7 @@ export const AddProperty: React.FC = () => {
         setActiveStep(0);
       }, 1500);
     } catch {
-      showSnackbar("A apărut o eroare. Încearcă din nou.", "error");
+      showSnackbar("A aparut o eroare. Incearca din nou.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -370,7 +368,7 @@ export const AddProperty: React.FC = () => {
             fontWeight={600}
             textAlign={{ xs: "center", sm: "left" }}
           >
-            Adaugă o proprietate
+            Adauga o proprietate
           </Typography>
 
           <Divider sx={{ mb: 3, borderColor: theme.palette.divider }} />
@@ -416,7 +414,7 @@ export const AddProperty: React.FC = () => {
                 },
               }}
             >
-              Înapoi
+              Inapoi
             </Button>
 
             <Button
@@ -440,7 +438,7 @@ export const AddProperty: React.FC = () => {
                 ? "Se trimite..."
                 : activeStep === steps.length - 1
                 ? "Trimite"
-                : "Următorul pas"}
+                : "Urmatorul pas"}
             </Button>
           </Box>
         </Paper>

@@ -112,7 +112,6 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        {/* === Detalii === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>
@@ -225,7 +224,6 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
           </CardContent>
         </Card>
 
-        {/* === Suprafete === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>
@@ -256,7 +254,6 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
           </CardContent>
         </Card>
 
-        {/* === Cladire === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>
@@ -354,7 +351,6 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
           </CardContent>
         </Card>
 
-        {/* === Performanta Energetica === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>

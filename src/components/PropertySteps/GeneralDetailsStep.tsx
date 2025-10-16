@@ -38,8 +38,6 @@ interface GeneralDetailsStepProps {
   onChange: (updated: IGeneralDetails) => void;
 }
 
-// ---------------------- Address Autocomplete ----------------------
-
 const AddressAutocomplete: React.FC<{
   onAddressSelect: (address: {
     street: string;
@@ -90,8 +88,6 @@ const AddressAutocomplete: React.FC<{
     />
   );
 };
-
-// ---------------------- Component ----------------------
 
 export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
   data,
@@ -209,8 +205,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
     } catch {}
   };
 
-  // ---------------------- UI ----------------------
-
   return (
     <APIProvider apiKey={apiKey}>
       <Paper
@@ -224,7 +218,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {/* === Detalii Generale === */}
           <Card sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6" mb={2} fontWeight={600}>
@@ -348,7 +341,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
             </CardContent>
           </Card>
 
-          {/* === Locație === */}
           <Card sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6" mb={2} fontWeight={600}>
@@ -405,7 +397,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
             </CardContent>
           </Card>
 
-          {/* === Memo === */}
           <Card sx={{ borderRadius: 3 }}>
             <CardContent>
               <Typography variant="h6" mb={2} fontWeight={600}>
@@ -424,7 +415,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
             </CardContent>
           </Card>
 
-          {/* === Dialog Proprietar === */}
           <Dialog
             open={openOwnerDialog}
             onClose={() => setOpenOwnerDialog(false)}

@@ -82,7 +82,6 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
               Imagini proprietate
             </Typography>
 
-            {/* Dropzone */}
             <Paper
               {...getRootProps()}
               sx={{
@@ -113,11 +112,10 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
                 mt={1}
                 fontSize="0.85rem"
               >
-                Poți adăuga până la 20 imagini, max. 10MB fiecare
+                Poti adauga pana la 20 imagini, max. 10MB fiecare
               </Typography>
             </Paper>
 
-            {/* Gallery */}
             <Grid container spacing={2} sx={{ mt: 2 }}>
               {data.length === 0 && (
                 <Typography
@@ -125,7 +123,7 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
                   color="text.secondary"
                   sx={{ p: 2, ml: 2 }}
                 >
-                  Nu există imagini încărcate.
+                  Nu exista imagini incarcate.
                 </Typography>
               )}
 
@@ -153,7 +151,6 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
                       }}
                     />
 
-                    {/* Actions */}
                     <Box
                       className="actions"
                       sx={{
@@ -195,7 +192,6 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
                       </Tooltip>
                     </Box>
 
-                    {/* Label for existing images */}
                     {isExistingImage(img) && (
                       <Chip
                         label="Existenta"

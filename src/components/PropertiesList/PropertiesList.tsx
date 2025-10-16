@@ -51,7 +51,7 @@ export const PropertiesList = () => {
   if (error)
     return (
       <Typography color="error" textAlign="center" mt={4}>
-        Eroare la încărcarea proprietăților.
+        Eroare la incarcarea proprietatilor.
       </Typography>
     );
 
@@ -66,7 +66,7 @@ export const PropertiesList = () => {
           height: "100%",
         }}
       >
-        Nu există proprietăți.
+        Nu exista proprietati.
       </Box>
     );
 
@@ -90,7 +90,6 @@ export const PropertiesList = () => {
         height: "100%",
       }}
     >
-      {/* Scroll orizontal pe ecrane mici */}
       <TableContainer
         sx={{
           flex: 1,
@@ -124,17 +123,17 @@ export const PropertiesList = () => {
               {[
                 "Imagine",
                 "Status",
-                "Tranzacție",
+                "Tranzactie",
                 "Tip",
-                "Preț (€)",
+                "Pret (€)",
                 "Camere",
-                "Suprafață (mp)",
+                "Suprafata (mp)",
                 "Etaj",
-                "Zonă",
-                "Stradă",
+                "Zona",
+                "Strada",
                 "Agent",
                 "Proprietar",
-                "Acțiuni",
+                "Actiuni",
               ].map((header) => (
                 <TableCell
                   key={header}
@@ -233,7 +232,7 @@ export const PropertiesList = () => {
                           },
                         }}
                       >
-                        Vizualizează
+                        Vizualizeaza
                       </Button>
 
                       <Button
@@ -250,7 +249,7 @@ export const PropertiesList = () => {
                           boxShadow: `0 0 8px ${theme.palette.success.main}33`,
                         }}
                       >
-                        Editează
+                        Editeaza
                       </Button>
                     </Stack>
                   </TableCell>
@@ -261,7 +260,6 @@ export const PropertiesList = () => {
         </Table>
       </TableContainer>
 
-      {/* Paginare */}
       <Box
         sx={{
           flexShrink: 0,

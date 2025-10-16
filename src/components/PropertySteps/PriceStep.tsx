@@ -72,17 +72,16 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        {/* === DETALII PREȚ === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>
-              Detalii preț
+              Detalii pret
             </Typography>
 
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
-                  label="Preț"
+                  label="Pret"
                   value={data.priceDetails.price}
                   onChange={(e) => handlePriceChange("price", e.target.value)}
                   fullWidth
@@ -98,10 +97,10 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <FormControl fullWidth>
-                  <InputLabel>Monedă</InputLabel>
+                  <InputLabel>Moneda</InputLabel>
                   <Select
                     value={data.priceDetails.currency}
-                    label="Monedă"
+                    label="Moneda"
                     onChange={(e) =>
                       handlePriceChange("currency", e.target.value)
                     }
@@ -117,7 +116,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
-                  label="Preț / mp"
+                  label="Pret / mp"
                   value={data.priceDetails.pricePerMp}
                   onChange={(e) =>
                     handlePriceChange("pricePerMp", e.target.value)
@@ -135,10 +134,10 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <FormControl fullWidth>
-                  <InputLabel>Metodă plată</InputLabel>
+                  <InputLabel>Metoda plata</InputLabel>
                   <Select
                     value={data.priceDetails.paymentMethod}
-                    label="Metodă plată"
+                    label="Metoda plata"
                     onChange={(e) =>
                       handlePriceChange("paymentMethod", e.target.value)
                     }
@@ -154,7 +153,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
-                  label="Ultimul preț"
+                  label="Ultimul pret"
                   value={data.priceDetails.lastPrice}
                   onChange={(e) =>
                     handlePriceChange("lastPrice", e.target.value)
@@ -172,7 +171,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
-                  label="Preț garaj"
+                  label="Pret garaj"
                   value={data.priceDetails.garagePrice}
                   onChange={(e) =>
                     handlePriceChange("garagePrice", e.target.value)
@@ -190,7 +189,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
-                  label="Preț parcare"
+                  label="Pret parcare"
                   value={data.priceDetails.parkingPrice}
                   onChange={(e) =>
                     handlePriceChange("parkingPrice", e.target.value)
@@ -208,7 +207,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
-                  label="Notițe private preț"
+                  label="Notite private pret"
                   value={data.priceDetails.privateNotePrice}
                   onChange={(e) =>
                     handlePriceChange("privateNotePrice", e.target.value)
@@ -218,7 +217,6 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
               </Grid>
             </Grid>
 
-            {/* Switches */}
             <Grid container spacing={2} sx={{ mt: 2 }}>
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControlLabel
@@ -244,7 +242,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                       }
                     />
                   }
-                  label="Preț negociabil"
+                  label="Pret negociabil"
                 />
               </Grid>
 
@@ -258,7 +256,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                       }
                     />
                   }
-                  label="Preț la cerere"
+                  label="Pret la cerere"
                 />
               </Grid>
 
@@ -272,14 +270,13 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                       }
                     />
                   }
-                  label="Afișează €/mp"
+                  label="Afiseaza €/mp"
                 />
               </Grid>
             </Grid>
           </CardContent>
         </Card>
 
-        {/* === COMISIOANE === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>
@@ -289,7 +286,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <TextField
-                  label="Comision cumpărător %"
+                  label="Comision cumparator %"
                   value={data.commissions.buyerCommission}
                   onChange={(e) =>
                     handleCommissionsChange("buyerCommission", e.target.value)
@@ -300,7 +297,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <TextField
-                  label="Valoare comision cumpărător"
+                  label="Valoare comision cumparator"
                   value={data.commissions.buyerCommissionValue}
                   onChange={(e) =>
                     handleCommissionsChange(
@@ -354,7 +351,6 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
           </CardContent>
         </Card>
 
-        {/* === DETALII CONTRACT === */}
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
             <Typography variant="h6" mb={2} fontWeight={600}>
@@ -402,7 +398,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
-                  label="Număr contract"
+                  label="Numar contract"
                   value={data.contact.contractNumber}
                   onChange={(e) =>
                     handleContactChange("contractNumber", e.target.value)
@@ -413,7 +409,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
-                  label="Data semnării"
+                  label="Data semnarii"
                   type="date"
                   value={
                     data.contact.signDate
@@ -432,7 +428,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
-                  label="Data expirării"
+                  label="Data expirarii"
                   type="date"
                   value={
                     data.contact.expirationDate
@@ -487,7 +483,7 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                       (data.contact.contractFile instanceof File
                         ? data.contact.contractFile.name
                         : data.contact.contractFile ||
-                          "Încarcă fișier contract")}
+                          "Incarca fisier contract")}
                   </Box>
 
                   <input
