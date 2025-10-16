@@ -47,8 +47,12 @@ import {
   EContactType,
   ESignedContract,
 } from "../../common/enums/price.enums";
-import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
+import {
+  propertiesKeys,
+  usePropertiesQuery,
+} from "../../features/properties/propertiesQueries";
 import { PropertiesApi } from "../../features/properties/propertiesApi";
+import { queryClient } from "../../services/queryClient";
 
 const steps = [
   "Detalii generale",
@@ -192,8 +196,6 @@ const defaultDescription: IDescription = {
 };
 
 export const AddProperty: React.FC = () => {
-  const { refetch } = usePropertiesQuery();
-
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<IProperty>({
@@ -241,7 +243,10 @@ export const AddProperty: React.FC = () => {
         await PropertiesApi.uploadContract(propertyId, contractFile);
       }
 
-      await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: propertiesKeys.all,
+      });
+
       showSnackbar("Proprietate creata cu succes!", "success");
 
       setTimeout(() => {
@@ -388,11 +393,7 @@ export const AddProperty: React.FC = () => {
             flexDirection: "column",
           }}
         >
-          <Typography
-            variant="h5"
-            mb={3}
-            fontWeight={600}
-          >
+          <Typography variant="h5" mb={3} fontWeight={600}>
             Adauga o proprietate
           </Typography>
 

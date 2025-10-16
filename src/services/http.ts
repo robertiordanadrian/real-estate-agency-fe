@@ -1,9 +1,34 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 import { store } from "../app/store";
 import { logout, setCredentials } from "../features/auth/authSlice";
 import { selectAuth, selectAccessToken } from "../features/auth/authSelectors";
 
 const baseURL = import.meta.env.VITE_API_URL;
+
+interface RefreshTokenResponse {
+  access_token: string;
+  refresh_token: string;
+}
+
+interface RefreshTokenRequest {
+  userId: string;
+  refreshToken: string;
+}
+
+interface PendingRequest {
+  resolve: (value: unknown) => void;
+  reject: (error: unknown) => void;
+  config: InternalAxiosRequestConfig;
+}
+
+interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
 export const http: AxiosInstance = axios.create({
   baseURL,
@@ -12,51 +37,61 @@ export const http: AxiosInstance = axios.create({
 });
 
 let isRefreshing = false;
-let pendingQueue: {
-  resolve: (value?: unknown) => void;
-  reject: (error: unknown) => void;
-  config: AxiosRequestConfig;
-}[] = [];
+let pendingQueue: PendingRequest[] = [];
 
-const processQueue = (error: unknown, token: string | null) => {
-  pendingQueue.forEach((p) => {
-    if (error) p.reject(error);
-    else {
-      if (token) {
-        if (!p.config.headers) p.config.headers = {};
-        p.config.headers["Authorization"] = `Bearer ${token}`;
+const processQueue = (
+  error: unknown | null,
+  token: string | null = null
+): void => {
+  pendingQueue.forEach(({ resolve, reject, config }) => {
+    if (error) {
+      reject(error);
+    } else {
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-      p.resolve(http(p.config));
+      resolve(http(config));
     }
   });
   pendingQueue = [];
 };
 
-http.interceptors.request.use((config) => {
-  const state = store.getState();
-  const token = selectAccessToken(state);
-  if (token) {
-    config.headers = config.headers ?? {};
-    config.headers["Authorization"] = `Bearer ${token}`;
+http.interceptors.request.use(
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    const state = store.getState();
+    const token = selectAccessToken(state);
+
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error: AxiosError): Promise<AxiosError> => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 http.interceptors.response.use(
-  (res) => res,
+  (response: AxiosResponse): AxiosResponse => {
+    return response;
+  },
   async (error: AxiosError) => {
-    const originalConfig = error.config!;
-    const status = error.response?.status;
+    const originalConfig = error.config as ExtendedAxiosRequestConfig;
 
-    if (status !== 401) {
+    if (!originalConfig || error.response?.status !== 401) {
       return Promise.reject(error);
     }
 
-    if ((originalConfig as any)._retry) {
+    if (
+      originalConfig._retry ||
+      originalConfig.url?.includes("/auth/refresh")
+    ) {
       store.dispatch(logout());
       return Promise.reject(error);
     }
-    (originalConfig as any)._retry = true;
+
+    originalConfig._retry = true;
 
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
@@ -65,48 +100,51 @@ http.interceptors.response.use(
     }
 
     isRefreshing = true;
+
     try {
       const state = store.getState();
       const auth = selectAuth(state);
-      if (!auth.user || !auth.refreshToken) {
-        store.dispatch(logout());
-        return Promise.reject(error);
+
+      if (!auth.user?.id || !auth.refreshToken) {
+        throw new Error("No user ID or refresh token available");
       }
 
-      const refreshRes = await axios.post(`${baseURL}/auth/refresh`, {
-        userId: auth.user.id,
-        refreshToken: auth.refreshToken,
-      });
+      const refreshRes = await axios.post<RefreshTokenResponse>(
+        `${baseURL}/auth/refresh`,
+        {
+          userId: auth.user.id,
+          refreshToken: auth.refreshToken,
+        } as RefreshTokenRequest
+      );
 
-      const newAccessToken: string = refreshRes.data?.access_token;
-      const newRefreshToken: string = refreshRes.data?.refresh_token;
+      const newAccessToken = refreshRes.data.access_token;
+      const newRefreshToken = refreshRes.data.refresh_token;
 
       if (!newAccessToken) {
-        store.dispatch(logout());
-        processQueue(error, null);
-        isRefreshing = false;
-        return Promise.reject(error);
+        throw new Error("No access token received from refresh endpoint");
       }
 
       store.dispatch(
         setCredentials({
           user: auth.user,
           accessToken: newAccessToken,
-          refreshToken: newRefreshToken ?? auth.refreshToken,
+          refreshToken: newRefreshToken || auth.refreshToken,
         })
       );
 
       processQueue(null, newAccessToken);
-      isRefreshing = false;
 
-      originalConfig.headers = originalConfig.headers ?? {};
-      originalConfig.headers["Authorization"] = `Bearer ${newAccessToken}`;
+      if (originalConfig.headers) {
+        originalConfig.headers.Authorization = `Bearer ${newAccessToken}`;
+      }
+
       return http(originalConfig);
-    } catch (refreshErr) {
+    } catch (refreshError) {
+      processQueue(refreshError as Error);
       store.dispatch(logout());
-      processQueue(refreshErr, null);
+      return Promise.reject(refreshError);
+    } finally {
       isRefreshing = false;
-      return Promise.reject(refreshErr);
     }
   }
 );

@@ -218,6 +218,7 @@ export const PropertiesList = () => {
                         sx={{
                           textTransform: "none",
                           backgroundColor: "#22c55e",
+                          color: "#ffffff",
                           "&:hover": { backgroundColor: "#16a34a" },
                         }}
                       >

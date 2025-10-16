@@ -22,8 +22,8 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/properties" element={<Properties />} />
-            <Route path="properties/add" element={<AddProperty />} />
-            <Route path="properties/:id" element={<PropertyDetail />} />
+            <Route path="/properties/add" element={<AddProperty />} />
+            <Route path="/properties/:id" element={<PropertyDetail />} />
             <Route path="/properties/edit/:id" element={<EditProperty />} />
           </Route>
         </Route>
@@ -32,7 +32,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
         </Route>
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

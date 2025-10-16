@@ -5,6 +5,7 @@ import {
   useUploadProfilePicture,
 } from "../../features/users/usersQueries";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -14,6 +15,7 @@ import {
   InputAdornment,
   MenuItem,
   Paper,
+  Snackbar,
   Stack,
   TextField,
   Typography,
@@ -38,8 +40,16 @@ export default function Settings() {
 
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [toast, setToast] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
-  
   useEffect(() => {
     if (user) {
       setForm({
@@ -65,12 +75,24 @@ export default function Settings() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      await updateUser.mutateAsync(form);
+      if (avatar) await uploadAvatar.mutateAsync(avatar);
 
-    await updateUser.mutateAsync(form);
-    if (avatar) await uploadAvatar.mutateAsync(avatar);
+      qc.invalidateQueries({ queryKey: ["user"] });
 
-    
-    qc.invalidateQueries({ queryKey: ["user"] });
+      setToast({
+        open: true,
+        message: "Datele au fost salvate cu succes!",
+        severity: "success",
+      });
+    } catch (err) {
+      setToast({
+        open: true,
+        message: "A apărut o eroare la salvare. Încearcă din nou.",
+        severity: "error",
+      });
+    }
   };
 
   return (
@@ -233,6 +255,7 @@ export default function Settings() {
                 backgroundColor: "#0ea5e9",
                 "&:hover": { backgroundColor: "#0284c7" },
                 fontWeight: 600,
+                color: "#ffffff",
               }}
             >
               {updateUser.isPending || uploadAvatar.isPending ? (
@@ -244,6 +267,20 @@ export default function Settings() {
           </Box>
         </Paper>
       </Container>
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={3000}
+        onClose={() => setToast({ ...toast, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setToast({ ...toast, open: false })}
+          severity={toast.severity}
+          sx={{ width: "100%" }}
+        >
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

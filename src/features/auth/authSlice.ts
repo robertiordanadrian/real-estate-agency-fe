@@ -40,7 +40,10 @@ const authSlice = createSlice({
       state.status = "authenticated";
     },
     logout(state) {
-      Object.assign(state, initialState);
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.user = null;
+      state.status = "idle";
     },
     rehydrate(state, action: PayloadAction<Partial<AuthState>>) {
       Object.assign(state, action.payload);

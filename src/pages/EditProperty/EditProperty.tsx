@@ -23,11 +23,13 @@ import { ImagesStep } from "../../components/PropertySteps/ImagesStep";
 import type { IProperty } from "../../common/interfaces/property.interface";
 
 import {
+  propertiesKeys,
   usePropertiesQuery,
   usePropertyQuery,
 } from "../../features/properties/propertiesQueries";
 import { PropertiesApi } from "../../features/properties/propertiesApi";
 import { http } from "../../services/http";
+import { queryClient } from "../../services/queryClient";
 
 const steps = [
   "Detalii generale",
@@ -43,7 +45,6 @@ export const EditProperty: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: propertyFromQuery } = usePropertyQuery(id ?? "");
-  const { refetch } = usePropertiesQuery();
 
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -121,10 +122,13 @@ export const EditProperty: React.FC = () => {
         await PropertiesApi.uploadContract(id, contractFile);
       }
 
-      await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: propertiesKeys.all,
+      });
+
       showSnackbar("Proprietate actualizata cu succes!", "success");
 
-      setTimeout(() => navigate(`/property/${id}`), 2000);
+      setTimeout(() => navigate(`/properties`), 2000);
       setContractFile(null);
     } catch (error: any) {
       let errorMessage = "A aparut o eroare. Te rugam sa incerci din nou.";
@@ -329,13 +333,19 @@ export const EditProperty: React.FC = () => {
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 size="large"
+                sx={{ color: "#ffffff" }}
               >
                 {isSubmitting
                   ? "Se actualizeaza..."
                   : "Actualizeaza proprietatea"}
               </Button>
             ) : (
-              <Button variant="contained" color="primary" onClick={handleNext} sx={{color: "#ffffff"}}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNext}
+                sx={{ color: "#ffffff" }}
+              >
                 Urmatorul pas
               </Button>
             )}
