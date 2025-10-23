@@ -232,6 +232,11 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
           {[
             { icon: <Dashboard />, label: "Dashboard", path: "/" },
             {
+              icon: <PersonAdd />,
+              label: "Leads",
+              path: "/leads",
+            },
+            {
               icon: <RealEstateAgent />,
               label: "Proprietati",
               path: "/properties",

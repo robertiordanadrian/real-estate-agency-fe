@@ -10,6 +10,7 @@ import { EditProperty } from "./pages/EditProperty/EditProperty";
 import PropertyDetail from "./components/PropertyDetails/PropertyDetails";
 import Settings from "./pages/Settings/Settings";
 import { CEOProtectedRoute } from "./features/auth/CEOProtectedRoute";
+import Leads from "./pages/Leads/Leads";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/leads" element={<Leads />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/properties/add" element={<AddProperty />} />
             <Route path="/properties/:id" element={<PropertyDetail />} />
