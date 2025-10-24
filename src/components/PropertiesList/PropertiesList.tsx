@@ -1,9 +1,9 @@
 import {
   Avatar,
   Box,
-  Button,
   Chip,
   CircularProgress,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -13,10 +13,12 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
   Typography,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
+import { Visibility, Edit } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
@@ -211,46 +213,46 @@ export const PropertiesList = () => {
                   <TableCell>{generalDetails?.agent ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.ownerID ?? "-"}</TableCell>
 
-                  <TableCell>
+                  <TableCell align="center">
                     <Stack
-                      direction={{ xs: "column", sm: "row" }}
+                      direction="row"
                       spacing={1}
-                      alignItems="flex-start"
+                      justifyContent="center"
+                      alignItems="center"
                     >
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => navigate(`/properties/${property._id}`)}
-                        sx={{
-                          textTransform: "none",
-                          borderColor: accent,
-                          color: accent,
-                          width: { xs: "100%", sm: "auto" },
-                          "&:hover": {
-                            borderColor: accent,
-                            backgroundColor: `${accent}11`,
-                          },
-                        }}
-                      >
-                        Vizualizeaza
-                      </Button>
+                      <Tooltip title="Vezi detalii">
+                        <IconButton
+                          color="info"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/properties/${property._id}`);
+                          }}
+                          sx={{
+                            "&:hover": {
+                              backgroundColor: `${theme.palette.info.main}22`,
+                            },
+                          }}
+                        >
+                          <Visibility />
+                        </IconButton>
+                      </Tooltip>
 
-                      <Button
-                        variant="contained"
-                        size="small"
-                        color="success"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/properties/edit/${property._id}`);
-                        }}
-                        sx={{
-                          textTransform: "none",
-                          width: { xs: "100%", sm: "auto" },
-                          boxShadow: `0 0 8px ${theme.palette.success.main}33`,
-                        }}
-                      >
-                        Editeaza
-                      </Button>
+                      <Tooltip title="Editeaza">
+                        <IconButton
+                          color="warning"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/properties/edit/${property._id}`);
+                          }}
+                          sx={{
+                            "&:hover": {
+                              backgroundColor: `${theme.palette.warning.main}22`,
+                            },
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </Tooltip>
                     </Stack>
                   </TableCell>
                 </TableRow>

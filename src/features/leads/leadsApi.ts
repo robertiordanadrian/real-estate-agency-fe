@@ -6,4 +6,8 @@ export const LeadsApi = {
     const { data } = await http.get<ILead[]>("/leads");
     return data;
   },
+
+  async deleteLead(id: string): Promise<void> {
+    await http.delete(`/leads/${id}`);
+  },
 };

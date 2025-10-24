@@ -1,12 +1,13 @@
 import {
   Box,
-  Button,
   Container,
   Paper,
   Typography,
   Divider,
   useTheme,
   useMediaQuery,
+  Fab,
+  Tooltip,
 } from "@mui/material";
 import { Refresh } from "@mui/icons-material";
 import { useQueryClient } from "@tanstack/react-query";
@@ -58,40 +59,39 @@ export default function Leads() {
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: { xs: "stretch", sm: "center" },
+              alignItems: "center",
               mb: { xs: 2, md: 3 },
-              flexDirection: { xs: "column", sm: "row" },
+              flexDirection: { xs: "row", sm: "row" },
               gap: 2,
             }}
           >
             <Typography
               variant={isMobile ? "h6" : "h5"}
               fontWeight={600}
-              sx={{ textAlign: { xs: "center", sm: "left" } }}
+              sx={{ textAlign: "left" }}
             >
               Leads
             </Typography>
 
-            <Button
-              variant="contained"
-              startIcon={<Refresh />}
-              fullWidth={isMobile}
-              onClick={() =>
-                queryClient.invalidateQueries({ queryKey: ["leads"] })
-              }
-              sx={{
-                textTransform: "none",
-                fontWeight: 600,
-                backgroundColor: theme.palette.info.main,
-                color: theme.palette.getContrastText(theme.palette.info.main),
-                boxShadow: `0 0 12px ${theme.palette.info.main}44`,
-                "&:hover": {
-                  backgroundColor: theme.palette.info.dark,
-                },
-              }}
-            >
-              Reîncarcă
-            </Button>
+            <Tooltip title="Reîncarcă lista" arrow>
+              <Fab
+                color="info"
+                onClick={() =>
+                  queryClient.invalidateQueries({ queryKey: ["leads"] })
+                }
+                size={isMobile ? "medium" : "large"}
+                sx={{
+                  boxShadow: `0 0 12px ${theme.palette.info.main}55`,
+                  "&:hover": {
+                    backgroundColor: theme.palette.info.dark,
+                  },
+                }}
+              >
+                <Refresh
+                  sx={{ color: "white", fontSize: isMobile ? 22 : 26 }}
+                />
+              </Fab>
+            </Tooltip>
           </Box>
 
           <Divider

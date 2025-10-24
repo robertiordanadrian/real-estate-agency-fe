@@ -1,12 +1,13 @@
 import {
   Box,
-  Button,
   Container,
   Paper,
   Typography,
   Divider,
   useTheme,
   useMediaQuery,
+  Fab,
+  Tooltip,
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -62,40 +63,35 @@ export default function Properties() {
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: { xs: "stretch", sm: "center" },
+              alignItems: "center",
               mb: { xs: 2, md: 3 },
-              flexDirection: { xs: "column", sm: "row" },
+              flexDirection: { xs: "row", sm: "row" },
               gap: 2,
             }}
           >
             <Typography
               variant={isMobile ? "h6" : "h5"}
               fontWeight={600}
-              sx={{ textAlign: { xs: "center", sm: "left" } }}
+              sx={{ textAlign: { xs: "left", sm: "left" } }}
             >
               Proprietati
             </Typography>
 
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              fullWidth={isMobile}
-              onClick={() => navigate("/properties/add")}
-              sx={{
-                textTransform: "none",
-                fontWeight: 600,
-                backgroundColor: theme.palette.success.main,
-                color: theme.palette.getContrastText(
-                  theme.palette.success.main
-                ),
-                boxShadow: `0 0 12px ${theme.palette.success.main}44`,
-                "&:hover": {
-                  backgroundColor: theme.palette.success.dark,
-                },
-              }}
-            >
-              Adauga Proprietate
-            </Button>
+            <Tooltip title="Adauga proprietate" arrow>
+              <Fab
+                color="success"
+                onClick={() => navigate("/properties/add")}
+                size={isMobile ? "medium" : "large"}
+                sx={{
+                  boxShadow: `0 0 12px ${theme.palette.success.main}55`,
+                  "&:hover": {
+                    backgroundColor: theme.palette.success.dark,
+                  },
+                }}
+              >
+                <Add sx={{ color: "white", fontSize: isMobile ? 24 : 28 }} />
+              </Fab>
+            </Tooltip>
           </Box>
 
           <Divider

@@ -11,6 +11,7 @@ import PropertyDetail from "./components/PropertyDetails/PropertyDetails";
 import Settings from "./pages/Settings/Settings";
 import { CEOProtectedRoute } from "./features/auth/CEOProtectedRoute";
 import Leads from "./pages/Leads/Leads";
+import Agents from "./pages/Agents/Agents";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/leads" element={<Leads />} />
+            <Route path="/agents" element={<Agents />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/properties/add" element={<AddProperty />} />
             <Route path="/properties/:id" element={<PropertyDetail />} />

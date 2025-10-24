@@ -20,13 +20,17 @@ import {
   Grid,
   useTheme,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { blue, orange, red, green } from "@mui/material/colors";
+import { useNavigate, useLocation } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useRegister } from "../../features/auth/authMutations";
-import { useUploadProfilePictureForUser } from "../../features/users/usersQueries";
+import {
+  useUserByIdQuery,
+  useUpdateUserById,
+  useUploadProfilePictureForUser,
+} from "../../features/users/usersQueries";
 import { useAppSelector } from "../../app/hook";
 import { selectUser } from "../../features/auth/authSelectors";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { blue, orange, red, green } from "@mui/material/colors";
 
 const ROLES = ["MANAGER", "TEAM_LEAD", "AGENT"];
 
@@ -62,8 +66,17 @@ const getRoleColor = (role: string): string => {
 export default function RegisterPage() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const currentUser = useAppSelector(selectUser);
+
+  const editId = new URLSearchParams(location.search).get("editId");
+
+  const { data: userToEdit, isLoading: isFetchingUser } = useUserByIdQuery(
+    editId || undefined
+  );
   const { mutateAsync: register, isPending: isRegistering } = useRegister();
+  const { mutateAsync: updateUserById, isPending: isUpdating } =
+    useUpdateUserById();
   const { mutateAsync: uploadAvatarForUser, isPending: isUploading } =
     useUploadProfilePictureForUser();
 
@@ -87,8 +100,18 @@ export default function RegisterPage() {
   }, [currentUser, navigate]);
 
   useEffect(() => {
+    if (userToEdit) {
+      setName(userToEdit.name || "");
+      setEmail(userToEdit.email || "");
+      setPhone(userToEdit.phone || "");
+      setRole(userToEdit.role || "AGENT");
+      setImagePreview(userToEdit.profilePicture || null);
+    }
+  }, [userToEdit]);
+
+  useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => navigate("/"), 2500);
+      const timer = setTimeout(() => navigate("/agents"), 2000);
       return () => clearTimeout(timer);
     }
   }, [success, navigate]);
@@ -96,7 +119,6 @@ export default function RegisterPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setProfileImage(file);
-
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result as string);
@@ -111,45 +133,58 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
-    if (!name || !email || !password || !phone || !role) {
-      setError("Toate câmpurile sunt obligatorii");
+    if (!name || !email || !phone || !role) {
+      setError("Toate campurile sunt obligatorii");
       return;
     }
 
     try {
-      const newUser = await register({
-        name,
-        email,
-        password,
-        phone,
-        role,
-      } as any);
-
-      if (profileImage && newUser?.user?.id) {
-        await uploadAvatarForUser({
-          userId: newUser.user.id,
-          file: profileImage,
+      if (editId) {
+        await updateUserById({
+          userId: editId,
+          payload: { name, email, phone, role },
         });
+
+        if (profileImage) {
+          await uploadAvatarForUser({ userId: editId, file: profileImage });
+        }
+
+        setSuccess(`Agentul ${name} a fost actualizat cu succes!`);
+      } else {
+        if (!password) {
+          setError("Parola este obligatorie pentru un agent nou");
+          return;
+        }
+
+        const newUser = await register({
+          name,
+          email,
+          password,
+          phone,
+          role,
+        } as any);
+
+        if (profileImage && newUser?.user?.id) {
+          await uploadAvatarForUser({
+            userId: newUser.user.id,
+            file: profileImage,
+          });
+        }
+
+        setSuccess(`Agentul ${name} a fost creat cu succes!`);
       }
 
-      setSuccess(`Utilizatorul ${name} a fost creat cu succes!`);
-      setName("");
-      setEmail("");
-      setPassword("");
-      setPhone("");
-      setRole("AGENT");
       setProfileImage(null);
-      setImagePreview(null);
     } catch (err: any) {
       const message =
         err?.response?.data?.message ||
         err?.message ||
-        "Înregistrarea a eșuat. Încearcă din nou.";
+        "Operatiunea a esuat. Incearca din nou.";
       setError(message);
     }
   };
 
-  if (!currentUser || currentUser.role !== "CEO") {
+  if (!currentUser || currentUser.role !== "CEO" || isFetchingUser) {
     return (
       <Box
         sx={{
@@ -186,6 +221,7 @@ export default function RegisterPage() {
           >
             <ArrowBackIcon />
           </IconButton>
+
           <Typography
             variant="h5"
             fontWeight={700}
@@ -200,24 +236,19 @@ export default function RegisterPage() {
               textAlign: "center",
             }}
           >
-            Inregistrare utilizator
+            {editId ? "Editare Agent" : "Inregistrare Utilizator"}
           </Typography>
+
           <Box sx={{ width: 40 }} />
         </Box>
 
         <Alert severity="info" sx={{ mb: 3 }}>
-          Doar utilizatorii cu rolul de <b>CEO</b> pot crea conturi noi. Vei
-          ramane logat ca CEO după crearea utilizatorului.
+          Doar utilizatorii cu rolul de <b>CEO</b> pot crea sau edita agenti.
         </Alert>
 
         <Box component="form" onSubmit={handleSubmit}>
-          <Grid
-            container
-            spacing={3}
-            sx={{
-              alignItems: "stretch",
-            }}
-          >
+          <Grid container spacing={3} sx={{ alignItems: "stretch" }}>
+            {/* CARD STANGA - FORMULAR */}
             <Grid size={{ xs: 12, md: 6 }}>
               <Card
                 variant="outlined"
@@ -235,14 +266,7 @@ export default function RegisterPage() {
                     : `0 0 10px ${accent}11`,
                 }}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 2,
-                    width: "100%",
-                  }}
-                >
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                   <TextField
                     label="Nume complet"
                     fullWidth
@@ -258,14 +282,16 @@ export default function RegisterPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                  <TextField
-                    label="Parola"
-                    type="password"
-                    fullWidth
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  {!editId && (
+                    <TextField
+                      label="Parola"
+                      type="password"
+                      fullWidth
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  )}
                   <TextField
                     label="Numar de telefon"
                     fullWidth
@@ -320,7 +346,6 @@ export default function RegisterPage() {
               </Card>
             </Grid>
 
-            {/* CARD DREAPTA (preview) */}
             <Grid size={{ xs: 12, md: 6 }}>
               <Card
                 variant="outlined"
@@ -423,7 +448,7 @@ export default function RegisterPage() {
             <Alert severity="success" sx={{ mt: 3 }}>
               {success}
               <Typography variant="body2" sx={{ mt: 1 }}>
-                Redirectionarea automata in 2-3 secunde...
+                Redirectionare automata in 2 secunde...
               </Typography>
             </Alert>
           )}
@@ -442,13 +467,15 @@ export default function RegisterPage() {
               borderRadius: 2,
               "&:hover": { backgroundColor: theme.palette.primary.dark },
             }}
-            disabled={isRegistering || isUploading}
+            disabled={isRegistering || isUploading || isUpdating}
           >
-            {isRegistering || isUploading ? (
+            {isRegistering || isUploading || isUpdating ? (
               <CircularProgress
                 size={24}
                 sx={{ color: theme.palette.getContrastText(accent) }}
               />
+            ) : editId ? (
+              "Actualizeaza agent"
             ) : (
               "Creeaza agent"
             )}

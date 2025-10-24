@@ -26,7 +26,7 @@ import { useLogout } from "../../features/auth/authMutations";
 import { useUserQuery } from "../../features/users/usersQueries";
 
 interface SidePanelProps {
-  onNavigate?: () => void; // 👈 nouă prop opțională pentru mobile drawer
+  onNavigate?: () => void;
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
@@ -251,6 +251,11 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
                     icon: <PersonAdd />,
                     label: "Inregistrare Agent",
                     path: "/register",
+                  },
+                  {
+                    icon: <PersonAdd />,
+                    label: "Agenti",
+                    path: "/agents",
                   },
                 ]
               : []),
