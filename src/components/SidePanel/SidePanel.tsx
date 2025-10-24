@@ -12,7 +12,7 @@ import {
   CardContent,
   useTheme,
 } from "@mui/material";
-import { blue, green, orange } from "@mui/material/colors";
+import { blue, green, orange, red } from "@mui/material/colors";
 import {
   Logout,
   RealEstateAgent,
@@ -46,6 +46,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
         return blue[400];
       case "MANAGER":
         return orange[400];
+      case "TEAM_LEAD":
+        return red[400];
       case "AGENT":
       default:
         return green[400];
@@ -58,6 +60,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
         return "Chief Executive Officer";
       case "MANAGER":
         return "Property Manager";
+      case "TEAM_LEAD":
+        return "Team Leader";
       case "AGENT":
         return "Real Estate Agent";
       default:

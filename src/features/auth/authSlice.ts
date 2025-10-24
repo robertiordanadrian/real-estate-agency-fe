@@ -4,7 +4,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: "CEO" | "MANAGER" | "AGENT" | undefined;
+  role: "CEO" | "MANAGER" | "TEAM_LEAD" | "AGENT" | undefined;
   profilePicture?: string;
 }
 

@@ -26,8 +26,38 @@ import { useUploadProfilePictureForUser } from "../../features/users/usersQuerie
 import { useAppSelector } from "../../app/hook";
 import { selectUser } from "../../features/auth/authSelectors";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { blue, orange, red, green } from "@mui/material/colors";
 
-const ROLES = ["MANAGER", "AGENT"];
+const ROLES = ["MANAGER", "TEAM_LEAD", "AGENT"];
+
+const getRoleDisplayText = (role: string): string => {
+  switch (role) {
+    case "CEO":
+      return "Chief Executive Officer";
+    case "MANAGER":
+      return "Property Manager";
+    case "TEAM_LEAD":
+      return "Team Leader";
+    case "AGENT":
+      return "Real Estate Agent";
+    default:
+      return "User";
+  }
+};
+
+const getRoleColor = (role: string): string => {
+  switch (role) {
+    case "CEO":
+      return blue[400];
+    case "MANAGER":
+      return orange[400];
+    case "TEAM_LEAD":
+      return red[400];
+    case "AGENT":
+    default:
+      return green[400];
+  }
+};
 
 export default function RegisterPage() {
   const theme = useTheme();
@@ -40,6 +70,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [role, setRole] = useState("AGENT");
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -80,13 +111,19 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !phone || !role) {
       setError("Toate câmpurile sunt obligatorii");
       return;
     }
 
     try {
-      const newUser = await register({ name, email, password, role } as any);
+      const newUser = await register({
+        name,
+        email,
+        password,
+        phone,
+        role,
+      } as any);
 
       if (profileImage && newUser?.user?.id) {
         await uploadAvatarForUser({
@@ -99,6 +136,7 @@ export default function RegisterPage() {
       setName("");
       setEmail("");
       setPassword("");
+      setPhone("");
       setRole("AGENT");
       setProfileImage(null);
       setImagePreview(null);
@@ -162,7 +200,7 @@ export default function RegisterPage() {
               textAlign: "center",
             }}
           >
-            Inregistrare Agent / Manager
+            Inregistrare utilizator
           </Typography>
           <Box sx={{ width: 40 }} />
         </Box>
@@ -173,81 +211,127 @@ export default function RegisterPage() {
         </Alert>
 
         <Box component="form" onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <TextField
-                  label="Nume complet"
-                  fullWidth
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <TextField
-                  label="Email"
-                  type="email"
-                  fullWidth
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <TextField
-                  label="Parola"
-                  type="password"
-                  fullWidth
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <FormControl fullWidth>
-                  <InputLabel id="role-select-label">Rol</InputLabel>
-                  <Select
-                    labelId="role-select-label"
-                    value={role}
-                    label="Rol"
-                    onChange={(e) => setRole(e.target.value)}
-                  >
-                    {ROLES.map((r) => (
-                      <MenuItem key={r} value={r}>
-                        {r}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <Button
-                  variant="outlined"
-                  component="label"
-                  fullWidth
-                  sx={{
-                    mt: 1,
-                    py: 1.2,
-                    fontWeight: 600,
-                    borderColor: accent,
-                    color: accent,
-                    "&:hover": {
-                      backgroundColor: `${accent}11`,
-                      borderColor: accent,
-                    },
-                  }}
-                >
-                  {profileImage ? "Schimbă imaginea" : "Încarcă imagine profil"}
-                  <input
-                    type="file"
-                    hidden
-                    accept="image/*"
-                    onChange={handleImageChange}
-                  />
-                </Button>
-              </Box>
-            </Grid>
-
+          <Grid
+            container
+            spacing={3}
+            sx={{
+              alignItems: "stretch",
+            }}
+          >
             <Grid size={{ xs: 12, md: 6 }}>
               <Card
                 variant="outlined"
                 sx={{
                   height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
                   borderRadius: 3,
+                  p: { xs: 2, sm: 3 },
+                  bgcolor: theme.palette.background.default,
+                  color: theme.palette.text.primary,
+                  boxShadow: isDark
+                    ? `0 0 20px ${accent}22`
+                    : `0 0 10px ${accent}11`,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    width: "100%",
+                  }}
+                >
+                  <TextField
+                    label="Nume complet"
+                    fullWidth
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                  <TextField
+                    label="Email"
+                    type="email"
+                    fullWidth
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <TextField
+                    label="Parola"
+                    type="password"
+                    fullWidth
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <TextField
+                    label="Numar de telefon"
+                    fullWidth
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+
+                  <FormControl fullWidth>
+                    <InputLabel id="role-select-label">Rol</InputLabel>
+                    <Select
+                      labelId="role-select-label"
+                      value={role}
+                      label="Rol"
+                      onChange={(e) => setRole(e.target.value as string)}
+                    >
+                      {ROLES.map((r) => (
+                        <MenuItem key={r} value={r}>
+                          {getRoleDisplayText(r)}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    fullWidth
+                    sx={{
+                      mt: 1,
+                      py: 1.2,
+                      fontWeight: 600,
+                      borderColor: accent,
+                      color: accent,
+                      "&:hover": {
+                        backgroundColor: `${accent}11`,
+                        borderColor: accent,
+                      },
+                    }}
+                  >
+                    {profileImage
+                      ? "Schimba imaginea"
+                      : "Incarca imagine profil"}
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                  </Button>
+                </Box>
+              </Card>
+            </Grid>
+
+            {/* CARD DREAPTA (preview) */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Card
+                variant="outlined"
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 3,
+                  p: { xs: 2, sm: 3 },
                   bgcolor: theme.palette.background.default,
                   color: theme.palette.text.primary,
                   boxShadow: isDark
@@ -262,12 +346,13 @@ export default function RegisterPage() {
                     alignItems: "center",
                     justifyContent: "center",
                     gap: 2,
-                    height: "100%",
+                    width: "100%",
                     textAlign: "center",
+                    flexGrow: 1,
                   }}
                 >
                   <Typography variant="h6" fontWeight={600}>
-                    Preview Profil
+                    Preview profil
                   </Typography>
 
                   <Avatar
@@ -296,6 +381,9 @@ export default function RegisterPage() {
                   <Typography color="text.secondary">
                     {email || "email@exemplu.com"}
                   </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    {phone || "Numar de telefon"}
+                  </Typography>
 
                   <Typography
                     variant="body2"
@@ -304,28 +392,21 @@ export default function RegisterPage() {
                       px: 1.5,
                       py: 0.5,
                       borderRadius: 1,
-                      backgroundColor:
-                        role === "MANAGER"
-                          ? theme.palette.warning.main
-                          : theme.palette.success.main,
-                      color: theme.palette.getContrastText(
-                        role === "MANAGER"
-                          ? theme.palette.warning.main
-                          : theme.palette.success.main
-                      ),
+                      backgroundColor: getRoleColor(role),
+                      color: theme.palette.getContrastText(getRoleColor(role)),
                       fontWeight: 600,
                       display: "inline-block",
                     }}
                   >
-                    {role || "ROL"}
+                    {getRoleDisplayText(role)}
                   </Typography>
 
                   <Divider sx={{ width: "100%", my: 2 }} />
 
                   <Typography variant="body2" color="text.secondary">
                     {!imagePreview
-                      ? "Nu a fost selectată nicio imagine"
-                      : "Imagine de profil selectată"}
+                      ? "Nu a fost selectata nicio imagine"
+                      : "Imagine de profil selectata"}
                   </Typography>
                 </CardContent>
               </Card>

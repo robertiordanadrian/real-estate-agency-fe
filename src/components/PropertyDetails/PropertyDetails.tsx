@@ -1348,7 +1348,7 @@ export default function PropertyDetail() {
                       p: 2,
                       borderRadius: 2,
                       bgcolor: isDark
-                        ? theme.palette.background.paper // aceeași nuanță coerentă cu dark mode
+                        ? theme.palette.background.paper
                         : theme.palette.grey[50],
                       color: theme.palette.text.primary,
                       boxShadow: isDark

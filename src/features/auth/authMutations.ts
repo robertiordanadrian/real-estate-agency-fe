@@ -41,7 +41,12 @@ export const useLogin = () => {
             id: data.user.id,
             email: data.user.email,
             name: data.user.name,
-            role: data.user.role as "CEO" | "MANAGER" | "AGENT" | undefined,
+            role: data.user.role as
+              | "CEO"
+              | "MANAGER"
+              | "TEAM_LEAD"
+              | "AGENT"
+              | undefined,
             profilePicture: data.user.profilePicture,
           },
         })
