@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -18,6 +18,8 @@ import {
   IconButton,
   InputAdornment,
   useTheme,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   LocationOn,
@@ -40,6 +42,7 @@ import { useOwnerByIdQuery } from "../../features/owners/ownersQueries";
 import { useAppSelector } from "../../app/hook";
 import { selectUser } from "../../features/auth/authSelectors";
 import PropertyMap from "../PropertyMap/PropertyMap";
+import { PropertiesApi } from "../../features/properties/propertiesApi";
 import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const ImageModal = ({
@@ -194,14 +197,48 @@ export default function PropertyDetail() {
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
 
-  const { id } = useParams<{ id: string }>();
+  const { sku } = useParams<{ sku: string }>();
+  const [propertyId, setPropertyId] = useState<string | null>(null);
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const user = useAppSelector(selectUser);
+  const [errorToastOpen, setErrorToastOpen] = useState(false);
 
-  const { data: property, isLoading, isError } = usePropertyQuery(id!);
+  const {
+    data: property,
+    isLoading,
+    isError,
+  } = usePropertyQuery(propertyId || "", {
+    enabled: !!propertyId,
+  });
+
   const ownerId = property?.generalDetails?.ownerID;
   const { data: owner } = useOwnerByIdQuery(ownerId ?? "");
+
+  useEffect(() => {
+    if (!sku || sku === "undefined" || sku === "null") {
+      setErrorToastOpen(true);
+      setTimeout(() => navigate("/properties"), 2000);
+      return;
+    }
+
+    const fetchIdBySku = async () => {
+      try {
+        const property = await PropertiesApi.getBySku(sku);
+        if (property?._id) {
+          setPropertyId(property._id);
+        } else {
+          setErrorToastOpen(true);
+          setTimeout(() => navigate("/properties"), 2000);
+        }
+      } catch {
+        setErrorToastOpen(true);
+        setTimeout(() => navigate("/properties"), 2000);
+      }
+    };
+
+    fetchIdBySku();
+  }, [sku, navigate]);
 
   if (isLoading)
     return (
@@ -210,12 +247,22 @@ export default function PropertyDetail() {
       </Box>
     );
 
-  if (isError || !property)
+  if (isError || !property) {
     return (
-      <Container>
-        <Typography variant="h4">Proprietate negasita</Typography>
-      </Container>
+      <>
+        <Snackbar
+          open={errorToastOpen}
+          autoHideDuration={2000}
+          onClose={() => setErrorToastOpen(false)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert severity="error" variant="filled">
+            Proprietatea nu a fost găsită sau SKU-ul este invalid.
+          </Alert>
+        </Snackbar>
+      </>
     );
+  }
 
   const {
     generalDetails,
@@ -224,7 +271,7 @@ export default function PropertyDetail() {
     price,
     description,
     images,
-  } = property;
+  } = property ?? {};
 
   const locationLabels: Record<string, string> = {
     city: "Oras",
@@ -1472,7 +1519,7 @@ export default function PropertyDetail() {
                 <Button
                   variant="contained"
                   startIcon={<Edit />}
-                  onClick={() => navigate(`/properties/edit/${id}`)}
+                  onClick={() => navigate(`/properties/edit/${propertyId}`)}
                   sx={{
                     textTransform: "none",
                     fontWeight: 600,

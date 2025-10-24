@@ -27,7 +27,7 @@ function App() {
             <Route path="/agents" element={<Agents />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/properties/add" element={<AddProperty />} />
-            <Route path="/properties/:id" element={<PropertyDetail />} />
+            <Route path="/properties/:sku" element={<PropertyDetail />} />
             <Route path="/properties/edit/:id" element={<EditProperty />} />
           </Route>
         </Route>

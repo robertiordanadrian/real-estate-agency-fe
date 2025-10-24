@@ -8,6 +8,7 @@ import type { IUtilities } from "./utilities.interface";
 
 export interface IProperty {
   _id?: string;
+  sku?: string;
   generalDetails: IGeneralDetails;
   characteristics: ICharacteristics;
   utilities: IUtilities;

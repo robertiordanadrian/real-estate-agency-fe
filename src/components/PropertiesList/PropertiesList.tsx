@@ -125,6 +125,7 @@ export const PropertiesList = () => {
               {[
                 "Imagine",
                 "Status",
+                "SKU",
                 "Tranzactie",
                 "Tip",
                 "Pret (€)",
@@ -134,7 +135,6 @@ export const PropertiesList = () => {
                 "Zona",
                 "Strada",
                 "Agent",
-                "Proprietar",
                 "Actiuni",
               ].map((header) => (
                 <TableCell
@@ -192,6 +192,8 @@ export const PropertiesList = () => {
                     />
                   </TableCell>
 
+                  <TableCell>{property.sku ?? "-"}</TableCell>
+
                   <TableCell>
                     {generalDetails?.transactionType ?? "-"}
                   </TableCell>
@@ -211,7 +213,6 @@ export const PropertiesList = () => {
                     {generalDetails?.location?.street ?? "-"}
                   </TableCell>
                   <TableCell>{generalDetails?.agent ?? "-"}</TableCell>
-                  <TableCell>{generalDetails?.ownerID ?? "-"}</TableCell>
 
                   <TableCell align="center">
                     <Stack
@@ -225,7 +226,7 @@ export const PropertiesList = () => {
                           color="info"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/properties/${property._id}`);
+                            navigate(`/properties/${property.sku}`);
                           }}
                           sx={{
                             "&:hover": {

@@ -17,6 +17,15 @@ export const PropertiesApi = {
     });
     return data;
   },
+  getBySku: async (sku: string): Promise<IProperty | null> => {
+    try {
+      const { data } = await http.get("/properties");
+      return data.find((p: IProperty) => p.sku === sku) || null;
+    } catch (err) {
+      console.error("Eroare la getBySku:", err);
+      return null;
+    }
+  },
   uploadImages: async (id: string, files: File[]) => {
     const formData = new FormData();
     files.forEach((file) => formData.append("images", file));

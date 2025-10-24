@@ -13,11 +13,11 @@ export const usePropertiesQuery = () =>
     queryFn: PropertiesApi.getAll,
   });
 
-export const usePropertyQuery = (id: string) =>
+export const usePropertyQuery = (id: string, options?: { enabled?: boolean }) =>
   useQuery({
     queryKey: propertiesKeys.byId(id),
     queryFn: () => PropertiesApi.getById(id),
-    enabled: !!id,
+    enabled: options?.enabled ?? !!id,
   });
 
 export const useCreateProperty = () => {

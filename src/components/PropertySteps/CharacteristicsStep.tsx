@@ -120,12 +120,22 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
 
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <TextField
-                  label="Tip proprietate"
-                  value={data.details.type}
-                  onChange={(e) => handleDetailsChange("type", e.target.value)}
-                  fullWidth
-                />
+                <FormControl fullWidth>
+                  <InputLabel>Tip proprietate</InputLabel>
+                  <Select
+                    value={data.details.type}
+                    label="Tip proprietate"
+                    onChange={(e) =>
+                      handleDetailsChange("type", e.target.value)
+                    }
+                  >
+                    {Object.values(EBuildingType).map((val) => (
+                      <MenuItem key={val} value={val}>
+                        {val}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>

@@ -54,6 +54,7 @@ import {
 import { propertiesKeys } from "../../features/properties/propertiesQueries";
 import { PropertiesApi } from "../../features/properties/propertiesApi";
 import { queryClient } from "../../services/queryClient";
+import { useNavigate } from "react-router-dom";
 
 const steps = [
   "Detalii generale",
@@ -201,6 +202,7 @@ export const AddProperty: React.FC = () => {
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -247,17 +249,7 @@ export const AddProperty: React.FC = () => {
       showSnackbar("Proprietate creata cu succes!", "success");
 
       setTimeout(() => {
-        setFormData({
-          generalDetails: defaultGeneralDetails,
-          characteristics: defaultCharacteristics,
-          utilities: defaultUtilities,
-          price: defaultPrice,
-          description: defaultDescription,
-          images: [],
-        });
-        setImageFiles([]);
-        setContractFile(null);
-        setActiveStep(0);
+        navigate("/properties");
       }, 1500);
     } catch {
       showSnackbar("A aparut o eroare. Incearca din nou.", "error");
