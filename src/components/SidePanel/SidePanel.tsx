@@ -19,6 +19,8 @@ import {
   Dashboard,
   Settings,
   PersonAdd,
+  ContactPhone,
+  Person,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
@@ -236,7 +238,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
           {[
             { icon: <Dashboard />, label: "Dashboard", path: "/" },
             {
-              icon: <PersonAdd />,
+              icon: <ContactPhone />,
               label: "Leads",
               path: "/leads",
             },
@@ -253,7 +255,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
                     path: "/register",
                   },
                   {
-                    icon: <PersonAdd />,
+                    icon: <Person />,
                     label: "Agenti",
                     path: "/agents",
                   },
