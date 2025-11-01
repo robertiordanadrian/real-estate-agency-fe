@@ -1,6 +1,9 @@
 import {
   Avatar,
   Box,
+  Card,
+  CardActions,
+  CardContent,
   Chip,
   CircularProgress,
   Container,
@@ -65,9 +68,10 @@ export default function Agents() {
   const { data: users, isLoading, error } = useAllUsersQuery();
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
+
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== ERole.CEO) {
@@ -106,6 +110,196 @@ export default function Agents() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
+  if (isMobile) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          boxSizing: "border-box",
+        }}
+      >
+        <Container
+          maxWidth="xl"
+          disableGutters
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            flex: 1,
+            boxSizing: "border-box",
+            minHeight: 0,
+          }}
+        >
+          <Paper
+            elevation={3}
+            sx={{
+              flex: 1,
+              p: { xs: 2, sm: 3, md: 4 },
+              borderRadius: 3,
+              background: isDark
+                ? `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`
+                : `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`,
+              color: theme.palette.text.primary,
+              width: "100%",
+              minHeight: "75vh",
+              boxShadow: isDark
+                ? `0 0 25px ${accent}22`
+                : `0 0 15px ${accent}11`,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Header */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: { xs: 2, md: 3 },
+                flexDirection: { xs: "row", sm: "row" },
+                gap: 2,
+              }}
+            >
+              <Typography
+                variant={isMobile ? "h6" : "h5"}
+                fontWeight={600}
+                sx={{ textAlign: "left" }}
+              >
+                Agenti
+              </Typography>
+
+              <Tooltip title="Adauga agent" arrow>
+                <Fab
+                  color="success"
+                  onClick={() => navigate("/register")}
+                  size={isMobile ? "medium" : "large"}
+                  sx={{
+                    boxShadow: `0 0 12px ${theme.palette.success.main}55`,
+                    "&:hover": { backgroundColor: theme.palette.success.dark },
+                  }}
+                >
+                  <Add sx={{ color: "white", fontSize: isMobile ? 22 : 26 }} />
+                </Fab>
+              </Tooltip>
+            </Box>
+
+            <Divider
+              sx={{
+                mb: 3,
+                borderColor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(0,0,0,0.1)",
+              }}
+            />
+
+            {/* Grid de carduri */}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, minmax(0, 1fr))",
+                },
+                gap: 2,
+                width: "100%",
+                boxSizing: "border-box",
+                px: { xs: 0.5, sm: 0 },
+              }}
+            >
+              {paginated.map((user: any) => (
+                <Card
+                  key={user._id}
+                  sx={{
+                    borderRadius: 3,
+                    overflow: "hidden",
+                    width: "100%",
+                    boxShadow: isDark
+                      ? `0 0 15px ${accent}22`
+                      : `0 0 10px ${accent}11`,
+                    bgcolor: theme.palette.background.paper,
+                    transition: "transform 0.2s ease",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      boxShadow: `0 0 25px ${accent}33`,
+                    },
+                  }}
+                >
+                  <CardContent sx={{ p: 2, textAlign: "center" }}>
+                    <Avatar
+                      src={user.profilePicture}
+                      alt={user.name}
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        mx: "auto",
+                        mb: 2,
+                        border: `2px solid ${accent}`,
+                      }}
+                    />
+                    <Typography
+                      variant="h6"
+                      fontWeight={700}
+                      sx={{ color: accent, mb: 1 }}
+                    >
+                      {user.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {user.email}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mb: 1 }}
+                    >
+                      {user.phone}
+                    </Typography>
+                    <Chip
+                      label={getRoleDisplayText(user.role)}
+                      sx={{
+                        backgroundColor: getRoleColor(user.role),
+                        color: "#fff",
+                        fontWeight: 500,
+                        mb: 1.5,
+                      }}
+                      size="small"
+                    />
+                  </CardContent>
+
+                  <CardActions
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      borderTop: `1px solid ${
+                        isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
+                      }`,
+                      p: 1.5,
+                    }}
+                  >
+                    <Tooltip title="Editeaza">
+                      <IconButton
+                        color="warning"
+                        onClick={() => navigate(`/register?editId=${user._id}`)}
+                      >
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+                  </CardActions>
+                </Card>
+              ))}
+            </Box>
+          </Paper>
+        </Container>
+      </Box>
+    );
+  }
+
+  const total = users.length;
 
   return (
     <Box
@@ -153,15 +347,10 @@ export default function Agents() {
               justifyContent: "space-between",
               alignItems: "center",
               mb: { xs: 2, md: 3 },
-              flexDirection: { xs: "row", sm: "row" },
               gap: 2,
             }}
           >
-            <Typography
-              variant={isMobile ? "h6" : "h5"}
-              fontWeight={600}
-              sx={{ textAlign: "left" }}
-            >
+            <Typography variant="h5" fontWeight={600}>
               Agenti
             </Typography>
 
@@ -169,13 +358,12 @@ export default function Agents() {
               <Fab
                 color="success"
                 onClick={() => navigate("/register")}
-                size={isMobile ? "medium" : "large"}
                 sx={{
                   boxShadow: `0 0 12px ${theme.palette.success.main}55`,
                   "&:hover": { backgroundColor: theme.palette.success.dark },
                 }}
               >
-                <Add sx={{ color: "white", fontSize: isMobile ? 22 : 26 }} />
+                <Add sx={{ color: "white" }} />
               </Fab>
             </Tooltip>
           </Box>
@@ -273,7 +461,7 @@ export default function Agents() {
           >
             <TablePagination
               component="div"
-              count={users.length}
+              count={total}
               page={page}
               onPageChange={handleChangePage}
               rowsPerPage={rowsPerPage}

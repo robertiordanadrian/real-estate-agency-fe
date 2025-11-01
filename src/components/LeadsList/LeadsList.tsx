@@ -1,6 +1,13 @@
 import {
+  Avatar,
   Box,
+  Card,
+  CardActions,
+  CardContent,
+  Chip,
   CircularProgress,
+  IconButton,
+  Link,
   Paper,
   Table,
   TableBody,
@@ -9,18 +16,17 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Tooltip,
   Typography,
-  useTheme,
-  useMediaQuery,
-  Link,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Button,
-  Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
+import { Delete, Home, Phone, Euro, LocationOn } from "@mui/icons-material";
 import { useState } from "react";
 import {
   useLeadsQuery,
@@ -28,7 +34,6 @@ import {
 } from "../../features/leads/leadsQueries";
 import type { ILead } from "../../common/interfaces/lead.interface";
 import { useNavigate } from "react-router-dom";
-import { Delete } from "@mui/icons-material";
 
 export const LeadsList = () => {
   const theme = useTheme();
@@ -43,7 +48,7 @@ export const LeadsList = () => {
   const rowsPerPage = 10;
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   const handleOpenConfirm = (lead: ILead) => {
     setSelectedLead(lead);
@@ -92,6 +97,237 @@ export const LeadsList = () => {
     page * rowsPerPage + rowsPerPage
   );
 
+  if (isMobile) {
+    return (
+      <>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))" },
+            gap: 3,
+            width: "100%",
+            boxSizing: "border-box",
+            px: { xs: 0.5, sm: 0 },
+          }}
+        >
+          {paginated.map((lead: ILead) => (
+            <Card
+              key={lead._id}
+              sx={{
+                borderRadius: 3,
+                overflow: "hidden",
+                width: "100%",
+                boxShadow: isDark
+                  ? `0 0 15px ${accent}22`
+                  : `0 0 10px ${accent}11`,
+                bgcolor: theme.palette.background.paper,
+                transition: "transform 0.2s ease",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  boxShadow: `0 0 25px ${accent}33`,
+                },
+              }}
+            >
+              <CardContent sx={{ p: 2.5 }}>
+                {/* 🔹 Header cu Avatar și nume */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    mb: 2,
+                    gap: 1.8,
+                  }}
+                >
+                  <Avatar
+                    sx={{
+                      bgcolor: accent,
+                      color: "#fff",
+                      fontWeight: 600,
+                      width: 48,
+                      height: 48,
+                      fontSize: 20,
+                    }}
+                  >
+                    {lead.name?.[0]?.toUpperCase() ?? "L"}
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h6" fontWeight={700} color={accent}>
+                      {lead.name ?? "Lead"}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {lead.transactionType ?? "-"}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* 🔹 Informații principale */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1.2,
+                    mb: 2.2,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5,
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    <Phone fontSize="small" />
+                    {lead.phoneNumber ? (
+                      <Link
+                        href={`tel:${lead.phoneNumber}`}
+                        underline="hover"
+                        sx={{ color: theme.palette.info.main, fontWeight: 500 }}
+                      >
+                        {lead.phoneNumber}
+                      </Link>
+                    ) : (
+                      "-"
+                    )}
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5,
+                    }}
+                  >
+                    <Home fontSize="small" />
+                    {lead.propertyType ?? "-"}
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5,
+                    }}
+                  >
+                    <LocationOn fontSize="small" />
+                    {lead.zona ?? "-"}
+                  </Typography>
+
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5,
+                    }}
+                  >
+                    <Euro fontSize="small" />
+                    {lead.budget ? `€ ${lead.budget}` : "-"}
+                  </Typography>
+                </Box>
+
+                {/* 🔹 Divider subtil */}
+                <Box
+                  sx={{
+                    borderTop: `1px solid ${
+                      isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)"
+                    }`,
+                    my: 1.8,
+                  }}
+                />
+
+                {/* 🔹 Cod Proprietate + Data */}
+                {lead.sku && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      cursor: "pointer",
+                      color: accent,
+                      fontWeight: 600,
+                      mb: 1.2,
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                    onClick={() => navigate(`/properties/${lead.sku}`)}
+                  >
+                    Cod Proprietate: {lead.sku}
+                  </Typography>
+                )}
+
+                <Chip
+                  label={
+                    lead.createdAt
+                      ? new Date(lead.createdAt).toLocaleDateString("ro-RO")
+                      : "-"
+                  }
+                  size="small"
+                  sx={{
+                    mt: 0.5,
+                    backgroundColor: `${accent}22`,
+                    color: accent,
+                    fontWeight: 500,
+                    alignSelf: "flex-start",
+                  }}
+                />
+              </CardContent>
+
+              <CardActions
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  borderTop: `1px solid ${
+                    isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
+                  }`,
+                  p: 1.8,
+                }}
+              >
+                <Tooltip title="Șterge lead">
+                  <IconButton
+                    color="error"
+                    onClick={() => handleOpenConfirm(lead)}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: `${theme.palette.error.main}22`,
+                      },
+                    }}
+                  >
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
+              </CardActions>
+            </Card>
+          ))}
+        </Box>
+
+        {/* 🔹 Dialog Confirmare */}
+        <Dialog open={confirmOpen} onClose={handleCloseConfirm}>
+          <DialogTitle>Confirmare ștergere</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Ești sigur că vrei să ștergi lead-ul{" "}
+              <strong>{selectedLead?.name}</strong>?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseConfirm} color="inherit">
+              Anulează
+            </Button>
+            <Button
+              onClick={handleConfirmDelete}
+              color="error"
+              variant="contained"
+              disabled={deleteLead.isPending}
+            >
+              {deleteLead.isPending ? "Se șterge..." : "Șterge"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
+    );
+  }
+
   return (
     <>
       <Paper
@@ -127,7 +363,7 @@ export const LeadsList = () => {
           <Table
             stickyHeader
             sx={{
-              minWidth: isMobile ? 950 : 1200,
+              minWidth: 1200,
               "& .MuiTableCell-root": {
                 whiteSpace: "nowrap",
                 overflow: "hidden",
@@ -225,7 +461,7 @@ export const LeadsList = () => {
                   </TableCell>
 
                   <TableCell align="center">
-                    <Tooltip title="Sterge lead">
+                    <Tooltip title="Șterge lead">
                       <IconButton
                         color="error"
                         onClick={() => handleOpenConfirm(lead)}
@@ -267,17 +503,18 @@ export const LeadsList = () => {
         </Box>
       </Paper>
 
+      {/* Dialog confirmare ștergere */}
       <Dialog open={confirmOpen} onClose={handleCloseConfirm}>
-        <DialogTitle>Confirmare stergere</DialogTitle>
+        <DialogTitle>Confirmare ștergere</DialogTitle>
         <DialogContent>
           <Typography>
-            Esti sigur ca vrei sa stergi lead-ul{" "}
+            Ești sigur că vrei să ștergi lead-ul{" "}
             <strong>{selectedLead?.name}</strong>?
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseConfirm} color="inherit">
-            Anuleaza
+            Anulează
           </Button>
           <Button
             onClick={handleConfirmDelete}
@@ -285,7 +522,7 @@ export const LeadsList = () => {
             variant="contained"
             disabled={deleteLead.isPending}
           >
-            {deleteLead.isPending ? "Se sterge..." : "Sterge"}
+            {deleteLead.isPending ? "Se șterge..." : "Șterge"}
           </Button>
         </DialogActions>
       </Dialog>
