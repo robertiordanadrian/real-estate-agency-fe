@@ -107,13 +107,16 @@ export const AppLayout = () => {
           width: "100%",
           height: "100%",
           overflowY: "auto",
-
-          pt: { xs: "72px", sm: "80px", md: 0 },
-          px: { xs: 2, sm: 3, md: 4 },
-          pb: { xs: 3, sm: 4 },
-
           transition: "padding 0.3s ease",
           scrollBehavior: "smooth",
+          pt: {
+            xs: `calc(${theme.mixins.toolbar?.minHeight || 56}px + 24px)`,
+            sm: 3,
+            md: 3,
+          },
+          pb: { xs: 2, sm: 3, md: 3 },
+          pr: { xs: 2, sm: 3, md: 3 },
+          pl: { xs: 2, sm: 3, md: 3 },
 
           "&::-webkit-scrollbar": {
             width: 10,

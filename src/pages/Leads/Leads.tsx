@@ -24,19 +24,24 @@ export default function Leads() {
     <Box
       sx={{
         width: "100%",
-        minHeight: "calc(100vh - 32px)",
+        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        py: { xs: 2, md: 3 },
-        px: { xs: 2, sm: 3 },
         boxSizing: "border-box",
       }}
     >
       <Container
         maxWidth="xl"
         disableGutters
-        sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          flex: 1,
+          boxSizing: "border-box",
+          minHeight: 0,
+        }}
       >
         <Paper
           elevation={3}
@@ -104,7 +109,16 @@ export default function Leads() {
             }}
           />
 
-          <Box sx={{ flex: 1, overflow: "hidden", borderRadius: 2 }}>
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              borderRadius: 2,
+              minHeight: 0,
+            }}
+          >
             <LeadsList />
           </Box>
         </Paper>

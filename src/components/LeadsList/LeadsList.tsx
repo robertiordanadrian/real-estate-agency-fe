@@ -102,12 +102,17 @@ export const LeadsList = () => {
             ? `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`
             : theme.palette.background.paper,
           boxShadow: isDark ? `0 0 25px ${accent}11` : `0 0 10px ${accent}11`,
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          minHeight: 0,
         }}
       >
         <TableContainer
           sx={{
-            maxHeight: "70vh",
             overflowX: "auto",
+            flex: 1,
+            minHeight: 0,
             "&::-webkit-scrollbar": {
               height: 8,
               backgroundColor: theme.palette.background.default,
@@ -262,7 +267,6 @@ export const LeadsList = () => {
         </Box>
       </Paper>
 
-      {/* DIALOG CONFIRM DELETE */}
       <Dialog open={confirmOpen} onClose={handleCloseConfirm}>
         <DialogTitle>Confirmare stergere</DialogTitle>
         <DialogContent>

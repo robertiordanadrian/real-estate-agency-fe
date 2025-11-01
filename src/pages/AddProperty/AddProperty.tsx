@@ -332,15 +332,25 @@ export const AddProperty: React.FC = () => {
     <Box
       sx={{
         width: "100%",
-        minHeight: "calc(100vh - 32px)",
+        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        py: { xs: 2, sm: 3 },
-        px: { xs: 2, sm: 3, md: 4 },
+        boxSizing: "border-box",
       }}
     >
-      <Container maxWidth="xl" disableGutters>
+      <Container
+        maxWidth="xl"
+        disableGutters
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          flex: 1,
+          boxSizing: "border-box",
+          minHeight: 0,
+        }}
+      >
         <Paper
           elevation={3}
           sx={{

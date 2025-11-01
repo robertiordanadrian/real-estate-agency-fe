@@ -21,10 +21,14 @@ import {
   Typography,
   useTheme,
   Grid,
+  Tooltip,
+  Fab,
+  useMediaQuery,
 } from "@mui/material";
 import { normalizeRole } from "../../common/utils/normalize-role.util";
 import { ERole } from "../../common/enums/role.enums";
 import { useQueryClient } from "@tanstack/react-query";
+import { ArrowBack } from "@mui/icons-material";
 
 export default function Settings() {
   const theme = useTheme();
@@ -32,6 +36,7 @@ export default function Settings() {
   const { data: user } = useUserQuery();
   const updateUser = useUpdateUser();
   const uploadAvatar = useUploadProfilePicture();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [form, setForm] = useState({
     name: user?.name ?? "",
@@ -103,183 +108,234 @@ export default function Settings() {
   return (
     <Box
       sx={{
-        minHeight: "calc(100vh - 32px)",
+        width: "100%",
+        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        bgcolor: theme.palette.background.default,
-        py: { xs: 2, sm: 4 },
+        boxSizing: "border-box",
       }}
     >
-      <Container maxWidth="md">
+      <Container
+        maxWidth="xl"
+        disableGutters
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          flex: 1,
+          boxSizing: "border-box",
+          minHeight: 0,
+        }}
+      >
         <Paper
           elevation={3}
           sx={{
-            p: { xs: 3, sm: 5 },
+            flex: 1,
+            p: { xs: 2, sm: 3, md: 4 },
             borderRadius: 3,
-            bgcolor: theme.palette.background.paper,
+            background: isDark
+              ? `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`
+              : `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`,
             color: theme.palette.text.primary,
+            width: "100%",
+            minHeight: "75vh",
             boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
-            transition: "all 0.3s ease",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <Typography
-            variant="h5"
-            mb={3}
-            fontWeight={700}
+          <Box
             sx={{
-              background: isDark
-                ? "linear-gradient(45deg, #38bdf8, #818cf8)"
-                : "linear-gradient(45deg, #0f172a, #2563eb)",
-              backgroundClip: "text",
-              WebkitBackgroundClip: "text",
-              color: "transparent",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: { xs: 2, md: 3 },
+              flexDirection: { xs: "row", sm: "row" },
+              gap: 2,
             }}
           >
-            Setari utilizator
-          </Typography>
+            <Typography variant={isMobile ? "h6" : "h5"} fontWeight={700}>
+              Setări utilizator
+            </Typography>
 
-          <Divider sx={{ mb: 4, borderColor: theme.palette.divider }} />
-
-          <Grid
-            container
-            spacing={2}
-            justifyContent="center"
-            alignItems="center"
-            sx={{ mb: 4 }}
-          >
-            <Grid
-              size={{ xs: 12, sm: 4 }}
-              display="flex"
-              justifyContent="center"
-            >
-              <Avatar
-                src={avatarPreview || user?.profilePicture || undefined}
+            <Tooltip title="Înapoi" arrow>
+              <Fab
+                color="info"
+                onClick={() => window.history.back()}
+                size={isMobile ? "medium" : "large"}
                 sx={{
-                  width: 100,
-                  height: 100,
-                  border: `2px solid ${accent}`,
-                  boxShadow: `0 0 15px ${accent}55`,
-                  bgcolor: theme.palette.background.default,
-                  fontSize: "2rem",
-                  fontWeight: "bold",
+                  boxShadow: `0 0 12px ${theme.palette.info.main}55`,
+                  "&:hover": { backgroundColor: theme.palette.info.dark },
                 }}
               >
-                {!user?.profilePicture && user?.name?.charAt(0).toUpperCase()}
-              </Avatar>
-            </Grid>
-
-            <Grid
-              size={{ xs: 12, sm: 8 }}
-              display="flex"
-              justifyContent={{ xs: "center", sm: "flex-start" }}
-              alignItems="flex-end"
-            >
-              <Button
-                variant="outlined"
-                component="label"
-                sx={{
-                  color: accent,
-                  borderColor: accent,
-                  fontWeight: 600,
-                  height: 45,
-                  "&:hover": {
-                    borderColor: accent,
-                    backgroundColor: `${accent}11`,
-                  },
-                }}
-              >
-                Incarca imagine de profil
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={handleFileChange}
+                <ArrowBack
+                  sx={{ color: "white", fontSize: isMobile ? 22 : 26 }}
                 />
-              </Button>
-            </Grid>
-          </Grid>
+              </Fab>
+            </Tooltip>
+          </Box>
+
+          <Divider
+            sx={{
+              mb: 3,
+              borderColor:
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.1)",
+            }}
+          />
 
           <Box
             component="form"
             onSubmit={handleSubmit}
-            sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
           >
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Nume complet"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  select
-                  label="Rol"
-                  value={form.role}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      role: normalizeRole(e.target.value),
-                    })
-                  }
-                  fullWidth
+            <Box>
+              <Grid
+                container
+                spacing={2}
+                alignItems="center"
+                justifyContent="flex-start"
+                sx={{ mb: 4 }}
+                flexDirection="column"
+              >
+                <Grid
+                  size={{ xs: 12, sm: 4 }}
+                  display="flex"
+                  justifyContent="center"
                 >
-                  {Object.values(ERole).map((r) => (
-                    <MenuItem key={r} value={r}>
-                      {r}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                  <Avatar
+                    src={avatarPreview || user?.profilePicture || undefined}
+                    sx={{
+                      width: 100,
+                      height: 100,
+                      border: `2px solid ${accent}`,
+                      boxShadow: `0 0 15px ${accent}55`,
+                      bgcolor: theme.palette.background.default,
+                      fontSize: "2rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {!user?.profilePicture &&
+                      user?.name?.charAt(0).toUpperCase()}
+                  </Avatar>
+                </Grid>
+
+                <Grid
+                  size={{ xs: 12, sm: 8 }}
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    sx={{
+                      color: accent,
+                      borderColor: accent,
+                      fontWeight: 600,
+                      height: 45,
+                      "&:hover": {
+                        borderColor: accent,
+                        backgroundColor: `${accent}11`,
+                      },
+                    }}
+                  >
+                    Încarcă imagine de profil
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </Button>
+                </Grid>
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Parola noua"
-                  type="password"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm({ ...form, password: e.target.value })
-                  }
-                  fullWidth
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">🔒</InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="Nume complet"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    fullWidth
+                  />
+                </Grid>
 
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  label="Confirma parola"
-                  type="password"
-                  value={form.confirmPassword}
-                  onChange={(e) =>
-                    setForm({ ...form, confirmPassword: e.target.value })
-                  }
-                  fullWidth
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">🔒</InputAdornment>
-                    ),
-                  }}
-                />
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="Email"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    select
+                    label="Rol"
+                    value={form.role}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        role: normalizeRole(e.target.value),
+                      })
+                    }
+                    fullWidth
+                  >
+                    {Object.values(ERole).map((r) => (
+                      <MenuItem key={r} value={r}>
+                        {r}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="Parolă nouă"
+                    type="password"
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
+                    fullWidth
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">🔒</InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="Confirmă parola"
+                    type="password"
+                    value={form.confirmPassword}
+                    onChange={(e) =>
+                      setForm({ ...form, confirmPassword: e.target.value })
+                    }
+                    fullWidth
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">🔒</InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
 
             <Button
               type="submit"
@@ -287,8 +343,8 @@ export default function Settings() {
               fullWidth
               disabled={updateUser.isPending || uploadAvatar.isPending}
               sx={{
-                mt: 2,
-                py: 1.3,
+                mt: "auto",
+                py: 1.4,
                 fontWeight: 700,
                 fontSize: "1rem",
                 backgroundColor: accent,
@@ -305,31 +361,32 @@ export default function Settings() {
                   sx={{ color: theme.palette.getContrastText(accent) }}
                 />
               ) : (
-                "Salveaza modificarile"
+                "Salvează modificările"
               )}
             </Button>
           </Box>
         </Paper>
-      </Container>
 
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={3000}
-        onClose={() => setToast({ ...toast, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
+        {/* === TOAST === */}
+        <Snackbar
+          open={toast.open}
+          autoHideDuration={3000}
           onClose={() => setToast({ ...toast, open: false })}
-          severity={toast.severity}
-          sx={{
-            width: "100%",
-            fontWeight: 600,
-            borderRadius: 2,
-          }}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         >
-          {toast.message}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={() => setToast({ ...toast, open: false })}
+            severity={toast.severity}
+            sx={{
+              width: "100%",
+              fontWeight: 600,
+              borderRadius: 2,
+            }}
+          >
+            {toast.message}
+          </Alert>
+        </Snackbar>
+      </Container>
     </Box>
   );
 }

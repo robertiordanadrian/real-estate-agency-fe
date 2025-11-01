@@ -29,11 +29,11 @@ function App() {
             <Route path="/properties/add" element={<AddProperty />} />
             <Route path="/properties/:sku" element={<PropertyDetail />} />
             <Route path="/properties/edit/:id" element={<EditProperty />} />
-          </Route>
-        </Route>
 
-        <Route element={<CEOProtectedRoute />}>
-          <Route path="/register" element={<RegisterPage />} />
+            <Route element={<CEOProtectedRoute />}>
+              <Route path="/register" element={<RegisterPage />} />
+            </Route>
+          </Route>
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
