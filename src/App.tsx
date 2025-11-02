@@ -12,6 +12,7 @@ import Settings from "./pages/Settings/Settings";
 import { CEOProtectedRoute } from "./features/auth/CEOProtectedRoute";
 import Leads from "./pages/Leads/Leads";
 import Agents from "./pages/Agents/Agents";
+import FilterProperties from "./pages/FilterProperties/FilterProperties";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/properties/add" element={<AddProperty />} />
             <Route path="/properties/:sku" element={<PropertyDetail />} />
             <Route path="/properties/edit/:id" element={<EditProperty />} />
+            <Route path="/filter-properties" element={<FilterProperties />} />
 
             <Route element={<CEOProtectedRoute />}>
               <Route path="/register" element={<RegisterPage />} />

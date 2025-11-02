@@ -2,8 +2,8 @@ import { IOwner } from "../../common/interfaces/owner.interface";
 import { http } from "../../services/http";
 
 export const OwnersApi = {
-  getAllByAgent: async (agentId: string) => {
-    const res = await http.get<IOwner[]>("/owners", { params: { agentId } });
+  getAllByAgent: async (agentID: string) => {
+    const res = await http.get<IOwner[]>("/owners", { params: { agentID } });
     return res.data;
   },
 

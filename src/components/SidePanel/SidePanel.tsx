@@ -21,6 +21,7 @@ import {
   PersonAdd,
   ContactPhone,
   Person,
+  FilterAlt,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
@@ -246,6 +247,11 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
               icon: <RealEstateAgent />,
               label: "Proprietati",
               path: "/properties",
+            },
+            {
+              icon: <FilterAlt />,
+              label: "Filtreaza Proprietati",
+              path: "/filter-properties",
             },
             ...(user?.role === "CEO"
               ? [
