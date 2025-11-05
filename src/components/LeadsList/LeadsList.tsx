@@ -26,7 +26,15 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Delete, Home, Phone, Euro, LocationOn } from "@mui/icons-material";
+import {
+  Delete,
+  Home,
+  Phone,
+  Euro,
+  LocationOn,
+  Person,
+  Edit,
+} from "@mui/icons-material";
 import { useState } from "react";
 import {
   useLeadsQuery,
@@ -34,8 +42,11 @@ import {
 } from "../../features/leads/leadsQueries";
 import type { ILead } from "../../common/interfaces/lead.interface";
 import { useNavigate } from "react-router-dom";
+import { useAllUsersQuery } from "../../features/users/usersQueries";
+import { IUser } from "../../common/interfaces/user.interface";
 
 export const LeadsList = () => {
+  const { data: users } = useAllUsersQuery();
   const theme = useTheme();
   const navigate = useNavigate();
   const { data: leads, isLoading, error } = useLeadsQuery();
@@ -96,6 +107,41 @@ export const LeadsList = () => {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
+  const getAgentName = (agentId?: string) => {
+    if (!agentId || !users) return "-";
+    const agent = users.find((u: IUser) => u._id === agentId);
+    return agent ? agent.name : "-";
+  };
+
+  const getStatusChipStyle = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case "VERDE":
+        return { bgcolor: "#22c55e", color: "#ffffff" };
+      case "GALBEN":
+        return { bgcolor: "#facc15", color: "#000000" };
+      case "NEGRU":
+      case "BLACK":
+        return { bgcolor: "#1e293b", color: "#ffffff" };
+      case "ROSU":
+        return { bgcolor: "#ef4444", color: "#ffffff" };
+      case "ALBASTRU":
+      case "BLUE":
+        return { bgcolor: "#3b82f6", color: "#ffffff" };
+      case "ALB":
+      case "WHITE":
+        return {
+          bgcolor: "#ffffff",
+          color: "#0f172a",
+          border: "1px solid #cbd5e1",
+        };
+      case "REZERVAT":
+      case "RESERVED":
+        return { bgcolor: "#8b5cf6", color: "#ffffff" };
+      default:
+        return { bgcolor: "#94a3b8", color: "#ffffff" }; // fallback gri
+    }
+  };
 
   if (isMobile) {
     return (
@@ -226,6 +272,23 @@ export const LeadsList = () => {
                   >
                     <Euro fontSize="small" />
                     {lead.budget ? `€ ${lead.budget}` : "-"}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    <Person
+                      sx={{
+                        color: theme.palette.primary.main,
+                        fontSize: 20,
+                      }}
+                    />
+                    {getAgentName(lead.agentId) || "-"}
                   </Typography>
                 </Box>
 
@@ -384,8 +447,10 @@ export const LeadsList = () => {
                   "Zona",
                   "Buget",
                   "Tranzactie",
+                  "Status",
                   "Cod Proprietate",
                   "Data",
+                  "Agent",
                   "Actiuni",
                 ].map((header) => (
                   <TableCell
@@ -436,7 +501,18 @@ export const LeadsList = () => {
                   <TableCell>
                     {lead.budget ? `€ ${lead.budget}` : "-"}
                   </TableCell>
+
                   <TableCell>{lead.transactionType || "-"}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={lead.status || "-"}
+                      size="small"
+                      sx={{
+                        fontWeight: 500,
+                        ...getStatusChipStyle(lead.status || ""),
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     {lead.sku ? (
                       <Typography
@@ -459,8 +535,29 @@ export const LeadsList = () => {
                       ? new Date(lead.createdAt).toLocaleString("ro-RO")
                       : "-"}
                   </TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1.2}>
+                      <Typography variant="body2" fontWeight={500}>
+                        {getAgentName(lead.agentId) || "-"}
+                      </Typography>
+                    </Box>
+                  </TableCell>
 
                   <TableCell align="center">
+                    <Tooltip title="Editează lead">
+                      <IconButton
+                        color="info"
+                        onClick={() => navigate(`/leads/${lead._id}/edit`)}
+                        sx={{
+                          "&:hover": {
+                            backgroundColor: `${theme.palette.info.main}22`,
+                          },
+                        }}
+                      >
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+
                     <Tooltip title="Șterge lead">
                       <IconButton
                         color="error"

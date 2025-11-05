@@ -11,6 +11,7 @@ import {
   Card,
   CardContent,
   useTheme,
+  Badge,
 } from "@mui/material";
 import { blue, green, orange, red } from "@mui/material/colors";
 import {
@@ -22,11 +23,14 @@ import {
   ContactPhone,
   Person,
   FilterAlt,
+  Notifications,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
 import { useLogout } from "../../features/auth/authMutations";
 import { useUserQuery } from "../../features/users/usersQueries";
+import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
+import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
 
 interface SidePanelProps {
   onNavigate?: () => void;
@@ -37,7 +41,10 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
   const { data: user } = useUserQuery();
   const { mutate: logout, isPending } = useLogout();
   const location = useLocation();
-
+  const { data: pendingRequests } = usePendingRequestsQuery();
+  const pendingCount = pendingRequests?.length ?? 0;
+  const { data: pendingLeadRequests } = usePendingLeadRequestsQuery();
+  const pendingLeadCount = pendingLeadRequests?.length ?? 0;
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
@@ -247,6 +254,32 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
               icon: <RealEstateAgent />,
               label: "Proprietati",
               path: "/properties",
+            },
+            {
+              icon: (
+                <Badge
+                  badgeContent={pendingCount}
+                  color="error"
+                  invisible={pendingCount === 0}
+                >
+                  <Notifications />
+                </Badge>
+              ),
+              label: "Cereri aprobare",
+              path: "/property-requests",
+            },
+            {
+              icon: (
+                <Badge
+                  badgeContent={pendingLeadCount}
+                  color="error"
+                  invisible={pendingLeadCount === 0}
+                >
+                  <Notifications />
+                </Badge>
+              ),
+              label: "Cereri Lead-uri",
+              path: "/lead-requests",
             },
             {
               icon: <FilterAlt />,

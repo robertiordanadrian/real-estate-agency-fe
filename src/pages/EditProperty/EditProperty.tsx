@@ -144,10 +144,11 @@ export const EditProperty: React.FC = () => {
             "Fisierele sunt prea mari. Redu dimensiunea imaginilor.";
         else if (status === 415)
           errorMessage = "Tip de fisier neacceptat. Incearca doar imagini.";
-        else if (status === 400)
-          errorMessage = "Date invalide. Verifica toate campurile.";
-        else if (error.response.data?.message)
+        else if (error.response.data?.message) {
           errorMessage = error.response.data.message;
+        } else if (status === 400) {
+          errorMessage = "Date invalide. Verifica toate campurile.";
+        }
       } else if (error.request) {
         errorMessage = "Eroare de retea. Verifica conexiunea la internet.";
       }

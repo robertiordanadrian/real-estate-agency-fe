@@ -1,5 +1,5 @@
 export interface IModificationLogs {
   date: Date;
-  agentID: string;
+  agentId: string;
   modifiedFields: string;
 }

@@ -1,17 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: "CEO" | "MANAGER" | "TEAM_LEAD" | "AGENT" | undefined;
-  profilePicture?: string;
-}
+import { IUser } from "common/interfaces/user.interface";
 
 export interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
-  user: User | null;
+  user: IUser | null;
   status: "idle" | "authenticating" | "authenticated" | "error";
 }
 
@@ -31,7 +24,7 @@ const authSlice = createSlice({
       action: PayloadAction<{
         accessToken: string;
         refreshToken: string;
-        user: User;
+        user: IUser;
       }>
     ) {
       state.accessToken = action.payload.accessToken;

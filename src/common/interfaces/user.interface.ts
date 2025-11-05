@@ -1,7 +1,8 @@
 import { ERole } from "common/enums/role.enums";
 
 export interface IUser {
-  _id: string;
+  _id?: string;
+  id?: string;
   name: string;
   email: string;
   phone: string;

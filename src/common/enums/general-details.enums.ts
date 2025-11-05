@@ -1,13 +1,11 @@
 export enum EStatus {
-  ACTIV_NOT_SET = "Activa - Not set",
-  ACTIV_COLD = "Activa - Cold",
-  ACTIV_WARM = "Activa - Warm",
-  ACTIV_HOT = "Activa - Hot",
-  ACTIV_RESERVED = "Activa - Rezervata",
-  WAITING = "In Asteptare",
-  RETREAT = "Retrasa",
-  TRADED_WIN = "Tranzactionata - Won",
-  LOST = "Pierduta - Lost",
+  GREEN = "Verde",
+  YELLOW = "Galben",
+  BLACK = "Negru",
+  RED = "Rosu",
+  BLUE = "Albastru",
+  WHITE = "Alb",
+  RESERVED = "Rezervata",
 }
 
 export enum EType {

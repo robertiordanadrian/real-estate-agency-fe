@@ -25,7 +25,32 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
 import { IProperty } from "../../common/interfaces/property.interface";
+import { EStatus } from "../../common/enums/general-details.enums";
 
+const getStatusChipStyle = (status: string) => {
+  switch (status) {
+    case EStatus.GREEN:
+      return { bgcolor: "#22c55e", color: "#ffffff" }; // Verde
+    case EStatus.YELLOW:
+      return { bgcolor: "#facc15", color: "#000000" }; // Galben
+    case EStatus.BLACK:
+      return { bgcolor: "#1e293b", color: "#ffffff" }; // Negru
+    case EStatus.RED:
+      return { bgcolor: "#ef4444", color: "#ffffff" }; // Roșu
+    case EStatus.BLUE:
+      return { bgcolor: "#3b82f6", color: "#ffffff" }; // Albastru
+    case EStatus.WHITE:
+      return {
+        bgcolor: "#ffffff",
+        color: "#0f172a",
+        border: "1px solid #cbd5e1",
+      }; // Alb
+    case EStatus.RESERVED:
+      return { bgcolor: "#8b5cf6", color: "#ffffff" }; // Mov
+    default:
+      return { bgcolor: "#94a3b8", color: "#ffffff" }; // fallback gri
+  }
+};
 interface PropertiesListProps {
   properties: IProperty[];
 }
@@ -222,8 +247,7 @@ const DesktopTable = ({
                       label={generalDetails?.status ?? "-"}
                       size="small"
                       sx={{
-                        backgroundColor: accent,
-                        color: "#fff",
+                        ...getStatusChipStyle(generalDetails?.status ?? "-"),
                         fontWeight: 500,
                       }}
                     />
@@ -405,10 +429,8 @@ const MobileCardList = ({ properties }: PropertiesListProps) => {
                 label={generalDetails?.status ?? "-"}
                 size="small"
                 sx={{
-                  backgroundColor: accent,
-                  color: "#fff",
+                  ...getStatusChipStyle(generalDetails?.status ?? "-"),
                   fontWeight: 500,
-                  mt: 1,
                 }}
               />
             </CardContent>

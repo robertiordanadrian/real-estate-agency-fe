@@ -67,7 +67,7 @@ const steps = [
 
 const defaultGeneralDetails: IGeneralDetails = {
   agent: "",
-  status: EStatus.ACTIV_COLD,
+  status: EStatus.GREEN,
   transactionType: EType.SALE,
   category: ECategory.APARTMENT,
   ownerID: "",

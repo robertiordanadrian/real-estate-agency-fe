@@ -7,6 +7,7 @@ import {
 
 export interface IGeneralDetails {
   agent: string;
+  agentId?: string;
   status: EStatus;
   transactionType: EType;
   category: ECategory;

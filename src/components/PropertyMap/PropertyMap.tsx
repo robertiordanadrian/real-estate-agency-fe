@@ -37,7 +37,7 @@ export default function PropertyMap({ address, apiKey }: PropertyMapProps) {
   }, [address, apiKey]);
 
   return (
-    <APIProvider apiKey={apiKey}>
+    <APIProvider apiKey={apiKey} libraries={["places"]}>
       <div
         style={{
           width: "100%",

@@ -1,3 +1,5 @@
+import { ELeadStatus } from "common/enums/lead-status.enum";
+
 export interface ILead {
   _id?: string;
   callSid: string;
@@ -11,4 +13,7 @@ export interface ILead {
   recordingUrl?: string;
   createdAt?: string;
   updatedAt?: string;
+  agentId?: string;
+  contractUrl?: string;
+  status: ELeadStatus;
 }

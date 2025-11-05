@@ -3,15 +3,14 @@ import { OwnersApi } from "./ownersApi";
 import { IOwner } from "../../common/interfaces/owner.interface";
 
 export const ownersKeys = {
-  byAgent: (agentID: string) => ["owners", "byAgent", agentID] as const,
+  all: ["owners", "all"] as const,
   byId: (id: string) => ["owners", "byId", id] as const,
 };
 
-export const useOwnersByAgentQuery = (agentID: string) =>
+export const useOwnersQuery = () =>
   useQuery({
-    queryKey: ownersKeys.byAgent(agentID),
-    queryFn: () => OwnersApi.getAllByAgent(agentID),
-    enabled: !!agentID,
+    queryKey: ownersKeys.all,
+    queryFn: OwnersApi.getAll,
   });
 
 export const useOwnerByIdQuery = (id: string) =>

@@ -2,20 +2,47 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { LeadsApi } from "./leadsApi";
 import type { ILead } from "../../common/interfaces/lead.interface";
 
-export const useLeadsQuery = () => {
-  return useQuery<ILead[]>({
+export const useLeadsQuery = () =>
+  useQuery({
     queryKey: ["leads"],
     queryFn: LeadsApi.getAll,
-    refetchInterval: 10000,
+  });
+
+export const useLeadQuery = (id: string) =>
+  useQuery({
+    queryKey: ["lead", id],
+    queryFn: () => LeadsApi.getOne(id),
+    enabled: !!id,
+  });
+
+export const useUpdateLead = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<ILead> }) =>
+      LeadsApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    },
+  });
+};
+
+export const useUploadContract = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      LeadsApi.uploadContract(id, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+    },
   });
 };
 
 export const useDeleteLead = () => {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => LeadsApi.deleteLead(id),
+    mutationFn: LeadsApi.deleteLead,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
     },
   });
 };

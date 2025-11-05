@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { http } from "../../services/http";
 import { logout, setCredentials } from "./authSlice";
 import { useAppDispatch } from "../../app/hook";
@@ -57,20 +57,28 @@ export const useLogin = () => {
 
 export const useLogout = () => {
   const dispatch = useAppDispatch();
+  const qc = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
       await http.post("/auth/logout");
       return true;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      // 🧹 curăță userul din Redux
       dispatch(logout());
       localStorage.removeItem("app.auth");
+
+      // 🔥 curăță cache-ul React Query (inclusiv ["me"])
+      await qc.invalidateQueries();
+      qc.removeQueries(); // elimină complet datele stale
     },
-    onError: (err) => {
+    onError: async (err) => {
       console.error("Eroare la logout:", err);
       dispatch(logout());
       localStorage.removeItem("app.auth");
+      await qc.invalidateQueries();
+      qc.removeQueries();
     },
   });
 };

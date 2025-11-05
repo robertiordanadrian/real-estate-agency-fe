@@ -13,6 +13,9 @@ import { CEOProtectedRoute } from "./features/auth/CEOProtectedRoute";
 import Leads from "./pages/Leads/Leads";
 import Agents from "./pages/Agents/Agents";
 import FilterProperties from "./pages/FilterProperties/FilterProperties";
+import PropertyRequests from "./pages/PropertyRequests/PropertyRequests";
+import EditLead from "./pages/EditLead/EditLead";
+import LeadRequests from "./pages/LeadRequests/LeadRequests";
 
 function App() {
   return (
@@ -25,12 +28,16 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/leads" element={<Leads />} />
+            <Route path="/leads/:id/edit" element={<EditLead />} />
+
             <Route path="/agents" element={<Agents />} />
             <Route path="/properties" element={<Properties />} />
             <Route path="/properties/add" element={<AddProperty />} />
             <Route path="/properties/:sku" element={<PropertyDetail />} />
             <Route path="/properties/edit/:id" element={<EditProperty />} />
             <Route path="/filter-properties" element={<FilterProperties />} />
+            <Route path="/property-requests" element={<PropertyRequests />} />
+            <Route path="/lead-requests" element={<LeadRequests />} />
 
             <Route element={<CEOProtectedRoute />}>
               <Route path="/register" element={<RegisterPage />} />

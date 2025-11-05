@@ -20,7 +20,7 @@ import {
   Paper,
   useTheme,
 } from "@mui/material";
-import { APIProvider, useMapsLibrary } from "@vis.gl/react-google-maps";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import {
   EStatus,
   EType,
@@ -29,74 +29,24 @@ import {
 } from "../../common/enums/general-details.enums";
 import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
 import { OwnersApi } from "../../features/owners/ownersApi";
-import { IOwner } from "../../common/interfaces/owner.interface";
 import { useAppSelector } from "../../app/hook";
 import { selectUser } from "../../features/auth/authSelectors";
+import { useOwnersQuery } from "../../features/owners/ownersQueries";
+import { queryClient } from "../../services/queryClient";
 
 interface GeneralDetailsStepProps {
   data: IGeneralDetails;
   onChange: (updated: IGeneralDetails) => void;
 }
 
-const AddressAutocomplete: React.FC<{
-  onAddressSelect: (address: {
-    street: string;
-    number: string;
-    city: string;
-  }) => void;
-}> = ({ onAddressSelect }) => {
-  const [inputValue, setInputValue] = React.useState("");
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const places = useMapsLibrary("places");
-
-  React.useEffect(() => {
-    if (!places || !inputRef.current) return;
-
-    const autocomplete = new places.Autocomplete(inputRef.current, {
-      fields: ["address_components", "formatted_address"],
-      types: ["address"],
-      componentRestrictions: { country: "ro" },
-    });
-
-    autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      if (!place.address_components) return;
-
-      let street = "";
-      let streetNumber = "";
-      let city = "";
-
-      for (const component of place.address_components) {
-        const type = component.types[0];
-        if (type === "route") street = component.long_name;
-        else if (type === "street_number") streetNumber = component.long_name;
-        else if (type === "locality") city = component.long_name;
-      }
-
-      onAddressSelect({ street, number: streetNumber, city });
-    });
-  }, [places, onAddressSelect]);
-
-  return (
-    <TextField
-      inputRef={inputRef}
-      label="Cauta adresa (Strada si Numar)"
-      value={inputValue}
-      onChange={(e) => setInputValue(e.target.value)}
-      fullWidth
-      placeholder="Incepe sa tastezi o adresa din Romania..."
-    />
-  );
-};
-
 export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
   data,
   onChange,
 }) => {
+  const isEditing = Boolean(data && (data as any)._id);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
-  const [owners, setOwners] = React.useState<IOwner[]>([]);
   const [openOwnerDialog, setOpenOwnerDialog] = React.useState(false);
   const [newOwner, setNewOwner] = React.useState({
     surname: "",
@@ -109,21 +59,37 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
   });
 
   const user = useAppSelector(selectUser);
-  const ADD_NEW_OWNER = "__add_new_owner__";
-  const agentId = user?.id;
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  const getAllowedStatuses = (role?: string): EStatus[] => {
+    switch (role) {
+      case "CEO":
+        return Object.values(EStatus);
+      case "MANAGER":
+      case "TEAM_LEAD":
+      case "AGENT":
+        return [EStatus.WHITE, EStatus.RED, EStatus.BLUE, EStatus.RESERVED];
+      default:
+        return [EStatus.RESERVED];
+    }
+  };
+
+  const allowedStatuses = getAllowedStatuses(user?.role);
 
   React.useEffect(() => {
-    const fetchOwners = async () => {
-      try {
-        const ownersList = await OwnersApi.getAllByAgent(agentId || "");
-        setOwners(ownersList);
-      } catch {
-        setOwners([]);
-      }
-    };
-    fetchOwners();
-  }, [agentId]);
+    if (!data.status || !data.agent || !data.agentId) {
+      const updated = { ...data };
+
+      if (!updated.status) updated.status = EStatus.GREEN;
+      if (!updated.agent && user)
+        updated.agent = user.name || user.email || "Agent necunoscut";
+      if (!updated.agentId && (user?._id || user?.id))
+        updated.agentId = user._id || user.id;
+
+      onChange(updated);
+    }
+  }, []);
+  const agentId = user?._id || user?.id;
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  const { data: owners = [] } = useOwnersQuery();
 
   const handleLocationChange = (
     key: keyof IGeneralDetails["location"],
@@ -175,7 +141,7 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
 
   const handleCreateOwner = async () => {
     const payload = {
-      agentId: agentId ? agentId : "",
+      agentId: agentId ?? "",
       surname: newOwner.surname.trim(),
       lastname: newOwner.lastname.trim(),
       email: newOwner.email.trim(),
@@ -190,7 +156,7 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
 
     try {
       const created = await OwnersApi.create(payload);
-      setOwners((prev) => [created, ...prev]);
+      await queryClient.invalidateQueries({ queryKey: ["owners", "all"] });
       onChange({ ...data, ownerID: created._id });
       setNewOwner({
         surname: "",
@@ -206,7 +172,7 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
   };
 
   return (
-    <APIProvider apiKey={apiKey}>
+    <APIProvider apiKey={apiKey} libraries={["places"]}>
       <Paper
         elevation={2}
         sx={{
@@ -225,32 +191,35 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
               </Typography>
 
               <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  <TextField
-                    label="Agent"
-                    value={data.agent}
-                    onChange={(e) =>
-                      onChange({ ...data, agent: e.target.value })
-                    }
-                    fullWidth
-                  />
-                </Grid>
+                <TextField
+                  label="Agent"
+                  value={user?.name || user?.email || "—"}
+                  fullWidth
+                  InputProps={{ readOnly: true }}
+                />
 
                 <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <FormControl fullWidth>
                     <InputLabel>Status</InputLabel>
                     <Select
-                      value={data.status}
+                      value={data.status ?? EStatus.GREEN}
                       label="Status"
                       onChange={(e) =>
                         onChange({ ...data, status: e.target.value as EStatus })
                       }
+                      disabled={!isEditing}
                     >
-                      {Object.values(EStatus).map((opt) => (
-                        <MenuItem key={opt} value={opt}>
-                          {opt}
+                      {isEditing ? (
+                        allowedStatuses.map((opt) => (
+                          <MenuItem key={opt} value={opt}>
+                            {opt}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem value={EStatus.GREEN}>
+                          {EStatus.GREEN}
                         </MenuItem>
-                      ))}
+                      )}
                     </Select>
                   </FormControl>
                 </Grid>
@@ -348,10 +317,6 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
               </Typography>
 
               <Grid container spacing={2}>
-                <Grid size={{ xs: 12 }}>
-                  <AddressAutocomplete onAddressSelect={handleAddressSelect} />
-                </Grid>
-
                 {locationFields.map((field) => (
                   <Grid key={field.key} size={{ xs: 12, sm: 6, md: 4 }}>
                     <TextField

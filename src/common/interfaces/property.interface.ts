@@ -17,4 +17,7 @@ export interface IProperty {
   images: string[];
   publish?: IPublish;
   modificationLogs?: IModificationLogs;
+  statusStartDate?: Date;
+  nextStatusDate?: Date;
+  isPool?: boolean;
 }
