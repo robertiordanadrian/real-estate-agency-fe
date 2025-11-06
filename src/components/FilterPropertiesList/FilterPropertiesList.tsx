@@ -25,72 +25,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFilterPropertiesQuery } from "../../features/filterProperties/filterPropertiesQueries";
 import type { IProperty } from "../../common/interfaces/property.interface";
+import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
 
 interface FilterPropertiesListProps {
   selectedCategory?: string;
   selectedAgentId?: string;
 }
-
-export const FilterPropertiesList = ({
-  selectedCategory,
-  selectedAgentId,
-}: FilterPropertiesListProps) => {
-  const theme = useTheme();
-  const navigate = useNavigate();
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
-  const { data, isLoading, error } = useFilterPropertiesQuery(
-    selectedCategory,
-    selectedAgentId
-  );
-
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 10;
-
-  if (isLoading)
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100%"
-      >
-        <CircularProgress />
-      </Box>
-    );
-
-  if (error)
-    return (
-      <Typography color="error" textAlign="center">
-        Eroare la incarcare.
-      </Typography>
-    );
-
-  if (!data || data.length === 0)
-    return (
-      <Typography textAlign="center" color="text.secondary">
-        Nicio proprietate gasita pentru categoria selectata.
-      </Typography>
-    );
-
-  const paginated = data.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  if (isMobile) {
-    return <MobileFilteredList properties={paginated} />;
-  }
-
-  return (
-    <DesktopFilteredTable
-      properties={paginated}
-      total={data.length}
-      page={page}
-      rowsPerPage={rowsPerPage}
-      onPageChange={(_, newPage) => setPage(newPage)}
-    />
-  );
-};
 
 function DesktopFilteredTable({
   properties,
@@ -106,9 +46,9 @@ function DesktopFilteredTable({
   onPageChange: (e: unknown, newPage: number) => void;
 }) {
   const theme = useTheme();
-  const navigate = useNavigate();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
+  const navigate = useNavigate();
 
   return (
     <Paper
@@ -209,13 +149,11 @@ function DesktopFilteredTable({
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={generalDetails?.status ?? "-"}
-                      size="small"
+                      label={generalDetails.status}
                       sx={{
-                        backgroundColor: accent,
-                        color: "#fff",
-                        fontWeight: 500,
+                        ...getCustomChipStyle(generalDetails.status),
                       }}
+                      variant="filled"
                     />
                   </TableCell>
                   <TableCell>{property.sku ?? "-"}</TableCell>
@@ -288,12 +226,11 @@ function DesktopFilteredTable({
     </Paper>
   );
 }
-
 function MobileFilteredList({ properties }: { properties: IProperty[] }) {
   const theme = useTheme();
-  const navigate = useNavigate();
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -437,3 +374,66 @@ function MobileFilteredList({ properties }: { properties: IProperty[] }) {
     </Box>
   );
 }
+
+const FilterPropertiesList = ({
+  selectedCategory,
+  selectedAgentId,
+}: FilterPropertiesListProps) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const rowsPerPage = 10;
+
+  const { data, isLoading, error } = useFilterPropertiesQuery(
+    selectedCategory,
+    selectedAgentId
+  );
+
+  const [page, setPage] = useState(0);
+
+  if (isLoading)
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100%"
+      >
+        <CircularProgress />
+      </Box>
+    );
+
+  if (error)
+    return (
+      <Typography color="error" textAlign="center">
+        Eroare la incarcare.
+      </Typography>
+    );
+
+  if (!data || data.length === 0)
+    return (
+      <Typography textAlign="center" color="text.secondary">
+        Nicio proprietate gasita pentru categoria selectata.
+      </Typography>
+    );
+
+  const paginated = data.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  if (isMobile) {
+    return <MobileFilteredList properties={paginated} />;
+  }
+
+  return (
+    <DesktopFilteredTable
+      properties={paginated}
+      total={data.length}
+      page={page}
+      rowsPerPage={rowsPerPage}
+      onPageChange={(_, newPage) => setPage(newPage)}
+    />
+  );
+};
+
+export default FilterPropertiesList;

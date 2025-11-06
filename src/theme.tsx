@@ -9,9 +9,7 @@ import {
 import { blue, deepPurple } from "@mui/material/colors";
 import { DarkMode, LightMode } from "@mui/icons-material";
 
-export const ThemeWrapper: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
   const [mode, setMode] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
@@ -153,3 +151,5 @@ export const ThemeWrapper: React.FC<{ children: React.ReactNode }> = ({
     </ThemeProvider>
   );
 };
+
+export default ThemeWrapper;

@@ -13,7 +13,7 @@ import {
   useTheme,
   Badge,
 } from "@mui/material";
-import { blue, green, orange, red } from "@mui/material/colors";
+import { blue } from "@mui/material/colors";
 import {
   Logout,
   RealEstateAgent,
@@ -31,56 +31,16 @@ import { useLogout } from "../../features/auth/authMutations";
 import { useUserQuery } from "../../features/users/usersQueries";
 import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
 import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
+import { getRoleColor } from "../../common/utils/get-role-color.util";
+import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
 
 interface SidePanelProps {
   onNavigate?: () => void;
 }
 
-export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
+const SidePanel = ({ onNavigate }: SidePanelProps) => {
   const theme = useTheme();
-  const { data: user } = useUserQuery();
-  const { mutate: logout, isPending } = useLogout();
-  const location = useLocation();
-  const { data: pendingRequests } = usePendingRequestsQuery();
-  const pendingCount = pendingRequests?.length ?? 0;
-  const { data: pendingLeadRequests } = usePendingLeadRequestsQuery();
-  const pendingLeadCount = pendingLeadRequests?.length ?? 0;
-  const isActive = (path: string) => {
-    if (path === "/") return location.pathname === "/";
-    return location.pathname.startsWith(path);
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case "CEO":
-        return blue[400];
-      case "MANAGER":
-        return orange[400];
-      case "TEAM_LEAD":
-        return red[400];
-      case "AGENT":
-      default:
-        return green[400];
-    }
-  };
-
-  const getRoleDisplayText = (role: string) => {
-    switch (role) {
-      case "CEO":
-        return "Chief Executive Officer";
-      case "MANAGER":
-        return "Property Manager";
-      case "TEAM_LEAD":
-        return "Team Leader";
-      case "AGENT":
-        return "Real Estate Agent";
-      default:
-        return "User";
-    }
-  };
-
   const isDark = theme.palette.mode === "dark";
-
   const panelBg = isDark
     ? "linear-gradient(180deg, #0f172a 0%, #1e293b 100%)"
     : "linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)";
@@ -92,6 +52,20 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
   const borderGlass = isDark
     ? "1px solid rgba(255,255,255,0.08)"
     : "1px solid rgba(0,0,0,0.08)";
+  const location = useLocation();
+
+  const { data: user } = useUserQuery();
+  const { mutate: logout, isPending } = useLogout();
+  const { data: pendingRequests } = usePendingRequestsQuery();
+  const { data: pendingLeadRequests } = usePendingLeadRequestsQuery();
+
+  const pendingLeadCount = pendingLeadRequests?.length ?? 0;
+  const pendingCount = pendingRequests?.length ?? 0;
+
+  const isActive = (path: string) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <Box
@@ -245,47 +219,57 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
         <List>
           {[
             { icon: <Dashboard />, label: "Dashboard", path: "/" },
-            {
-              icon: <ContactPhone />,
-              label: "Leads",
-              path: "/leads",
-            },
+            { icon: <ContactPhone />, label: "Leads", path: "/leads" },
             {
               icon: <RealEstateAgent />,
               label: "Proprietati",
               path: "/properties",
             },
-            {
-              icon: (
-                <Badge
-                  badgeContent={pendingCount}
-                  color="error"
-                  invisible={pendingCount === 0}
-                >
-                  <Notifications />
-                </Badge>
-              ),
-              label: "Cereri aprobare",
-              path: "/property-requests",
-            },
-            {
-              icon: (
-                <Badge
-                  badgeContent={pendingLeadCount}
-                  color="error"
-                  invisible={pendingLeadCount === 0}
-                >
-                  <Notifications />
-                </Badge>
-              ),
-              label: "Cereri Lead-uri",
-              path: "/lead-requests",
-            },
+
+            ...(user?.role === "CEO" ||
+            user?.role === "MANAGER" ||
+            user?.role === "TEAM_LEAD"
+              ? [
+                  {
+                    icon: (
+                      <Badge
+                        badgeContent={pendingCount}
+                        color="error"
+                        invisible={pendingCount === 0}
+                      >
+                        <Notifications />
+                      </Badge>
+                    ),
+                    label: "Cereri Proprietati",
+                    path: "/property-requests",
+                  },
+                ]
+              : []),
+
+            ...(user?.role === "CEO" || user?.role === "MANAGER"
+              ? [
+                  {
+                    icon: (
+                      <Badge
+                        badgeContent={pendingLeadCount}
+                        color="error"
+                        invisible={pendingLeadCount === 0}
+                      >
+                        <Notifications />
+                      </Badge>
+                    ),
+                    label: "Cereri Lead-uri",
+                    path: "/lead-requests",
+                  },
+                ]
+              : []),
+
             {
               icon: <FilterAlt />,
               label: "Filtreaza Proprietati",
               path: "/filter-properties",
             },
+
             ...(user?.role === "CEO"
               ? [
                   {
@@ -300,6 +284,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
                   },
                 ]
               : []),
+
             { icon: <Settings />, label: "Setari", path: "/settings" },
           ].map((item) => (
             <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
@@ -384,3 +369,5 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onNavigate }) => {
     </Box>
   );
 };
+
+export default SidePanel;

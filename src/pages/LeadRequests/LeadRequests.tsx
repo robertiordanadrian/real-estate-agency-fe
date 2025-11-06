@@ -1,5 +1,7 @@
 import LeadRequestsList from "../../components/LeadRequestsList/LeadRequestsList";
 
-export default function LeadRequests() {
+const LeadRequests = () => {
   return <LeadRequestsList />;
-}
+};
+
+export default LeadRequests;

@@ -25,19 +25,22 @@ import {
   useRejectRequest,
 } from "../../features/propertyRequests/propertyRequestsQueries";
 import { http } from "../../services/http";
-import { EStatus } from "../../common/enums/general-details.enums";
+import { getChipColor } from "../../common/utils/get-chip-color.util";
+import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
 
-export default function PropertyRequestsList() {
+const PropertyRequestsList = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const accentColor = theme.palette.primary.main;
+  const gradientBg = `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`;
+
+  const [properties, setProperties] = useState<Record<string, any>>({});
 
   const { data, isLoading, isError, refetch } = usePendingRequestsQuery();
   const approveMutation = useApproveRequest();
   const rejectMutation = useRejectRequest();
-
-  const [properties, setProperties] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -56,79 +59,6 @@ export default function PropertyRequestsList() {
     };
     fetchProperties();
   }, [data]);
-
-  const accentColor = theme.palette.primary.main;
-  const gradientBg = `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`;
-
-  // 🟢 Funcție pentru culoarea statusului
-  const getChipColor = (
-    status: string
-  ): "default" | "primary" | "secondary" | "success" | "error" | "warning" => {
-    switch (status) {
-      case EStatus.GREEN:
-        return "success";
-      case EStatus.YELLOW:
-        return "warning";
-      case EStatus.RED:
-        return "error";
-      case EStatus.BLACK:
-        return "default";
-      case EStatus.BLUE:
-        return "primary";
-      case EStatus.WHITE:
-        return "secondary";
-      case EStatus.RESERVED:
-        return "default"; // custom purple handled via sx
-      default:
-        return "default";
-    }
-  };
-
-  const getCustomChipStyle = (status: string) => {
-    switch (status) {
-      case EStatus.GREEN: // Verde
-        return {
-          bgcolor: "#22c55e", // verde intens
-          color: "#ffffff",
-        };
-      case EStatus.YELLOW: // Galben
-        return {
-          bgcolor: "#facc15",
-          color: "#000000",
-        };
-      case EStatus.BLACK: // Negru
-        return {
-          bgcolor: "#1e293b",
-          color: "#ffffff",
-        };
-      case EStatus.RED: // Roșu
-        return {
-          bgcolor: "#ef4444",
-          color: "#ffffff",
-        };
-      case EStatus.BLUE: // Albastru
-        return {
-          bgcolor: "#3b82f6",
-          color: "#ffffff",
-        };
-      case EStatus.WHITE: // Alb
-        return {
-          bgcolor: "#ffffff",
-          color: "#0f172a",
-          border: "1px solid #cbd5e1",
-        };
-      case EStatus.RESERVED: // Rezervată — violet distinct
-        return {
-          bgcolor: "#8b5cf6",
-          color: "#ffffff",
-        };
-      default:
-        return {
-          bgcolor: "#94a3b8", // gri fallback
-          color: "#ffffff",
-        };
-    }
-  };
 
   return (
     <Box
@@ -168,7 +98,6 @@ export default function PropertyRequestsList() {
             flexDirection: "column",
           }}
         >
-          {/* Header */}
           <Box
             sx={{
               display: "flex",
@@ -184,7 +113,7 @@ export default function PropertyRequestsList() {
               fontWeight={600}
               sx={{ textAlign: "left" }}
             >
-              Cereri de aprobare
+              Cereri de aprobare Proprietati
             </Typography>
 
             <Tooltip title="Reîncarcă cererile" arrow>
@@ -216,7 +145,6 @@ export default function PropertyRequestsList() {
             }}
           />
 
-          {/* Content */}
           <Box sx={{ flex: 1, overflowY: "auto", mt: 2 }}>
             {isLoading ? (
               <Box
@@ -235,7 +163,7 @@ export default function PropertyRequestsList() {
               </Typography>
             ) : !data?.length ? (
               <Typography textAlign="center" mt={5}>
-                Nu există cereri de aprobare în așteptare 🎉
+                Nu exista cereri de aprobare in asteptare 🎉
               </Typography>
             ) : (
               <Grid container spacing={3}>
@@ -359,4 +287,6 @@ export default function PropertyRequestsList() {
       </Container>
     </Box>
   );
-}
+};
+
+export default PropertyRequestsList;

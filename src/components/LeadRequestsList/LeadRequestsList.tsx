@@ -19,19 +19,22 @@ import {
 import { Refresh } from "@mui/icons-material";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-
 import { http } from "../../services/http";
+
 import {
   useApproveLeadRequest,
   usePendingLeadRequestsQuery,
   useRejectLeadRequest,
 } from "../../features/leadRequests/leadRequestsQueries";
+import { getChipColor } from "../../common/utils/get-chip-color.util";
+import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
 
-export default function LeadRequestsList() {
+const LeadRequestsList = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const gradientBg = `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`;
 
   const { data, isLoading, isError, refetch } = usePendingLeadRequestsQuery();
   const approveMutation = useApproveLeadRequest();
@@ -42,38 +45,28 @@ export default function LeadRequestsList() {
   useEffect(() => {
     const fetchLeads = async () => {
       if (!data) return;
+
       const uniqueIds = [
         ...new Set(data.map((r: any) => r.leadId?._id || r.leadId)),
       ];
+
       const resList = await Promise.all(
         uniqueIds.map((id) => http.get(`/leads/${id}`).then((res) => res.data))
       );
+
       const map: Record<string, any> = {};
-      resList.forEach((p) => (map[p._id] = p));
+      resList.forEach((l) => (map[l._id] = l));
       setLeads(map);
     };
+
     fetchLeads();
   }, [data]);
-
-  const getChipStyle = (status: string) => {
-    switch (status) {
-      case "VERDE":
-        return { bgcolor: "#22c55e", color: "#fff" };
-      case "GALBEN":
-        return { bgcolor: "#facc15", color: "#000" };
-      case "ALB":
-        return { bgcolor: "#fff", color: "#000", border: "1px solid #ccc" };
-      case "ROSU":
-        return { bgcolor: "#ef4444", color: "#fff" };
-      default:
-        return { bgcolor: "#94a3b8", color: "#fff" };
-    }
-  };
 
   return (
     <Box
       sx={{
         width: "100%",
+        height: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
@@ -83,10 +76,11 @@ export default function LeadRequestsList() {
         maxWidth="xl"
         disableGutters
         sx={{
-          flex: 1,
           display: "flex",
           flexDirection: "column",
-          minHeight: "75vh",
+          height: "100%",
+          flex: 1,
+          minHeight: 0,
         }}
       >
         <Paper
@@ -95,8 +89,10 @@ export default function LeadRequestsList() {
             flex: 1,
             p: { xs: 2, sm: 3, md: 4 },
             borderRadius: 3,
-            background: `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`,
+            background: gradientBg,
             boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <Box
@@ -104,10 +100,15 @@ export default function LeadRequestsList() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              mb: 3,
+              mb: { xs: 2, md: 3 },
+              gap: 2,
             }}
           >
-            <Typography variant={isMobile ? "h6" : "h5"} fontWeight={600}>
+            <Typography
+              variant={isMobile ? "h6" : "h5"}
+              fontWeight={600}
+              sx={{ textAlign: "left" }}
+            >
               Cereri de aprobare Lead-uri
             </Typography>
 
@@ -137,117 +138,148 @@ export default function LeadRequestsList() {
             }}
           />
 
-          {isLoading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
-              <CircularProgress color="primary" />
-            </Box>
-          ) : isError ? (
-            <Typography color="error" textAlign="center">
-              Eroare la încărcarea cererilor.
-            </Typography>
-          ) : !data?.length ? (
-            <Typography textAlign="center" mt={5}>
-              Nu există cereri de aprobare în așteptare 🎉
-            </Typography>
-          ) : (
-            <Grid container spacing={3}>
-              {data.map((req: any) => {
-                const lead = leads[req.leadId?._id || req.leadId];
-                const currentStatus = lead?.status ?? "N/A";
-                const requested = req.requestedStatus;
-                const requester = req.requestedBy?.name ?? "Necunoscut";
-                const created = req.createdAt
-                  ? format(new Date(req.createdAt), "dd.MM.yyyy HH:mm")
-                  : "—";
+          <Box sx={{ flex: 1, overflowY: "auto", mt: 2 }}>
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "50vh",
+                }}
+              >
+                <CircularProgress color="primary" />
+              </Box>
+            ) : isError ? (
+              <Typography color="error" textAlign="center" mt={5}>
+                Eroare la incarcarea cererilor.
+              </Typography>
+            ) : !data?.length ? (
+              <Typography textAlign="center" mt={5}>
+                Nu exista cereri de aprobare in asteptare 🎉
+              </Typography>
+            ) : (
+              <Grid container spacing={3}>
+                {data.map((req: any) => {
+                  const lead = leads[req.leadId?._id || req.leadId];
+                  const currentStatus = lead?.status ?? "N/A";
+                  const requested = req.requestedStatus;
+                  const requester = req.requestedBy?.name ?? "Necunoscut";
 
-                return (
-                  <Grid key={req._id} size={{ xs: 12, sm: 12, md: 6, lg: 4 }}>
-                    <Card
-                      sx={{
-                        borderRadius: 3,
-                        border: `1px solid ${accent}33`,
-                        p: 2,
-                        boxShadow: `0 0 15px ${accent}11`,
-                      }}
-                    >
-                      <CardContent>
-                        <Stack spacing={1}>
-                          <Typography
-                            variant="subtitle2"
-                            color="text.secondary"
-                          >
-                            Cerere trimisă de
-                          </Typography>
-                          <Typography variant="h6" fontWeight={600}>
-                            {requester}
-                          </Typography>
+                  const created = req.createdAt
+                    ? format(new Date(req.createdAt), "dd.MM.yyyy HH:mm")
+                    : "—";
 
-                          <Typography variant="body2">
-                            Lead: <strong>{lead?.name}</strong>
-                          </Typography>
-
-                          <Typography variant="body2">
-                            Status actual:{" "}
-                            <Chip
-                              label={currentStatus}
-                              size="small"
-                              sx={getChipStyle(currentStatus)}
-                            />
-                          </Typography>
-
-                          <Typography variant="body2">
-                            Status cerut:{" "}
-                            <Chip
-                              label={requested}
-                              size="small"
-                              sx={getChipStyle(requested)}
-                            />
-                          </Typography>
-
-                          <Typography variant="caption" color="text.secondary">
-                            Cerut la: {created}
-                          </Typography>
-                        </Stack>
-                      </CardContent>
-
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        mt={2}
-                        p={2}
-                        pt={0}
+                  return (
+                    <Grid key={req._id} size={{ xs: 12, sm: 12, md: 6, lg: 4 }}>
+                      <Card
+                        sx={{
+                          borderRadius: 3,
+                          background:
+                            theme.palette.mode === "dark"
+                              ? `linear-gradient(135deg, ${accent}22, ${accent}11)`
+                              : `linear-gradient(135deg, ${accent}11, ${accent}05)`,
+                          border: `1px solid ${accent}33`,
+                          boxShadow: `0 0 15px ${accent}11`,
+                          transition: "all 0.2s ease",
+                          "&:hover": {
+                            boxShadow: `0 0 25px ${accent}33`,
+                          },
+                          p: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          minHeight: 220,
+                        }}
                       >
-                        <Button
-                          variant="contained"
-                          color="success"
-                          onClick={() => approveMutation.mutate(req._id)}
-                          disabled={
-                            approveMutation.isPending ||
-                            rejectMutation.isPending
-                          }
+                        <CardContent>
+                          <Stack spacing={1}>
+                            <Typography
+                              variant="subtitle2"
+                              color="text.secondary"
+                            >
+                              Cerere trimisă de
+                            </Typography>
+                            <Typography variant="h6" fontWeight={600}>
+                              {requester}
+                            </Typography>
+
+                            <Typography variant="body2">
+                              Lead:{" "}
+                              <strong>{lead?.name ?? "Lead necunoscut"}</strong>
+                            </Typography>
+
+                            <Typography variant="body2">
+                              Status actual:{" "}
+                              <Chip
+                                label={currentStatus}
+                                color={getChipColor(currentStatus)}
+                                size="small"
+                                sx={getCustomChipStyle(currentStatus)}
+                              />
+                            </Typography>
+
+                            <Typography variant="body2">
+                              Status cerut:{" "}
+                              <Chip
+                                label={requested}
+                                color={getChipColor(requested)}
+                                size="small"
+                                sx={getCustomChipStyle(requested)}
+                              />
+                            </Typography>
+
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              Cerut la: {created}
+                            </Typography>
+                          </Stack>
+                        </CardContent>
+
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          mt={2}
+                          p={2}
+                          pt={0}
                         >
-                          Aproba
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          onClick={() => rejectMutation.mutate(req._id)}
-                          disabled={
-                            approveMutation.isPending ||
-                            rejectMutation.isPending
-                          }
-                        >
-                          Respinge
-                        </Button>
-                      </Stack>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
+                          <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => approveMutation.mutate(req._id)}
+                            disabled={
+                              approveMutation.isPending ||
+                              rejectMutation.isPending
+                            }
+                          >
+                            Aproba
+                          </Button>
+
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={() => rejectMutation.mutate(req._id)}
+                            disabled={
+                              approveMutation.isPending ||
+                              rejectMutation.isPending
+                            }
+                          >
+                            Respinge
+                          </Button>
+                        </Stack>
+                      </Card>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            )}
+          </Box>
         </Paper>
       </Container>
     </Box>
   );
-}
+};
+
+export default LeadRequestsList;

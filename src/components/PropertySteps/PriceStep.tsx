@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { AttachFile } from "@mui/icons-material";
 import {
   Box,
@@ -31,10 +31,11 @@ interface PriceStepProps {
   onChange: (updated: IPrice) => void;
 }
 
-export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
-  const [selectedContractName, setSelectedContractName] = useState<string>("");
+const PriceStep = ({ data, onChange }: PriceStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+
+  const [selectedContractName, setSelectedContractName] = useState<string>("");
 
   const handlePriceChange = (key: keyof IPrice["priceDetails"], value: any) => {
     onChange({
@@ -422,7 +423,9 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                     handleContactChange("signDate", new Date(e.target.value))
                   }
                   fullWidth
-                  InputLabelProps={{ shrink: true }}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                  }}
                 />
               </Grid>
 
@@ -444,7 +447,9 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
                     )
                   }
                   fullWidth
-                  InputLabelProps={{ shrink: true }}
+                  slotProps={{
+                    inputLabel: { shrink: true },
+                  }}
                 />
               </Grid>
 
@@ -507,3 +512,5 @@ export const PriceStep: React.FC<PriceStepProps> = ({ data, onChange }) => {
     </Paper>
   );
 };
+
+export default PriceStep;

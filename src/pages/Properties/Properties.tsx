@@ -11,14 +11,14 @@ import {
 } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { PropertiesList } from "../../components/PropertiesList/PropertiesList";
+import PropertiesList from "../../components/PropertiesList/PropertiesList";
 
-export default function Properties() {
-  const navigate = useNavigate();
+const Properties = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -120,4 +120,6 @@ export default function Properties() {
       </Container>
     </Box>
   );
-}
+};
+
+export default Properties;

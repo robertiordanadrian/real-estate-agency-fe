@@ -1,5 +1,4 @@
-// src/pages/Leads/EditLead.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -33,21 +32,32 @@ import {
   useAllUsersQuery,
   useUserQuery,
 } from "../../features/users/usersQueries";
-export default function EditLead() {
+import { IEditLeadForm } from "common/interfaces/edit-lead-form.interface";
+
+const EditLead = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
-  const { data: allUsers } = useAllUsersQuery();
-  const { data: me } = useUserQuery();
-
   const { id } = useParams();
-  const { data: lead, isLoading } = useLeadQuery(id || "");
   const updateLead = useUpdateLead();
   const uploadContract = useUploadContract();
 
-  const [form, setForm] = useState<Record<string, any>>({});
+  const { data: allUsers } = useAllUsersQuery();
+  const { data: me } = useUserQuery();
+  const { data: lead, isLoading } = useLeadQuery(id || "");
+
+  const [form, setForm] = useState<IEditLeadForm>({
+    name: "",
+    phoneNumber: "",
+    propertyType: "",
+    zona: "",
+    budget: "",
+    transactionType: "",
+    status: undefined,
+    agentId: undefined,
+  });
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [toast, setToast] = useState<{
@@ -55,6 +65,70 @@ export default function EditLead() {
     message: string;
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
+
+  const handleChange = <K extends keyof IEditLeadForm>(
+    key: K,
+    value: IEditLeadForm[K]
+  ) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+  const handleSave = async () => {
+    try {
+      if (!id) return;
+
+      await updateLead.mutateAsync({ id, data: form });
+
+      setToast({
+        open: true,
+        message: "Lead-ul a fost actualizat cu succes!",
+        severity: "success",
+      });
+
+      setTimeout(() => {
+        navigate("/leads");
+      }, 800);
+    } catch (error: any) {
+      let errorMessage = "Eroare la actualizarea lead-ului.";
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      setToast({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
+    }
+  };
+  const handleUpload = async () => {
+    try {
+      if (!id || !file) return;
+
+      await uploadContract.mutateAsync({ id, file });
+
+      setToast({
+        open: true,
+        message: "Contractul a fost incarcat cu succes!",
+        severity: "success",
+      });
+
+      setFile(null);
+      setFileName("");
+    } catch (error: any) {
+      let errorMessage = "Eroare la incarcarea contractului.";
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      setToast({
+        open: true,
+        message: errorMessage,
+        severity: "error",
+      });
+    }
+  };
 
   useEffect(() => {
     if (lead) {
@@ -68,48 +142,6 @@ export default function EditLead() {
       });
     }
   }, [lead]);
-
-  const handleChange = (key: string, value: any) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSave = async () => {
-    try {
-      if (!id) return;
-      await updateLead.mutateAsync({ id, data: form });
-      setToast({
-        open: true,
-        message: "Lead-ul a fost actualizat cu succes!",
-        severity: "success",
-      });
-    } catch {
-      setToast({
-        open: true,
-        message: "Eroare la actualizarea lead-ului.",
-        severity: "error",
-      });
-    }
-  };
-
-  const handleUpload = async () => {
-    try {
-      if (!id || !file) return;
-      await uploadContract.mutateAsync({ id, file });
-      setToast({
-        open: true,
-        message: "Contract încărcat cu succes!",
-        severity: "success",
-      });
-      setFile(null);
-      setFileName("");
-    } catch {
-      setToast({
-        open: true,
-        message: "Eroare la încărcarea contractului.",
-        severity: "error",
-      });
-    }
-  };
 
   if (isLoading)
     return (
@@ -126,7 +158,7 @@ export default function EditLead() {
   if (!lead)
     return (
       <Typography color="error" textAlign="center" mt={4}>
-        Lead inexistent sau inaccesibil.
+        Lead-ul nu exista.
       </Typography>
     );
 
@@ -170,7 +202,6 @@ export default function EditLead() {
             flexDirection: "column",
           }}
         >
-          {/* Header */}
           <Box
             sx={{
               display: "flex",
@@ -214,7 +245,6 @@ export default function EditLead() {
             }}
           />
 
-          {/* Form */}
           <Box
             component="form"
             sx={{
@@ -290,7 +320,9 @@ export default function EditLead() {
                   select
                   label="Status"
                   value={form.status ?? lead.status ?? ELeadStatus.GREEN}
-                  onChange={(e) => handleChange("status", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("status", e.target.value as ELeadStatus)
+                  }
                   fullWidth
                 >
                   {Object.values(ELeadStatus).map((s) => (
@@ -300,7 +332,6 @@ export default function EditLead() {
                   ))}
                 </TextField>
               </Grid>
-              {/* Dropdown vizibil doar pentru CEO și Manager */}
               {(me?.role === ERole.CEO || me?.role === ERole.MANAGER) && (
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
@@ -342,7 +373,6 @@ export default function EditLead() {
               )}
             </Grid>
 
-            {/* Upload Contract */}
             <Box sx={{ mt: 5 }}>
               <Typography variant="h6" fontWeight={600} mb={2}>
                 Contract
@@ -410,7 +440,7 @@ export default function EditLead() {
                       fontWeight: 600,
                     }}
                   >
-                    Deschide fișier
+                    Deschide fisier
                   </a>
                 </Typography>
               )}
@@ -428,7 +458,6 @@ export default function EditLead() {
               </Button>
             </Box>
 
-            {/* Save button */}
             <Button
               variant="contained"
               fullWidth
@@ -453,13 +482,12 @@ export default function EditLead() {
                   sx={{ color: theme.palette.getContrastText(accent) }}
                 />
               ) : (
-                "Salvează modificările"
+                "Salveaza modificarile"
               )}
             </Button>
           </Box>
         </Paper>
 
-        {/* Snackbar Feedback */}
         <Snackbar
           open={toast.open}
           autoHideDuration={3000}
@@ -481,4 +509,6 @@ export default function EditLead() {
       </Container>
     </Box>
   );
-}
+};
+
+export default EditLead;

@@ -36,13 +36,15 @@ import {
   Email,
 } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
-import { EStatus, EType } from "../../common/enums/general-details.enums";
+import { EType } from "../../common/enums/general-details.enums";
 import { usePropertyQuery } from "../../features/properties/propertiesQueries";
 import { useOwnerByIdQuery } from "../../features/owners/ownersQueries";
-import { useAppSelector } from "../../app/hook";
-import { selectUser } from "../../features/auth/authSelectors";
 import PropertyMap from "../PropertyMap/PropertyMap";
 import { PropertiesApi } from "../../features/properties/propertiesApi";
+import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
+import { useUserByIdQuery } from "../../features/users/usersQueries";
+import { getRoleColor } from "../../common/utils/get-role-color.util";
+import { blue } from "@mui/material/colors";
 import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const ImageModal = ({
@@ -108,7 +110,6 @@ const ImageModal = ({
     </Modal>
   );
 };
-
 const DetailSection = ({
   title,
   children,
@@ -146,7 +147,6 @@ const DetailSection = ({
     </Paper>
   );
 };
-
 const EnumChipList = ({ items }: { items: string[] }) => {
   const theme = useTheme();
   return (
@@ -172,36 +172,19 @@ const EnumChipList = ({ items }: { items: string[] }) => {
     </Box>
   );
 };
-
-const getStatusColor = (status: EStatus) => {
-  switch (status) {
-    case EStatus.ACTIV_HOT:
-    case EStatus.ACTIV_WARM:
-    case EStatus.ACTIV_COLD:
-      return "success";
-    case EStatus.ACTIV_RESERVED:
-      return "warning";
-    case EStatus.RETREAT:
-    case EStatus.LOST:
-      return "error";
-    default:
-      return "default";
-  }
+const getTransactionTypeColor = (type: EType) => {
+  return type === EType.SALE ? "primary" : "secondary";
 };
 
-const getTransactionTypeColor = (type: EType) =>
-  type === EType.SALE ? "primary" : "secondary";
-
-export default function PropertyDetail() {
+const PropertyDetail = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
-
-  const { sku } = useParams<{ sku: string }>();
-  const [propertyId, setPropertyId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { sku } = useParams<{ sku: string }>();
+
+  const [propertyId, setPropertyId] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const user = useAppSelector(selectUser);
   const [errorToastOpen, setErrorToastOpen] = useState(false);
 
   const {
@@ -211,7 +194,8 @@ export default function PropertyDetail() {
   } = usePropertyQuery(propertyId || "", {
     enabled: !!propertyId,
   });
-
+  const agentIdOfProperty = property?.generalDetails?.agentId;
+  const { data: agent } = useUserByIdQuery(agentIdOfProperty);
   const ownerId = property?.generalDetails?.ownerID;
   const { data: owner } = useOwnerByIdQuery(ownerId ?? "");
 
@@ -257,7 +241,7 @@ export default function PropertyDetail() {
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         >
           <Alert severity="error" variant="filled">
-            Proprietatea nu a fost găsită sau SKU-ul este invalid.
+            Proprietatea nu a fost gasita sau SKU-ul este invalid.
           </Alert>
         </Snackbar>
       </>
@@ -392,16 +376,10 @@ export default function PropertyDetail() {
               />
               <Chip
                 label={generalDetails.status}
-                color={getStatusColor(generalDetails.status)}
-                variant="filled"
                 sx={{
-                  color:
-                    getStatusColor(generalDetails.status) === "default"
-                      ? theme.palette.text.primary
-                      : theme.palette.getContrastText(
-                          theme.palette.success.main
-                        ),
+                  ...getCustomChipStyle(generalDetails.status),
                 }}
+                variant="filled"
               />
               <Chip
                 label={generalDetails.transactionType}
@@ -1401,25 +1379,29 @@ export default function PropertyDetail() {
                       boxShadow: isDark
                         ? `0 0 10px ${accent}22`
                         : `0 0 8px ${accent}11`,
-                      transition: "background-color 0.3s ease",
                     }}
                   >
                     <Avatar
-                      src={user?.profilePicture || undefined}
+                      src={agent?.profilePicture || undefined}
                       sx={{
                         width: 90,
                         height: 90,
-                        border: `2px solid ${accent}`,
-                        bgcolor: theme.palette.background.default,
-                        boxShadow: `0 0 8px ${accent}33`,
+                        border: `3px solid ${getRoleColor(agent?.role || "")}`,
+                        bgcolor: blue[400],
+                        boxShadow: `0 0 20px ${getRoleColor(
+                          agent?.role || ""
+                        )}44`,
+                        fontSize: "2rem",
+                        fontWeight: "bold",
+                        color: "#fff",
                       }}
                     >
-                      {!user?.profilePicture &&
-                        (user?.name?.charAt(0).toUpperCase() ?? "A")}
+                      {!agent?.profilePicture &&
+                        (agent?.name?.charAt(0).toUpperCase() ?? "A")}
                     </Avatar>
 
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {user?.name ?? "Neatribuit"}
+                      {agent?.name ?? "Agent nespecificat"}
                     </Typography>
 
                     <Typography
@@ -1431,8 +1413,44 @@ export default function PropertyDetail() {
                         textTransform: "capitalize",
                       }}
                     >
-                      {user?.role ?? "Agent imobiliar"}
+                      {agent?.role ?? "—"}
                     </Typography>
+
+                    <Stack spacing={1.5} mt={2}>
+                      {agent?.phone && (
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Phone sx={{ color: accent, fontSize: 20 }} />
+                          <Typography
+                            variant="body2"
+                            component="a"
+                            href={`tel:${agent.phone}`}
+                            sx={{
+                              textDecoration: "none",
+                              color: theme.palette.text.secondary,
+                            }}
+                          >
+                            {agent.phone}
+                          </Typography>
+                        </Stack>
+                      )}
+
+                      {agent?.email && (
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Email sx={{ color: accent, fontSize: 20 }} />
+                          <Typography
+                            variant="body2"
+                            component="a"
+                            href={`mailto:${agent.email}`}
+                            sx={{
+                              textDecoration: "none",
+                              color: theme.palette.text.secondary,
+                            }}
+                          >
+                            {agent.email}
+                          </Typography>
+                        </Stack>
+                      )}
+                    </Stack>
                   </Stack>
                 </DetailSection>
 
@@ -1539,4 +1557,6 @@ export default function PropertyDetail() {
       </Container>
     </Box>
   );
-}
+};
+
+export default PropertyDetail;

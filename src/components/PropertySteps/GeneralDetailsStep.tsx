@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -33,48 +33,64 @@ import { useAppSelector } from "../../app/hook";
 import { selectUser } from "../../features/auth/authSelectors";
 import { useOwnersQuery } from "../../features/owners/ownersQueries";
 import { queryClient } from "../../services/queryClient";
+import { IOwnerForm } from "../../common/interfaces/owner-form.interface";
 
+const defaultOwnerForm: IOwnerForm = {
+  surname: "",
+  lastname: "",
+  email: "",
+  phone: "",
+  companyWhereHeWorks: "",
+  tags: "",
+  memo: "",
+};
+const locationFields: {
+  label: string;
+  key: Exclude<keyof IGeneralDetails["location"], "surroundings">;
+}[] = [
+  { label: "Oras", key: "city" },
+  { label: "Zona", key: "zone" },
+  { label: "Strada", key: "street" },
+  { label: "Numar", key: "number" },
+  { label: "Bloc", key: "building" },
+  { label: "Scara", key: "stairwell" },
+  { label: "Apartament", key: "apartment" },
+  { label: "Puncte de interes", key: "interesPoints" },
+];
 interface GeneralDetailsStepProps {
   data: IGeneralDetails;
   onChange: (updated: IGeneralDetails) => void;
 }
 
-export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
-  data,
-  onChange,
-}) => {
+const getAllowedStatuses = (role?: string): EStatus[] => {
+  switch (role) {
+    case "CEO":
+      return Object.values(EStatus);
+    case "MANAGER":
+    case "TEAM_LEAD":
+    case "AGENT":
+      return [EStatus.WHITE, EStatus.RED, EStatus.BLUE, EStatus.RESERVED];
+    default:
+      return [EStatus.RESERVED];
+  }
+};
+
+const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
   const isEditing = Boolean(data && (data as any)._id);
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-
-  const [openOwnerDialog, setOpenOwnerDialog] = React.useState(false);
-  const [newOwner, setNewOwner] = React.useState({
-    surname: "",
-    lastname: "",
-    email: "",
-    phone: "",
-    companyWhereHeWorks: "",
-    tags: "",
-    memo: "",
-  });
-
   const user = useAppSelector(selectUser);
-  const getAllowedStatuses = (role?: string): EStatus[] => {
-    switch (role) {
-      case "CEO":
-        return Object.values(EStatus);
-      case "MANAGER":
-      case "TEAM_LEAD":
-      case "AGENT":
-        return [EStatus.WHITE, EStatus.RED, EStatus.BLUE, EStatus.RESERVED];
-      default:
-        return [EStatus.RESERVED];
-    }
-  };
+  const agentId = user?._id || user?.id;
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+  const { data: owners = [] } = useOwnersQuery();
+
+  const [openOwnerDialog, setOpenOwnerDialog] = useState(false);
+  const [ownerForm, setOwnerForm] = useState<IOwnerForm>(defaultOwnerForm);
 
   const allowedStatuses = getAllowedStatuses(user?.role);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!data.status || !data.agent || !data.agentId) {
       const updated = { ...data };
 
@@ -87,31 +103,12 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
       onChange(updated);
     }
   }, []);
-  const agentId = user?._id || user?.id;
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  const { data: owners = [] } = useOwnersQuery();
 
   const handleLocationChange = (
     key: keyof IGeneralDetails["location"],
     value: string
   ) => {
     onChange({ ...data, location: { ...data.location, [key]: value } });
-  };
-
-  const handleAddressSelect = (address: {
-    street: string;
-    number: string;
-    city: string;
-  }) => {
-    onChange({
-      ...data,
-      location: {
-        ...data.location,
-        street: address.street,
-        number: address.number,
-        city: address.city,
-      },
-    });
   };
 
   const handleSurroundingsChange = (
@@ -125,50 +122,40 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
     });
   };
 
-  const locationFields: {
-    label: string;
-    key: Exclude<keyof IGeneralDetails["location"], "surroundings">;
-  }[] = [
-    { label: "Oras", key: "city" },
-    { label: "Zona", key: "zone" },
-    { label: "Strada", key: "street" },
-    { label: "Numar", key: "number" },
-    { label: "Bloc", key: "building" },
-    { label: "Scara", key: "stairwell" },
-    { label: "Apartament", key: "apartment" },
-    { label: "Puncte de interes", key: "interesPoints" },
-  ];
-
   const handleCreateOwner = async () => {
     const payload = {
       agentId: agentId ?? "",
-      surname: newOwner.surname.trim(),
-      lastname: newOwner.lastname.trim(),
-      email: newOwner.email.trim(),
-      phone: newOwner.phone.trim(),
-      companyWhereHeWorks: newOwner.companyWhereHeWorks.trim(),
-      tags: newOwner.tags
+      surname: ownerForm.surname.trim(),
+      lastname: ownerForm.lastname.trim(),
+      email: ownerForm.email.trim(),
+      phone: ownerForm.phone.trim(),
+      companyWhereHeWorks: ownerForm.companyWhereHeWorks.trim(),
+      tags: ownerForm.tags
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
-      memo: newOwner.memo.trim(),
+      memo: ownerForm.memo.trim(),
     };
 
     try {
       const created = await OwnersApi.create(payload);
+
       await queryClient.invalidateQueries({ queryKey: ["owners", "all"] });
+
       onChange({ ...data, ownerID: created._id });
-      setNewOwner({
-        surname: "",
-        lastname: "",
-        email: "",
-        phone: "",
-        companyWhereHeWorks: "",
-        tags: "",
-        memo: "",
-      });
+
+      setOwnerForm(defaultOwnerForm);
       setOpenOwnerDialog(false);
-    } catch {}
+    } catch (error) {
+      console.log("EROARE adaugare proprietar:", error);
+    }
+  };
+
+  const updateOwnerForm = <K extends keyof IOwnerForm>(
+    key: K,
+    value: IOwnerForm[K]
+  ) => {
+    setOwnerForm((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -393,68 +380,60 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
               >
                 <TextField
                   label="Nume"
+                  value={ownerForm.surname}
+                  onChange={(e) => updateOwnerForm("surname", e.target.value)}
                   fullWidth
-                  value={newOwner.surname}
-                  onChange={(e) =>
-                    setNewOwner((s) => ({ ...s, surname: e.target.value }))
-                  }
                 />
+
                 <TextField
                   label="Prenume"
+                  value={ownerForm.lastname}
+                  onChange={(e) => updateOwnerForm("lastname", e.target.value)}
                   fullWidth
-                  value={newOwner.lastname}
-                  onChange={(e) =>
-                    setNewOwner((s) => ({ ...s, lastname: e.target.value }))
-                  }
                 />
+
                 <TextField
                   label="Email"
-                  fullWidth
                   type="email"
-                  value={newOwner.email}
-                  onChange={(e) =>
-                    setNewOwner((s) => ({ ...s, email: e.target.value }))
-                  }
+                  value={ownerForm.email}
+                  onChange={(e) => updateOwnerForm("email", e.target.value)}
+                  fullWidth
                 />
+
                 <TextField
                   label="Telefon"
+                  value={ownerForm.phone}
+                  onChange={(e) => updateOwnerForm("phone", e.target.value)}
                   fullWidth
-                  value={newOwner.phone}
-                  onChange={(e) =>
-                    setNewOwner((s) => ({ ...s, phone: e.target.value }))
-                  }
                 />
+
                 <TextField
                   label="Companie"
-                  fullWidth
-                  value={newOwner.companyWhereHeWorks}
+                  value={ownerForm.companyWhereHeWorks}
                   onChange={(e) =>
-                    setNewOwner((s) => ({
-                      ...s,
-                      companyWhereHeWorks: e.target.value,
-                    }))
+                    updateOwnerForm("companyWhereHeWorks", e.target.value)
                   }
+                  fullWidth
                 />
+
                 <TextField
                   label="Tag-uri (separate prin virgula)"
+                  value={ownerForm.tags}
+                  onChange={(e) => updateOwnerForm("tags", e.target.value)}
                   fullWidth
-                  value={newOwner.tags}
-                  onChange={(e) =>
-                    setNewOwner((s) => ({ ...s, tags: e.target.value }))
-                  }
                 />
+
                 <TextField
                   label="Memo"
-                  fullWidth
                   multiline
                   minRows={3}
-                  value={newOwner.memo}
-                  onChange={(e) =>
-                    setNewOwner((s) => ({ ...s, memo: e.target.value }))
-                  }
+                  value={ownerForm.memo}
+                  onChange={(e) => updateOwnerForm("memo", e.target.value)}
+                  fullWidth
                 />
               </Box>
             </DialogContent>
+
             <DialogActions>
               <Button onClick={() => setOpenOwnerDialog(false)}>
                 Anuleaza
@@ -469,3 +448,5 @@ export const GeneralDetailsStep: React.FC<GeneralDetailsStepProps> = ({
     </APIProvider>
   );
 };
+
+export default GeneralDetailsStep;

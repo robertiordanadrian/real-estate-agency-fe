@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Card,
@@ -42,7 +41,7 @@ interface UtilityStepProps {
   onChange: (updated: IUtilities) => void;
 }
 
-export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
+const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -316,3 +315,5 @@ export const UtilityStep: React.FC<UtilityStepProps> = ({ data, onChange }) => {
     </Paper>
   );
 };
+
+export default UtilityStep;

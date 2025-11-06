@@ -11,11 +11,12 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import { Outlet } from "react-router-dom";
-import { SidePanel } from "../components/SidePanel/SidePanel";
+import SidePanel from "../components/SidePanel/SidePanel";
 
-export const AppLayout = () => {
+const AppLayout = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
@@ -134,3 +135,5 @@ export const AppLayout = () => {
     </Box>
   );
 };
+
+export default AppLayout;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -17,12 +17,12 @@ import {
   useMediaQuery,
 } from "@mui/material";
 
-import { GeneralDetailsStep } from "../../components/PropertySteps/GeneralDetailsStep";
-import { CharacteristicsStep } from "../../components/PropertySteps/CharacteristicsStep";
-import { UtilityStep } from "../../components/PropertySteps/UtilityStep";
-import { PriceStep } from "../../components/PropertySteps/PriceStep";
-import { DescriptionStep } from "../../components/PropertySteps/DescriptionStep";
-import { ImagesStep } from "../../components/PropertySteps/ImagesStep";
+import GeneralDetailsStep from "../../components/PropertySteps/GeneralDetailsStep";
+import CharacteristicsStep from "../../components/PropertySteps/CharacteristicsStep";
+import UtilityStep from "../../components/PropertySteps/UtilityStep";
+import PriceStep from "../../components/PropertySteps/PriceStep";
+import DescriptionStep from "../../components/PropertySteps/DescriptionStep";
+import ImagesStep from "../../components/PropertySteps/ImagesStep";
 
 import type { IProperty } from "../../common/interfaces/property.interface";
 
@@ -43,13 +43,13 @@ const steps = [
   "Imagini",
 ];
 
-export const EditProperty: React.FC = () => {
+const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
+  const isDark = theme.palette.mode === "dark";
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
 
   const { data: propertyFromQuery } = usePropertyQuery(id ?? "");
 
@@ -65,52 +65,17 @@ export const EditProperty: React.FC = () => {
     severity: "success" as "success" | "error",
   });
 
-  const showSnackbar = (message: string, severity: "success" | "error") =>
+  const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({ open: true, message, severity });
-  const handleCloseSnackbar = () =>
+  };
+  const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
-
+  };
   const parseToDate = (value: unknown): Date | null => {
     if (!value) return null;
     const date = new Date(value as string);
     return isNaN(date.getTime()) ? null : date;
   };
-
-  useEffect(() => {
-    const fetchProperty = async () => {
-      if (!id) return;
-      setIsLoading(true);
-
-      try {
-        let fetchedProperty = propertyFromQuery;
-
-        if (!fetchedProperty) {
-          const res = await http.get(`/properties/${id}`);
-          fetchedProperty = res.data;
-        }
-
-        if (fetchedProperty?.price?.contact) {
-          fetchedProperty.price.contact.signDate = parseToDate(
-            fetchedProperty.price.contact.signDate
-          );
-          fetchedProperty.price.contact.expirationDate = parseToDate(
-            fetchedProperty.price.contact.expirationDate
-          );
-        }
-
-        setFormData(fetchedProperty ?? null);
-      } catch (err) {
-        console.error("Error fetching property:", err);
-        showSnackbar("Eroare la incarcarea proprietatii.", "error");
-        navigate("/properties");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProperty();
-  }, [id, propertyFromQuery, navigate]);
-
   const handleSubmit = async () => {
     if (!formData || !id) return;
     setIsSubmitting(true);
@@ -130,12 +95,13 @@ export const EditProperty: React.FC = () => {
 
       await queryClient.invalidateQueries({ queryKey: propertiesKeys.all });
 
-      showSnackbar("Proprietate actualizată cu succes!", "success");
+      showSnackbar("Proprietatea a fost actualizata cu succes!", "success");
 
       setTimeout(() => navigate(`/properties`), 1500);
       setContractFile(null);
     } catch (error: any) {
-      let errorMessage = "A aparut o eroare. Te rugam sa incerci din nou.";
+      let errorMessage =
+        "A aparut o eroare la actualizarea proprietatii. Te rugam sa incerci din nou.";
 
       if (error.response) {
         const status = error.response.status;
@@ -143,7 +109,8 @@ export const EditProperty: React.FC = () => {
           errorMessage =
             "Fisierele sunt prea mari. Redu dimensiunea imaginilor.";
         else if (status === 415)
-          errorMessage = "Tip de fisier neacceptat. Incearca doar imagini.";
+          errorMessage =
+            "Tipul fisierului nu este acceptat. Incearca doar imagini.";
         else if (error.response.data?.message) {
           errorMessage = error.response.data.message;
         } else if (status === 400) {
@@ -158,10 +125,12 @@ export const EditProperty: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-
-  const handleNext = () => setActiveStep((p) => p + 1);
-  const handleBack = () => setActiveStep((p) => p - 1);
-
+  const handleNext = () => {
+    setActiveStep((p) => p + 1);
+  };
+  const handleBack = () => {
+    setActiveStep((p) => p - 1);
+  };
   const renderStep = () => {
     if (!formData) return null;
 
@@ -237,6 +206,41 @@ export const EditProperty: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchProperty = async () => {
+      if (!id) return;
+      setIsLoading(true);
+
+      try {
+        let fetchedProperty = propertyFromQuery;
+
+        if (!fetchedProperty) {
+          const res = await http.get(`/properties/${id}`);
+          fetchedProperty = res.data;
+        }
+
+        if (fetchedProperty?.price?.contact) {
+          fetchedProperty.price.contact.signDate = parseToDate(
+            fetchedProperty.price.contact.signDate
+          );
+          fetchedProperty.price.contact.expirationDate = parseToDate(
+            fetchedProperty.price.contact.expirationDate
+          );
+        }
+
+        setFormData(fetchedProperty ?? null);
+      } catch (err) {
+        console.error("Eroare la incarcarea proprietatii:", err);
+        showSnackbar("Eroare la incarcarea proprietatii.", "error");
+        navigate("/properties");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProperty();
+  }, [id, propertyFromQuery, navigate]);
+
   if (isLoading)
     return (
       <Box
@@ -257,7 +261,7 @@ export const EditProperty: React.FC = () => {
     return (
       <Box sx={{ p: 3 }}>
         <Typography variant="h5" color="error">
-          Proprietatea nu a putut fi gasita.
+          Proprietatea nu a fost gasita.
         </Typography>
         <Button
           variant="contained"
@@ -404,3 +408,5 @@ export const EditProperty: React.FC = () => {
     </Box>
   );
 };
+
+export default EditProperty;

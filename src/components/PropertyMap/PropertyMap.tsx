@@ -6,7 +6,7 @@ interface PropertyMapProps {
   apiKey: string;
 }
 
-export default function PropertyMap({ address, apiKey }: PropertyMapProps) {
+const PropertyMap = ({ address, apiKey }: PropertyMapProps) => {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
     null
   );
@@ -58,4 +58,6 @@ export default function PropertyMap({ address, apiKey }: PropertyMapProps) {
       </div>
     </APIProvider>
   );
-}
+};
+
+export default PropertyMap;

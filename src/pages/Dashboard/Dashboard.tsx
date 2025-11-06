@@ -18,7 +18,7 @@ import { usePropertiesQuery } from "../../features/properties/propertiesQueries"
 import { useLeadsQuery } from "../../features/leads/leadsQueries";
 import { useAllUsersQuery } from "../../features/users/usersQueries";
 
-export default function Dashboard() {
+const Dashboard = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
@@ -43,12 +43,6 @@ export default function Dashboard() {
   const totalProperties = properties?.length ?? 0;
   const totalLeads = leads?.length ?? 0;
   const totalUsers = users?.length ?? 0;
-
-  const gradientBg =
-    theme.palette.mode === "dark"
-      ? `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`
-      : `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.background.default})`;
-
   const accentColor = theme.palette.primary.main;
   const textPrimary = theme.palette.text.primary;
   const textSecondary = theme.palette.text.secondary;
@@ -307,4 +301,6 @@ export default function Dashboard() {
       </Container>
     </Box>
   );
-}
+};
+
+export default Dashboard;

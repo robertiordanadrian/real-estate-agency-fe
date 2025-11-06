@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Card,
@@ -18,10 +17,7 @@ interface DescriptionStepProps {
   onChange: (updated: IDescription) => void;
 }
 
-export const DescriptionStep: React.FC<DescriptionStepProps> = ({
-  data,
-  onChange,
-}) => {
+const DescriptionStep = ({ data, onChange }: DescriptionStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -146,3 +142,5 @@ export const DescriptionStep: React.FC<DescriptionStepProps> = ({
     </Paper>
   );
 };
+
+export default DescriptionStep;

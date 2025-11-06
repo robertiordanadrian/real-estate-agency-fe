@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import {
   Box,
   Typography,
@@ -21,12 +21,12 @@ interface ImagesStepProps {
   onFilesChange: (files: File[]) => void;
 }
 
-export const ImagesStep: React.FC<ImagesStepProps> = ({
+const ImagesStep = ({
   data,
   files,
   onChange,
   onFilesChange,
-}) => {
+}: ImagesStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -40,14 +40,12 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
     },
     [data, files, onChange, onFilesChange]
   );
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "image/*": [".jpeg", ".jpg", ".png", ".webp"] },
     maxFiles: 20,
     maxSize: 10 * 1024 * 1024,
   });
-
   const handleRemove = (index: number) => {
     const newData = [...data];
     newData.splice(index, 1);
@@ -58,11 +56,12 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
     onChange(newData);
     onFilesChange(newFiles);
   };
-
-  const isExistingImage = (src: string) =>
-    src.startsWith("http") || src.startsWith("/");
-
-  const openImage = (src: string) => window.open(src, "_blank");
+  const isExistingImage = (src: string) => {
+    return src.startsWith("http") || src.startsWith("/");
+  };
+  const openImage = (src: string) => {
+    return window.open(src, "_blank");
+  };
 
   return (
     <Paper
@@ -226,3 +225,5 @@ export const ImagesStep: React.FC<ImagesStepProps> = ({
     </Paper>
   );
 };
+
+export default ImagesStep;

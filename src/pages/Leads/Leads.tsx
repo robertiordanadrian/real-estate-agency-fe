@@ -11,9 +11,9 @@ import {
 } from "@mui/material";
 import { Refresh } from "@mui/icons-material";
 import { useQueryClient } from "@tanstack/react-query";
-import { LeadsList } from "../../components/LeadsList/LeadsList";
+import LeadsList from "../../components/LeadsList/LeadsList";
 
-export default function Leads() {
+const Leads = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
@@ -125,4 +125,6 @@ export default function Leads() {
       </Container>
     </Box>
   );
-}
+};
+
+export default Leads;

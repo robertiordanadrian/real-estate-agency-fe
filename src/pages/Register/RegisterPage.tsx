@@ -16,16 +16,13 @@ import {
   Card,
   CardContent,
   Divider,
-  IconButton,
   Grid,
   useTheme,
   Tooltip,
   Fab,
   useMediaQuery,
 } from "@mui/material";
-import { blue, orange, red, green } from "@mui/material/colors";
 import { useNavigate, useLocation } from "react-router-dom";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useRegister } from "../../features/auth/authMutations";
 import {
   useUserByIdQuery,
@@ -35,68 +32,118 @@ import {
 import { useAppSelector } from "../../app/hook";
 import { selectUser } from "../../features/auth/authSelectors";
 import { ArrowBack } from "@mui/icons-material";
+import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
+import { getRoleColor } from "../../common/utils/get-role-color.util";
+import { IRegisterForm } from "../../common/interfaces/register-form.interface";
+import { ERole } from "../../common/enums/role.enums";
 
 const ROLES = ["MANAGER", "TEAM_LEAD", "AGENT"];
 
-const getRoleDisplayText = (role: string): string => {
-  switch (role) {
-    case "CEO":
-      return "Chief Executive Officer";
-    case "MANAGER":
-      return "Property Manager";
-    case "TEAM_LEAD":
-      return "Team Leader";
-    case "AGENT":
-      return "Real Estate Agent";
-    default:
-      return "User";
-  }
-};
-
-const getRoleColor = (role: string): string => {
-  switch (role) {
-    case "CEO":
-      return blue[400];
-    case "MANAGER":
-      return orange[400];
-    case "TEAM_LEAD":
-      return red[400];
-    case "AGENT":
-    default:
-      return green[400];
-  }
-};
-
-export default function RegisterPage() {
+const RegisterPage = () => {
   const theme = useTheme();
+  const currentUser = useAppSelector(selectUser);
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.primary.main;
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const location = useLocation();
-  const currentUser = useAppSelector(selectUser);
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const editId = new URLSearchParams(location.search).get("editId");
 
   const { data: userToEdit, isLoading: isFetchingUser } = useUserByIdQuery(
     editId || undefined
   );
+
   const { mutateAsync: register, isPending: isRegistering } = useRegister();
   const { mutateAsync: updateUserById, isPending: isUpdating } =
     useUpdateUserById();
   const { mutateAsync: uploadAvatarForUser, isPending: isUploading } =
     useUploadProfilePictureForUser();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [role, setRole] = useState("AGENT");
-  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [form, setForm] = useState<IRegisterForm>({
+    name: "",
+    email: "",
+    phone: "",
+    role: ERole.AGENT,
+    password: "",
+    profileImage: null,
+  });
+
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const isDark = theme.palette.mode === "dark";
-  const accent = theme.palette.primary.main;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!form.name || !form.email || !form.phone || !form.role) {
+      setError("Toate campurile sunt obligatorii.");
+      return;
+    }
+
+    try {
+      if (editId) {
+        await updateUserById({
+          userId: editId,
+          payload: {
+            name: form.name,
+            email: form.email,
+            phone: form.phone,
+            role: form.role,
+          },
+        });
+
+        if (form.profileImage) {
+          await uploadAvatarForUser({
+            userId: editId,
+            file: form.profileImage,
+          });
+        }
+
+        setSuccess(`Agentul ${form.name} a fost actualizat cu succes!`);
+      } else {
+        if (!form.password) {
+          setError("Parola este obligatorie pentru un agent nou.");
+          return;
+        }
+
+        const newUser = await register({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          phone: form.phone,
+          role: form.role,
+        });
+
+        if (form.profileImage && newUser?.user?.id) {
+          await uploadAvatarForUser({
+            userId: newUser.user.id,
+            file: form.profileImage,
+          });
+        }
+
+        setSuccess(`Agentul ${form.name} a fost creat cu succes!`);
+      }
+
+      updateForm("profileImage", null);
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Operatiunea a esuat. Incearca din nou.";
+
+      setError(message);
+    }
+  };
+
+  const updateForm = <K extends keyof IRegisterForm>(
+    key: K,
+    value: IRegisterForm[K]
+  ) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
 
   useEffect(() => {
     if (currentUser && currentUser.role !== "CEO") {
@@ -106,10 +153,15 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (userToEdit) {
-      setName(userToEdit.name || "");
-      setEmail(userToEdit.email || "");
-      setPhone(userToEdit.phone || "");
-      setRole(userToEdit.role || "AGENT");
+      setForm((prev) => ({
+        ...prev,
+        name: userToEdit.name,
+        email: userToEdit.email,
+        phone: userToEdit.phone,
+        role: userToEdit.role,
+        password: "",
+        profileImage: null,
+      }));
       setImagePreview(userToEdit.profilePicture || null);
     }
   }, [userToEdit]);
@@ -120,74 +172,6 @@ export default function RegisterPage() {
       return () => clearTimeout(timer);
     }
   }, [success, navigate]);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setProfileImage(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    if (!name || !email || !phone || !role) {
-      setError("Toate campurile sunt obligatorii");
-      return;
-    }
-
-    try {
-      if (editId) {
-        await updateUserById({
-          userId: editId,
-          payload: { name, email, phone, role },
-        });
-
-        if (profileImage) {
-          await uploadAvatarForUser({ userId: editId, file: profileImage });
-        }
-
-        setSuccess(`Agentul ${name} a fost actualizat cu succes!`);
-      } else {
-        if (!password) {
-          setError("Parola este obligatorie pentru un agent nou");
-          return;
-        }
-
-        const newUser = await register({
-          name,
-          email,
-          password,
-          phone,
-          role,
-        } as any);
-
-        if (profileImage && newUser?.user?.id) {
-          await uploadAvatarForUser({
-            userId: newUser.user.id,
-            file: profileImage,
-          });
-        }
-
-        setSuccess(`Agentul ${name} a fost creat cu succes!`);
-      }
-
-      setProfileImage(null);
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Operatiunea a esuat. Incearca din nou.";
-      setError(message);
-    }
-  };
 
   if (!currentUser || currentUser.role !== "CEO" || isFetchingUser) {
     return (
@@ -324,16 +308,16 @@ export default function RegisterPage() {
                       label="Nume complet"
                       fullWidth
                       required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      value={form.name}
+                      onChange={(e) => updateForm("name", e.target.value)}
                     />
                     <TextField
                       label="Email"
                       type="email"
                       fullWidth
                       required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={form.email}
+                      onChange={(e) => updateForm("email", e.target.value)}
                     />
                     {!editId && (
                       <TextField
@@ -341,25 +325,27 @@ export default function RegisterPage() {
                         type="password"
                         fullWidth
                         required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={form.password}
+                        onChange={(e) => updateForm("password", e.target.value)}
                       />
                     )}
                     <TextField
                       label="Numar de telefon"
                       fullWidth
                       required
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      value={form.phone}
+                      onChange={(e) => updateForm("phone", e.target.value)}
                     />
 
                     <FormControl fullWidth>
                       <InputLabel id="role-select-label">Rol</InputLabel>
                       <Select
                         labelId="role-select-label"
-                        value={role}
+                        value={form.role}
                         label="Rol"
-                        onChange={(e) => setRole(e.target.value as string)}
+                        onChange={(e) =>
+                          updateForm("role", e.target.value as ERole)
+                        }
                       >
                         {ROLES.map((r) => (
                           <MenuItem key={r} value={r}>
@@ -385,14 +371,27 @@ export default function RegisterPage() {
                         },
                       }}
                     >
-                      {profileImage
+                      {form.profileImage
                         ? "Schimba imaginea"
                         : "Incarca imagine profil"}
+
                       <input
                         type="file"
                         hidden
                         accept="image/*"
-                        onChange={handleImageChange}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          updateForm("profileImage", file);
+
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () =>
+                              setImagePreview(reader.result as string);
+                            reader.readAsDataURL(file);
+                          } else {
+                            setImagePreview(null);
+                          }
+                        }}
                       />
                     </Button>
                   </Box>
@@ -450,17 +449,17 @@ export default function RegisterPage() {
                       }}
                     >
                       {!imagePreview &&
-                        (name ? name.charAt(0).toUpperCase() : "U")}
+                        (form.name ? form.name.charAt(0).toUpperCase() : "U")}
                     </Avatar>
 
                     <Typography variant="h6">
-                      {name || "Nume utilizator"}
+                      {form.name || "Nume utilizator"}
                     </Typography>
                     <Typography color="text.secondary">
-                      {email || "email@exemplu.com"}
+                      {form.email || "email@exemplu.com"}
                     </Typography>
                     <Typography variant="body1" color="text.secondary">
-                      {phone || "Numar de telefon"}
+                      {form.phone || "Numar de telefon"}
                     </Typography>
 
                     <Typography
@@ -470,15 +469,15 @@ export default function RegisterPage() {
                         px: 1.5,
                         py: 0.5,
                         borderRadius: 1,
-                        backgroundColor: getRoleColor(role),
+                        backgroundColor: getRoleColor(form.role),
                         color: theme.palette.getContrastText(
-                          getRoleColor(role)
+                          getRoleColor(form.role)
                         ),
                         fontWeight: 600,
                         display: "inline-block",
                       }}
                     >
-                      {getRoleDisplayText(role)}
+                      {getRoleDisplayText(form.role)}
                     </Typography>
 
                     <Divider sx={{ width: "100%", my: 2 }} />
@@ -541,4 +540,6 @@ export default function RegisterPage() {
       </Container>
     </Box>
   );
-}
+};
+
+export default RegisterPage;

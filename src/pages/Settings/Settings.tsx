@@ -16,7 +16,6 @@ import {
   MenuItem,
   Paper,
   Snackbar,
-  Stack,
   TextField,
   Typography,
   useTheme,
@@ -25,23 +24,28 @@ import {
   Fab,
   useMediaQuery,
 } from "@mui/material";
-import { normalizeRole } from "../../common/utils/normalize-role.util";
 import { ERole } from "../../common/enums/role.enums";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowBack } from "@mui/icons-material";
+import { ISettingsForm } from "../../common/interfaces/settings-form.interface";
+import { getRoleColor } from "../../common/utils/get-role-color.util";
+import { blue } from "@mui/material/colors";
 
-export default function Settings() {
+const Settings = () => {
   const theme = useTheme();
-  const qc = useQueryClient();
-  const { data: user } = useUserQuery();
-  const updateUser = useUpdateUser();
-  const uploadAvatar = useUploadProfilePicture();
+  const accent = theme.palette.primary.main;
+  const isDark = theme.palette.mode === "dark";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [form, setForm] = useState({
-    name: user?.name ?? "",
-    email: user?.email ?? "",
-    role: user?.role ?? "AGENT",
+  const { data: user } = useUserQuery();
+  const qc = useQueryClient();
+  const updateUser = useUpdateUser();
+  const uploadAvatar = useUploadProfilePicture();
+
+  const [form, setForm] = useState<ISettingsForm>({
+    name: "",
+    email: "",
+    role: ERole.AGENT,
     password: "",
     confirmPassword: "",
   });
@@ -58,15 +62,25 @@ export default function Settings() {
     severity: "success",
   });
 
+  const updateForm = <K extends keyof ISettingsForm>(
+    key: K,
+    value: ISettingsForm[K]
+  ) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
   useEffect(() => {
     if (user) {
       setForm({
-        name: user.name ?? "",
-        email: user.email ?? "",
-        role: user.role ?? "AGENT",
+        name: user.name,
+        email: user.email,
+        role: user.role,
         password: "",
         confirmPassword: "",
       });
+
+      setAvatar(null);
+      setAvatarPreview(user.profilePicture || null);
     }
   }, [user]);
 
@@ -83,27 +97,52 @@ export default function Settings() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await updateUser.mutateAsync(form);
-      if (avatar) await uploadAvatar.mutateAsync(avatar);
+    setToast({ open: false, message: "", severity: "success" });
 
-      qc.invalidateQueries({ queryKey: ["user"] });
+    try {
+      if (form.password || form.confirmPassword) {
+        if (form.password !== form.confirmPassword) {
+          setToast({
+            open: true,
+            message: "Parolele nu coincid!",
+            severity: "error",
+          });
+          return;
+        }
+      }
+
+      const payload: Partial<ISettingsForm> = {
+        name: form.name,
+        email: form.email,
+        role: form.role,
+      };
+
+      if (form.password) {
+        payload.password = form.password;
+      }
+
+      await updateUser.mutateAsync(payload);
+
+      if (avatar) {
+        await uploadAvatar.mutateAsync(avatar);
+        setAvatar(null);
+      }
+
+      qc.invalidateQueries({ queryKey: ["me"] });
+
       setToast({
         open: true,
         message: "Datele au fost salvate cu succes!",
         severity: "success",
       });
-    } catch {
+    } catch (error: any) {
       setToast({
         open: true,
-        message: "A apărut o eroare la salvare. Încearcă din nou.",
+        message: error?.response?.data?.message || "A aparut o eroare.",
         severity: "error",
       });
     }
   };
-
-  const accent = theme.palette.primary.main;
-  const isDark = theme.palette.mode === "dark";
 
   return (
     <Box
@@ -156,7 +195,7 @@ export default function Settings() {
             }}
           >
             <Typography variant={isMobile ? "h6" : "h5"} fontWeight={700}>
-              Setări utilizator
+              Setari utilizator
             </Typography>
 
             <Tooltip title="Înapoi" arrow>
@@ -215,15 +254,19 @@ export default function Settings() {
                     sx={{
                       width: 100,
                       height: 100,
-                      border: `2px solid ${accent}`,
-                      boxShadow: `0 0 15px ${accent}55`,
-                      bgcolor: theme.palette.background.default,
-                      fontSize: "2rem",
+                      border: `3px solid ${getRoleColor(user?.role || "")}`,
+                      bgcolor: user?.profilePicture
+                        ? theme.palette.background.default
+                        : blue[400],
+                      boxShadow: `0 0 20px ${getRoleColor(user?.role || "")}44`,
+                      fontSize: "2.5rem",
                       fontWeight: "bold",
+                      color: "#fff",
                     }}
                   >
-                    {!user?.profilePicture &&
-                      user?.name?.charAt(0).toUpperCase()}
+                    {!avatarPreview &&
+                      !user?.profilePicture &&
+                      (user?.name?.charAt(0).toUpperCase() || "U")}
                   </Avatar>
                 </Grid>
 
@@ -263,7 +306,7 @@ export default function Settings() {
                   <TextField
                     label="Nume complet"
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    onChange={(e) => updateForm("name", e.target.value)}
                     fullWidth
                   />
                 </Grid>
@@ -273,9 +316,7 @@ export default function Settings() {
                     label="Email"
                     type="email"
                     value={form.email}
-                    onChange={(e) =>
-                      setForm({ ...form, email: e.target.value })
-                    }
+                    onChange={(e) => updateForm("email", e.target.value)}
                     fullWidth
                   />
                 </Grid>
@@ -286,10 +327,7 @@ export default function Settings() {
                     label="Rol"
                     value={form.role}
                     onChange={(e) =>
-                      setForm({
-                        ...form,
-                        role: normalizeRole(e.target.value),
-                      })
+                      updateForm("role", e.target.value as ERole)
                     }
                     fullWidth
                   >
@@ -306,14 +344,14 @@ export default function Settings() {
                     label="Parolă nouă"
                     type="password"
                     value={form.password}
-                    onChange={(e) =>
-                      setForm({ ...form, password: e.target.value })
-                    }
+                    onChange={(e) => updateForm("password", e.target.value)}
                     fullWidth
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">🔒</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">🔒</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -324,13 +362,15 @@ export default function Settings() {
                     type="password"
                     value={form.confirmPassword}
                     onChange={(e) =>
-                      setForm({ ...form, confirmPassword: e.target.value })
+                      updateForm("confirmPassword", e.target.value)
                     }
                     fullWidth
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">🔒</InputAdornment>
-                      ),
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">🔒</InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>
@@ -361,13 +401,12 @@ export default function Settings() {
                   sx={{ color: theme.palette.getContrastText(accent) }}
                 />
               ) : (
-                "Salvează modificările"
+                "Salveaza modificarile"
               )}
             </Button>
           </Box>
         </Paper>
 
-        {/* === TOAST === */}
         <Snackbar
           open={toast.open}
           autoHideDuration={3000}
@@ -389,4 +428,6 @@ export default function Settings() {
       </Container>
     </Box>
   );
-}
+};
+
+export default Settings;

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { http } from "../../services/http";
 import { logout, setCredentials } from "./authSlice";
 import { useAppDispatch } from "../../app/hook";
+import { ERole } from "../../common/enums/role.enums";
 
 type LoginPayload = { email: string; password: string };
 type LoginResponse = {
@@ -11,8 +12,9 @@ type LoginResponse = {
     id: string;
     email: string;
     name: string;
-    role: string;
+    role: ERole;
     profilePicture?: string;
+    phone: string;
   };
 };
 
@@ -21,6 +23,7 @@ type RegisterPayload = {
   email: string;
   password: string;
   role: string;
+  phone: string;
 };
 type RegisterResponse = LoginResponse;
 
@@ -41,13 +44,9 @@ export const useLogin = () => {
             id: data.user.id,
             email: data.user.email,
             name: data.user.name,
-            role: data.user.role as
-              | "CEO"
-              | "MANAGER"
-              | "TEAM_LEAD"
-              | "AGENT"
-              | undefined,
+            role: data.user.role as ERole,
             profilePicture: data.user.profilePicture,
+            phone: data.user.phone,
           },
         })
       );
@@ -65,13 +64,11 @@ export const useLogout = () => {
       return true;
     },
     onSuccess: async () => {
-      // 🧹 curăță userul din Redux
       dispatch(logout());
       localStorage.removeItem("app.auth");
 
-      // 🔥 curăță cache-ul React Query (inclusiv ["me"])
       await qc.invalidateQueries();
-      qc.removeQueries(); // elimină complet datele stale
+      qc.removeQueries();
     },
     onError: async (err) => {
       console.error("Eroare la logout:", err);

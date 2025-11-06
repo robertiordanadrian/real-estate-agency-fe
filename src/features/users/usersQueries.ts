@@ -21,9 +21,9 @@ export const useAllUsersQuery = () =>
     staleTime: 2 * 60 * 1000,
   });
 
-export const useUserByIdQuery = (userId: string | undefined) =>
+export const useUserByIdQuery = (userId?: string) =>
   useQuery({
-    queryKey: userId ? usersKeys.one(userId) : [],
+    queryKey: usersKeys.one(userId || ""),
     queryFn: () => UsersApi.getById(userId!),
     enabled: !!userId,
   });

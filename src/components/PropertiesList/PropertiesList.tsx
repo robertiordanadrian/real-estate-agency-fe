@@ -25,105 +25,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
 import { IProperty } from "../../common/interfaces/property.interface";
-import { EStatus } from "../../common/enums/general-details.enums";
+import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
 
-const getStatusChipStyle = (status: string) => {
-  switch (status) {
-    case EStatus.GREEN:
-      return { bgcolor: "#22c55e", color: "#ffffff" }; // Verde
-    case EStatus.YELLOW:
-      return { bgcolor: "#facc15", color: "#000000" }; // Galben
-    case EStatus.BLACK:
-      return { bgcolor: "#1e293b", color: "#ffffff" }; // Negru
-    case EStatus.RED:
-      return { bgcolor: "#ef4444", color: "#ffffff" }; // Roșu
-    case EStatus.BLUE:
-      return { bgcolor: "#3b82f6", color: "#ffffff" }; // Albastru
-    case EStatus.WHITE:
-      return {
-        bgcolor: "#ffffff",
-        color: "#0f172a",
-        border: "1px solid #cbd5e1",
-      }; // Alb
-    case EStatus.RESERVED:
-      return { bgcolor: "#8b5cf6", color: "#ffffff" }; // Mov
-    default:
-      return { bgcolor: "#94a3b8", color: "#ffffff" }; // fallback gri
-  }
-};
 interface PropertiesListProps {
   properties: IProperty[];
 }
-
-export const PropertiesList = () => {
-  const theme = useTheme();
-  const navigate = useNavigate();
-  const { data: properties, isLoading, error } = usePropertiesQuery();
-
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 10;
-  const isDark = theme.palette.mode === "dark";
-  const accent = theme.palette.primary.main;
-
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
-
-  if (isLoading)
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: theme.palette.text.secondary,
-          height: "100%",
-        }}
-      >
-        <CircularProgress color="primary" />
-      </Box>
-    );
-
-  if (error)
-    return (
-      <Typography color="error" textAlign="center" mt={4}>
-        Eroare la incarcarea proprietatilor.
-      </Typography>
-    );
-
-  if (!properties || properties.length === 0)
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: theme.palette.text.secondary,
-          height: "100%",
-        }}
-      >
-        Nu exista proprietati.
-      </Box>
-    );
-
-  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
-  const paginated = properties.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-  if (isMobile) {
-    return <MobileCardList properties={paginated} />;
-  }
-
-  return (
-    <DesktopTable
-      properties={paginated}
-      page={page}
-      rowsPerPage={rowsPerPage}
-      onPageChange={handleChangePage}
-      total={properties.length}
-    />
-  );
-};
 
 const DesktopTable = ({
   properties,
@@ -247,7 +153,7 @@ const DesktopTable = ({
                       label={generalDetails?.status ?? "-"}
                       size="small"
                       sx={{
-                        ...getStatusChipStyle(generalDetails?.status ?? "-"),
+                        ...getCustomChipStyle(generalDetails?.status ?? "-"),
                         fontWeight: 500,
                       }}
                     />
@@ -429,7 +335,7 @@ const MobileCardList = ({ properties }: PropertiesListProps) => {
                 label={generalDetails?.status ?? "-"}
                 size="small"
                 sx={{
-                  ...getStatusChipStyle(generalDetails?.status ?? "-"),
+                  ...getCustomChipStyle(generalDetails?.status ?? "-"),
                   fontWeight: 500,
                 }}
               />
@@ -468,3 +374,72 @@ const MobileCardList = ({ properties }: PropertiesListProps) => {
     </Box>
   );
 };
+
+const PropertiesList = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const rowsPerPage = 10;
+
+  const { data: properties, isLoading, error } = usePropertiesQuery();
+
+  const [page, setPage] = useState(0);
+
+  if (isLoading)
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: theme.palette.text.secondary,
+          height: "100%",
+        }}
+      >
+        <CircularProgress color="primary" />
+      </Box>
+    );
+
+  if (error)
+    return (
+      <Typography color="error" textAlign="center" mt={4}>
+        Eroare la incarcarea proprietatilor.
+      </Typography>
+    );
+
+  if (!properties || properties.length === 0)
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: theme.palette.text.secondary,
+          height: "100%",
+        }}
+      >
+        Nu exista proprietati.
+      </Box>
+    );
+
+  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
+  const paginated = properties.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  if (isMobile) {
+    return <MobileCardList properties={paginated} />;
+  }
+
+  return (
+    <DesktopTable
+      properties={paginated}
+      page={page}
+      rowsPerPage={rowsPerPage}
+      onPageChange={handleChangePage}
+      total={properties.length}
+    />
+  );
+};
+
+export default PropertiesList;

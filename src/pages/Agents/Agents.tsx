@@ -30,48 +30,32 @@ import { useAllUsersQuery } from "../../features/users/usersQueries";
 import { useAppSelector } from "../../app/hook";
 import { selectUser } from "../../features/auth/authSelectors";
 import { ERole } from "../../common/enums/role.enums";
-import { blue, orange, red, green } from "@mui/material/colors";
+import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
+import { getRoleColor } from "../../common/utils/get-role-color.util";
 
-const getRoleColor = (role: string) => {
-  switch (role) {
-    case "CEO":
-      return blue[400];
-    case "MANAGER":
-      return orange[400];
-    case "TEAM_LEAD":
-      return red[400];
-    case "AGENT":
-    default:
-      return green[400];
-  }
-};
-
-const getRoleDisplayText = (role: string) => {
-  switch (role) {
-    case "CEO":
-      return "Chief Executive Officer";
-    case "MANAGER":
-      return "Property Manager";
-    case "TEAM_LEAD":
-      return "Team Leader";
-    case "AGENT":
-      return "Real Estate Agent";
-    default:
-      return "User";
-  }
-};
-
-export default function Agents() {
+const Agents = () => {
   const theme = useTheme();
-  const navigate = useNavigate();
-  const currentUser = useAppSelector(selectUser);
-  const { data: users, isLoading, error } = useAllUsersQuery();
-  const [page, setPage] = useState(0);
-  const rowsPerPage = 10;
-
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
+  const navigate = useNavigate();
+  const rowsPerPage = 10;
+
+  const currentUser = useAppSelector(selectUser);
+
+  const { data: users, isLoading, error } = useAllUsersQuery();
+
+  const [page, setPage] = useState(0);
+
+  const paginated = users.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+  const total = users.length;
+
+  const handleChangePage = (_: unknown, newPage: number) => {
+    setPage(newPage);
+  };
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== ERole.CEO) {
@@ -104,12 +88,6 @@ export default function Agents() {
         Nu exista agenti in sistem.
       </Typography>
     );
-
-  const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
-  const paginated = users.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
 
   if (isMobile) {
     return (
@@ -154,7 +132,6 @@ export default function Agents() {
               flexDirection: "column",
             }}
           >
-            {/* Header */}
             <Box
               sx={{
                 display: "flex",
@@ -198,7 +175,6 @@ export default function Agents() {
               }}
             />
 
-            {/* Grid de carduri */}
             <Box
               sx={{
                 display: "grid",
@@ -298,8 +274,6 @@ export default function Agents() {
       </Box>
     );
   }
-
-  const total = users.length;
 
   return (
     <Box
@@ -476,4 +450,6 @@ export default function Agents() {
       </Container>
     </Box>
   );
-}
+};
+
+export default Agents;

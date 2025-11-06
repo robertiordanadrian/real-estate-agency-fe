@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -15,12 +15,12 @@ import {
   useMediaQuery,
 } from "@mui/material";
 
-import { GeneralDetailsStep } from "../../components/PropertySteps/GeneralDetailsStep";
-import { CharacteristicsStep } from "../../components/PropertySteps/CharacteristicsStep";
-import { UtilityStep } from "../../components/PropertySteps/UtilityStep";
-import { PriceStep } from "../../components/PropertySteps/PriceStep";
-import { DescriptionStep } from "../../components/PropertySteps/DescriptionStep";
-import { ImagesStep } from "../../components/PropertySteps/ImagesStep";
+import GeneralDetailsStep from "../../components/PropertySteps/GeneralDetailsStep";
+import CharacteristicsStep from "../../components/PropertySteps/CharacteristicsStep";
+import UtilityStep from "../../components/PropertySteps/UtilityStep";
+import PriceStep from "../../components/PropertySteps/PriceStep";
+import DescriptionStep from "../../components/PropertySteps/DescriptionStep";
+import ImagesStep from "../../components/PropertySteps/ImagesStep";
 
 import type { IProperty } from "../../common/interfaces/property.interface";
 import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
@@ -197,7 +197,7 @@ const defaultDescription: IDescription = {
   virtualTour: "",
 };
 
-export const AddProperty: React.FC = () => {
+const AddProperty = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
@@ -216,19 +216,18 @@ export const AddProperty: React.FC = () => {
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [contractFile, setContractFile] = useState<File | null>(null);
-
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error",
   });
 
-  const showSnackbar = (message: string, severity: "success" | "error") =>
+  const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({ open: true, message, severity });
-
-  const handleCloseSnackbar = () =>
+  };
+  const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
-
+  };
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
@@ -236,7 +235,7 @@ export const AddProperty: React.FC = () => {
       const newProperty = await PropertiesApi.create(propertyPayload);
       const propertyId = newProperty._id;
 
-      if (!propertyId) throw new Error("Property ID missing");
+      if (!propertyId) throw new Error("Lipseste _id proprietatii.");
 
       if (imageFiles.length)
         await PropertiesApi.uploadImages(propertyId, imageFiles);
@@ -246,21 +245,26 @@ export const AddProperty: React.FC = () => {
 
       await queryClient.invalidateQueries({ queryKey: propertiesKeys.all });
 
-      showSnackbar("Proprietate creata cu succes!", "success");
+      showSnackbar("Proprietate a fost creata cu succes!", "success");
 
       setTimeout(() => {
         navigate("/properties");
       }, 1500);
     } catch {
-      showSnackbar("A aparut o eroare. Incearca din nou.", "error");
+      showSnackbar(
+        "A aparut o eroare la crearea proprietatii. Incearca din nou.",
+        "error"
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  const handleNext = () => setActiveStep((p) => p + 1);
-  const handleBack = () => setActiveStep((p) => p - 1);
-
+  const handleNext = () => {
+    setActiveStep((p) => p + 1);
+  };
+  const handleBack = () => {
+    setActiveStep((p) => p - 1);
+  };
   const renderStep = () => {
     switch (activeStep) {
       case 0:
@@ -370,7 +374,7 @@ export const AddProperty: React.FC = () => {
             fontWeight={600}
             textAlign={{ xs: "center", sm: "left" }}
           >
-            Adauga o proprietate
+            Adauga proprietate
           </Typography>
 
           <Divider sx={{ mb: 3, borderColor: theme.palette.divider }} />
@@ -463,3 +467,5 @@ export const AddProperty: React.FC = () => {
     </Box>
   );
 };
+
+export default AddProperty;

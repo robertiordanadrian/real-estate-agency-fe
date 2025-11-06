@@ -1,5 +1,7 @@
 import PropertyRequestsList from "../../components/PropertyRequestsList/PropertyRequestsList";
 
-export default function PropertyRequests() {
+const PropertyRequests = () => {
   return <PropertyRequestsList />;
-}
+};
+
+export default PropertyRequests;

@@ -7,24 +7,23 @@ import {
   TextField,
   Typography,
   CircularProgress,
-  Link,
   useTheme,
   Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../features/auth/authMutations";
 
-export default function LoginPage() {
-  const navigate = useNavigate();
+const LoginPage = () => {
   const theme = useTheme();
+  const accent = theme.palette.primary.main;
+  const isDark = theme.palette.mode === "dark";
+  const navigate = useNavigate();
+
   const { mutateAsync, isPending } = useLogin();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  const accent = theme.palette.primary.main;
-  const isDark = theme.palette.mode === "dark";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +79,7 @@ export default function LoginPage() {
               color: "transparent",
             }}
           >
-            Autentificare în cont
+            Autentificare in cont
           </Typography>
 
           <Typography
@@ -151,4 +150,6 @@ export default function LoginPage() {
       </Box>
     </Container>
   );
-}
+};
+
+export default LoginPage;

@@ -6,7 +6,7 @@ import { store } from "./app/store";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./services/queryClient";
 import { loadPersistedAuth, persistAuth } from "./features/auth/authPersist";
-import { ThemeWrapper } from "./theme";
+import ThemeWrapper from "./theme";
 
 loadPersistedAuth();
 store.subscribe(persistAuth);

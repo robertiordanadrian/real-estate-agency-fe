@@ -16,5 +16,3 @@ export const loadPersistedAuth = () => {
     store.dispatch(rehydrate(parsed));
   } catch {}
 };
-
-

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   Card,
@@ -30,15 +29,36 @@ import type {
   IAreas,
 } from "../../common/interfaces/characteristics.interface";
 
+const detailFields = [
+  { label: "Etaj", key: "floor" },
+  { label: "Camere", key: "rooms" },
+  { label: "Bucatarii", key: "kitchens" },
+  { label: "Dormitoare", key: "bedrooms" },
+  { label: "Bai", key: "bathrooms" },
+  { label: "Balcoane", key: "balconies" },
+  { label: "Terase", key: "terraces" },
+  { label: "Parcari", key: "parkingLots" },
+  { label: "Garaje", key: "garages" },
+  { label: "An constructie", key: "yearOfConstruction" },
+  { label: "An renovare", key: "yearOfRenovation" },
+  { label: "Orientare", key: "orientation" },
+];
+
+const areaFields = [
+  { label: "Suprafata utila", key: "usableArea" as keyof IAreas },
+  { label: "Suprafata construita", key: "builtupArea" as keyof IAreas },
+  { label: "Suprafata utila totala", key: "totalUsableArea" as keyof IAreas },
+  { label: "Suprafata balcoane", key: "balconyArea" as keyof IAreas },
+  { label: "Suprafata terase", key: "terraceArea" as keyof IAreas },
+  { label: "Suprafata teren", key: "gardenArea" as keyof IAreas },
+];
+
 interface CharacteristicsStepProps {
   data: ICharacteristics;
   onChange: (updated: ICharacteristics) => void;
 }
 
-export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
-  data,
-  onChange,
-}) => {
+const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -75,30 +95,6 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
       energyPerformance: { ...data.energyPerformance, [key]: value },
     });
   };
-
-  const detailFields = [
-    { label: "Etaj", key: "floor" },
-    { label: "Camere", key: "rooms" },
-    { label: "Bucatarii", key: "kitchens" },
-    { label: "Dormitoare", key: "bedrooms" },
-    { label: "Bai", key: "bathrooms" },
-    { label: "Balcoane", key: "balconies" },
-    { label: "Terase", key: "terraces" },
-    { label: "Parcari", key: "parkingLots" },
-    { label: "Garaje", key: "garages" },
-    { label: "An constructie", key: "yearOfConstruction" },
-    { label: "An renovare", key: "yearOfRenovation" },
-    { label: "Orientare", key: "orientation" },
-  ];
-
-  const areaFields = [
-    { label: "Suprafata utila", key: "usableArea" as keyof IAreas },
-    { label: "Suprafata construita", key: "builtupArea" as keyof IAreas },
-    { label: "Suprafata utila totala", key: "totalUsableArea" as keyof IAreas },
-    { label: "Suprafata balcoane", key: "balconyArea" as keyof IAreas },
-    { label: "Suprafata terase", key: "terraceArea" as keyof IAreas },
-    { label: "Suprafata teren", key: "gardenArea" as keyof IAreas },
-  ];
 
   return (
     <Paper
@@ -461,3 +457,5 @@ export const CharacteristicsStep: React.FC<CharacteristicsStepProps> = ({
     </Paper>
   );
 };
+
+export default CharacteristicsStep;

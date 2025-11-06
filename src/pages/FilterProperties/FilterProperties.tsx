@@ -15,11 +15,11 @@ import {
   CircularProgress,
   useMediaQuery,
 } from "@mui/material";
-import { Home, Refresh } from "@mui/icons-material";
+import { Refresh } from "@mui/icons-material";
 import { useMemo, useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ECategory } from "../../common/enums/general-details.enums";
-import { FilterPropertiesList } from "../../components/FilterPropertiesList/FilterPropertiesList";
+import FilterPropertiesList from "../../components/FilterPropertiesList/FilterPropertiesList";
 import { useFilterPropertiesQuery } from "../../features/filterProperties/filterPropertiesQueries";
 import {
   useUserQuery,
@@ -27,7 +27,7 @@ import {
 } from "../../features/users/usersQueries";
 import type { IUser } from "../../common/interfaces/user.interface";
 
-export default function FilterProperties() {
+const FilterProperties = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
@@ -37,10 +37,22 @@ export default function FilterProperties() {
   const { data: currentUser } = useUserQuery();
   const { data: allUsers, isLoading: loadingUsers } = useAllUsersQuery();
 
+  const isAgentReadonly = currentUser?.role === "AGENT";
+
   const [selectedCategory, setSelectedCategory] = useState<
     string | undefined
   >();
   const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>();
+
+  const {
+    data: allProperties,
+    isLoading,
+    error,
+  } = useFilterPropertiesQuery(selectedCategory, selectedAgentId);
+
+  const handleRefresh = () => {
+    qc.invalidateQueries({ queryKey: ["filterProperties"] });
+  };
 
   const agentOptions = useMemo((): {
     id: string;
@@ -77,19 +89,6 @@ export default function FilterProperties() {
       { id: currentUser._id, name: currentUser.name, role: currentUser.role },
     ];
   }, [currentUser, allUsers]);
-
-  useEffect(() => {
-    if (currentUser) {
-      setSelectedAgentId(currentUser._id);
-    }
-  }, [currentUser]);
-
-  const {
-    data: allProperties,
-    isLoading,
-    error,
-  } = useFilterPropertiesQuery(selectedCategory, selectedAgentId);
-
   const counts = useMemo(() => {
     const map: Record<string, number> = {};
     allProperties?.forEach((p) => {
@@ -99,11 +98,11 @@ export default function FilterProperties() {
     return map;
   }, [allProperties]);
 
-  const isAgentReadonly = currentUser?.role === "AGENT";
-
-  const handleRefresh = () => {
-    qc.invalidateQueries({ queryKey: ["filterProperties"] });
-  };
+  useEffect(() => {
+    if (currentUser) {
+      setSelectedAgentId(currentUser._id);
+    }
+  }, [currentUser]);
 
   return (
     <Box
@@ -294,4 +293,6 @@ export default function FilterProperties() {
       </Container>
     </Box>
   );
-}
+};
+
+export default FilterProperties;

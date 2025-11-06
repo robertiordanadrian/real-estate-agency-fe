@@ -44,22 +44,23 @@ import type { ILead } from "../../common/interfaces/lead.interface";
 import { useNavigate } from "react-router-dom";
 import { useAllUsersQuery } from "../../features/users/usersQueries";
 import { IUser } from "../../common/interfaces/user.interface";
+import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
 
-export const LeadsList = () => {
-  const { data: users } = useAllUsersQuery();
+const LeadsList = () => {
   const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+  const accent = theme.palette.primary.main;
+  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const navigate = useNavigate();
+  const rowsPerPage = 10;
+
+  const { data: users } = useAllUsersQuery();
   const { data: leads, isLoading, error } = useLeadsQuery();
   const deleteLead = useDeleteLead();
 
   const [page, setPage] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<ILead | null>(null);
-
-  const rowsPerPage = 10;
-  const isDark = theme.palette.mode === "dark";
-  const accent = theme.palette.primary.main;
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
   const handleOpenConfirm = (lead: ILead) => {
     setSelectedLead(lead);
@@ -76,6 +77,9 @@ export const LeadsList = () => {
     await deleteLead.mutateAsync(selectedLead._id);
     handleCloseConfirm();
   };
+
+  const capitalize = (str: string) =>
+    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   if (isLoading)
     return (
@@ -114,35 +118,6 @@ export const LeadsList = () => {
     return agent ? agent.name : "-";
   };
 
-  const getStatusChipStyle = (status: string) => {
-    switch (status?.toUpperCase()) {
-      case "VERDE":
-        return { bgcolor: "#22c55e", color: "#ffffff" };
-      case "GALBEN":
-        return { bgcolor: "#facc15", color: "#000000" };
-      case "NEGRU":
-      case "BLACK":
-        return { bgcolor: "#1e293b", color: "#ffffff" };
-      case "ROSU":
-        return { bgcolor: "#ef4444", color: "#ffffff" };
-      case "ALBASTRU":
-      case "BLUE":
-        return { bgcolor: "#3b82f6", color: "#ffffff" };
-      case "ALB":
-      case "WHITE":
-        return {
-          bgcolor: "#ffffff",
-          color: "#0f172a",
-          border: "1px solid #cbd5e1",
-        };
-      case "REZERVAT":
-      case "RESERVED":
-        return { bgcolor: "#8b5cf6", color: "#ffffff" };
-      default:
-        return { bgcolor: "#94a3b8", color: "#ffffff" }; // fallback gri
-    }
-  };
-
   if (isMobile) {
     return (
       <>
@@ -175,7 +150,6 @@ export const LeadsList = () => {
               }}
             >
               <CardContent sx={{ p: 2.5 }}>
-                {/* 🔹 Header cu Avatar și nume */}
                 <Box
                   sx={{
                     display: "flex",
@@ -206,7 +180,6 @@ export const LeadsList = () => {
                   </Box>
                 </Box>
 
-                {/* 🔹 Informații principale */}
                 <Box
                   sx={{
                     display: "flex",
@@ -292,7 +265,6 @@ export const LeadsList = () => {
                   </Typography>
                 </Box>
 
-                {/* 🔹 Divider subtil */}
                 <Box
                   sx={{
                     borderTop: `1px solid ${
@@ -302,7 +274,6 @@ export const LeadsList = () => {
                   }}
                 />
 
-                {/* 🔹 Cod Proprietate + Data */}
                 {lead.sku && (
                   <Typography
                     variant="body2"
@@ -339,13 +310,27 @@ export const LeadsList = () => {
               <CardActions
                 sx={{
                   display: "flex",
-                  justifyContent: "flex-end",
+                  justifyContent: "space-between",
                   borderTop: `1px solid ${
                     isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
                   }`,
                   p: 1.8,
                 }}
               >
+                <Tooltip title="Editează lead">
+                  <IconButton
+                    color="info"
+                    onClick={() => navigate(`/leads/${lead._id}/edit`)}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: `${theme.palette.info.main}22`,
+                      },
+                    }}
+                  >
+                    <Edit />
+                  </IconButton>
+                </Tooltip>
+
                 <Tooltip title="Șterge lead">
                   <IconButton
                     color="error"
@@ -364,18 +349,17 @@ export const LeadsList = () => {
           ))}
         </Box>
 
-        {/* 🔹 Dialog Confirmare */}
         <Dialog open={confirmOpen} onClose={handleCloseConfirm}>
-          <DialogTitle>Confirmare ștergere</DialogTitle>
+          <DialogTitle>Confirmare stergere</DialogTitle>
           <DialogContent>
             <Typography>
-              Ești sigur că vrei să ștergi lead-ul{" "}
+              Esti sigur că vrei sa stergi lead-ul{" "}
               <strong>{selectedLead?.name}</strong>?
             </Typography>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseConfirm} color="inherit">
-              Anulează
+              Anuleaza
             </Button>
             <Button
               onClick={handleConfirmDelete}
@@ -383,7 +367,7 @@ export const LeadsList = () => {
               variant="contained"
               disabled={deleteLead.isPending}
             >
-              {deleteLead.isPending ? "Se șterge..." : "Șterge"}
+              {deleteLead.isPending ? "Se sterge..." : "Sterge"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -509,7 +493,9 @@ export const LeadsList = () => {
                       size="small"
                       sx={{
                         fontWeight: 500,
-                        ...getStatusChipStyle(lead.status || ""),
+                        ...getCustomChipStyle(
+                          capitalize(lead.status.toLowerCase()) || ""
+                        ),
                       }}
                     />
                   </TableCell>
@@ -626,3 +612,5 @@ export const LeadsList = () => {
     </>
   );
 };
+
+export default LeadsList;
