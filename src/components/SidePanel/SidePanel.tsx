@@ -41,6 +41,9 @@ interface SidePanelProps {
 const SidePanel = ({ onNavigate }: SidePanelProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+
+  const logoSrc = isDark ? "/white-logo.svg" : "/black-logo.svg";
+
   const panelBg = isDark
     ? "linear-gradient(180deg, #0f172a 0%, #1e293b 100%)"
     : "linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)";
@@ -52,8 +55,8 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
   const borderGlass = isDark
     ? "1px solid rgba(255,255,255,0.08)"
     : "1px solid rgba(0,0,0,0.08)";
-  const location = useLocation();
 
+  const location = useLocation();
   const { data: user } = useUserQuery();
   const { mutate: logout, isPending } = useLogout();
   const { data: pendingRequests } = usePendingRequestsQuery();
@@ -77,12 +80,36 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
         justifyContent: "space-between",
         background: panelBg,
         color: textColor,
+        p: 3,
         boxShadow: isDark
           ? "4px 0 15px rgba(0, 0, 0, 0.4)"
           : "4px 0 15px rgba(0, 0, 0, 0.1)",
-        p: 3,
+        overflowY: "auto",
       }}
     >
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          mb: 2,
+          mt: 1,
+        }}
+      >
+        <motion.img
+          src={logoSrc}
+          alt="Company Logo"
+          style={{
+            width: "130px",
+            height: "auto",
+            cursor: "pointer",
+            opacity: 0.95,
+          }}
+          whileHover={{ scale: 1.04, opacity: 1 }}
+          transition={{ duration: 0.25 }}
+        />
+      </Box>
+
       <Box>
         <Card
           sx={{
@@ -93,8 +120,8 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
             backdropFilter: "blur(10px)",
             border: borderGlass,
             boxShadow: isDark
-              ? "0 8px 32px rgba(0, 0, 0, 0.3)"
-              : "0 8px 32px rgba(0, 0, 0, 0.05)",
+              ? "0 8px 32px rgba(0,0,0,0.3)"
+              : "0 8px 32px rgba(0,0,0,0.05)",
             position: "relative",
           }}
         >
@@ -122,6 +149,8 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
                 >
                   {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                 </Avatar>
+
+                {/* Status online */}
                 <Box
                   sx={{
                     position: "absolute",
@@ -158,7 +187,6 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
                 sx={{
                   color: isDark ? "#cbd5e1" : "#475569",
                   mb: 1,
-                  fontSize: "0.9rem",
                 }}
               >
                 {user?.email ?? "user@example.com"}
@@ -310,10 +338,10 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
                         ? "0 4px 12px rgba(0,0,0,0.3)"
                         : "0 4px 12px rgba(0,0,0,0.1)",
                     },
-                    transition: "all 0.2s ease-in-out",
                     border: isActive(item.path)
                       ? `1px solid ${iconActive}33`
                       : "1px solid transparent",
+                    transition: "all 0.2s ease-in-out",
                   }}
                 >
                   <ListItemIcon
@@ -324,6 +352,7 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
                   >
                     {item.icon}
                   </ListItemIcon>
+
                   <ListItemText
                     primary={item.label}
                     primaryTypographyProps={{
