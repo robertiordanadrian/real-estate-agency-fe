@@ -30,6 +30,8 @@ import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.uti
 interface FilterPropertiesListProps {
   selectedCategory?: string;
   selectedAgentId?: string;
+  selectedStatus?: string;
+  selectedContract?: string;
 }
 
 function DesktopFilteredTable({
@@ -378,6 +380,8 @@ function MobileFilteredList({ properties }: { properties: IProperty[] }) {
 const FilterPropertiesList = ({
   selectedCategory,
   selectedAgentId,
+  selectedStatus,
+  selectedContract,
 }: FilterPropertiesListProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
@@ -385,7 +389,9 @@ const FilterPropertiesList = ({
 
   const { data, isLoading, error } = useFilterPropertiesQuery(
     selectedCategory,
-    selectedAgentId
+    selectedAgentId,
+    selectedStatus,
+    selectedContract
   );
 
   const [page, setPage] = useState(0);

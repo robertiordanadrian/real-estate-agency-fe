@@ -99,6 +99,8 @@ const EditLead = () => {
         message: errorMessage,
         severity: "error",
       });
+
+      setTimeout(() => navigate("/leads"), 2000);
     }
   };
   const handleUpload = async () => {

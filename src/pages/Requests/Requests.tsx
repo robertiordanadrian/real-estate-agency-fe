@@ -1,0 +1,166 @@
+import {
+  Box,
+  Container,
+  Paper,
+  Typography,
+  Divider,
+  Tabs,
+  Tab,
+  Badge,
+  useTheme,
+  useMediaQuery,
+  Tooltip,
+  Fab,
+} from "@mui/material";
+import { useState } from "react";
+import { Notifications, Refresh } from "@mui/icons-material";
+
+import PropertyRequestsList from "../../components/PropertyRequestsList/PropertyRequestsList";
+import LeadRequestsList from "../../components/LeadRequestsList/LeadRequestsList";
+import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
+import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
+
+const Requests = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const [tab, setTab] = useState(0);
+
+  const { data: propertyRequests, refetch: refetchProps } =
+    usePendingRequestsQuery();
+  const { data: leadRequests, refetch: refetchLeads } =
+    usePendingLeadRequestsQuery();
+
+  const totalLeadRequests = leadRequests?.length ?? 0;
+  const totalPropertyRequests = propertyRequests?.length ?? 0;
+  const totalAll = totalLeadRequests + totalPropertyRequests;
+
+  const handleRefresh = () => {
+    refetchProps();
+    refetchLeads();
+  };
+
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+      }}
+    >
+      <Container
+        maxWidth="xl"
+        disableGutters
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          flex: 1,
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            flex: 1,
+            p: { xs: 2, sm: 3, md: 4 },
+            borderRadius: 3,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "75vh",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 3,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Badge
+                badgeContent={totalAll}
+                color="error"
+                invisible={totalAll === 0}
+              >
+                <Notifications color="primary" />
+              </Badge>
+
+              <Typography variant={isMobile ? "h6" : "h5"} fontWeight={600}>
+                Cereri in asteptare
+              </Typography>
+            </Box>
+
+            <Tooltip title="Reîncarcă cererile" arrow>
+              <Fab
+                onClick={handleRefresh}
+                color="info"
+                size={isMobile ? "medium" : "large"}
+              >
+                <Refresh sx={{ color: "white" }} />
+              </Fab>
+            </Tooltip>
+          </Box>
+
+          <Divider sx={{ mb: 3 }} />
+
+          <Tabs
+            value={tab}
+            onChange={(_, newValue) => setTab(newValue)}
+            sx={{ mb: 3 }}
+          >
+            <Tab
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                  <Typography sx={{ fontSize: "0.95rem", fontWeight: 500 }}>
+                    Lead-uri
+                  </Typography>
+
+                  <Badge
+                    badgeContent={totalLeadRequests}
+                    color="error"
+                    invisible={totalLeadRequests === 0}
+                    sx={{
+                      "& .MuiBadge-badge": {
+                        right: -6,
+                      },
+                    }}
+                  />
+                </Box>
+              }
+            />
+            <Tab
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                  <Typography sx={{ fontSize: "0.95rem", fontWeight: 500 }}>
+                    Proprietati
+                  </Typography>
+
+                  <Badge
+                    badgeContent={totalPropertyRequests}
+                    color="error"
+                    invisible={totalPropertyRequests === 0}
+                    sx={{
+                      "& .MuiBadge-badge": {
+                        right: -6,
+                      },
+                    }}
+                  />
+                </Box>
+              }
+            />
+          </Tabs>
+
+          <Box sx={{ flex: 1, overflowY: "auto" }}>
+            {tab === 0 && <LeadRequestsList />}
+            {tab === 1 && <PropertyRequestsList />}
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
+  );
+};
+
+export default Requests;

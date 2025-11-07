@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import Properties from "./pages/Properties/Properties";
 import LoginPage from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
 import { ProtectedRoute } from "./features/auth/ProtectedRoute";
@@ -10,12 +9,11 @@ import Settings from "./pages/Settings/Settings";
 import { CEOProtectedRoute } from "./features/auth/CEOProtectedRoute";
 import Leads from "./pages/Leads/Leads";
 import Agents from "./pages/Agents/Agents";
-import FilterProperties from "./pages/FilterProperties/FilterProperties";
-import PropertyRequests from "./pages/PropertyRequests/PropertyRequests";
 import EditLead from "./pages/EditLead/EditLead";
-import LeadRequests from "./pages/LeadRequests/LeadRequests";
 import AddProperty from "./pages/AddProperty/AddProperty";
 import EditProperty from "./pages/EditProperty/EditProperty";
+import Properties from "./pages/Properties/Properties";
+import Requests from "./pages/Requests/Requests";
 
 function App() {
   return (
@@ -33,9 +31,7 @@ function App() {
             <Route path="/properties/add" element={<AddProperty />} />
             <Route path="/properties/:sku" element={<PropertyDetail />} />
             <Route path="/properties/edit/:id" element={<EditProperty />} />
-            <Route path="/filter-properties" element={<FilterProperties />} />
-            <Route path="/property-requests" element={<PropertyRequests />} />
-            <Route path="/lead-requests" element={<LeadRequests />} />
+            <Route path="/requests" element={<Requests />} />
             <Route element={<CEOProtectedRoute />}>
               <Route path="/register" element={<RegisterPage />} />
             </Route>

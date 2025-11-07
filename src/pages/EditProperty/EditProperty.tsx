@@ -121,6 +121,8 @@ const EditProperty = () => {
       }
 
       showSnackbar(errorMessage, "error");
+      
+      setTimeout(() => navigate("/properties"), 2000);
     } finally {
       setIsSubmitting(false);
     }

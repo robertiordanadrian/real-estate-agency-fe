@@ -244,48 +244,18 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
               path: "/properties",
             },
 
-            ...(user?.role === "CEO" ||
-            user?.role === "MANAGER" ||
-            user?.role === "TEAM_LEAD"
-              ? [
-                  {
-                    icon: (
-                      <Badge
-                        badgeContent={pendingCount}
-                        color="error"
-                        invisible={pendingCount === 0}
-                      >
-                        <Notifications />
-                      </Badge>
-                    ),
-                    label: "Cereri Proprietati",
-                    path: "/property-requests",
-                  },
-                ]
-              : []),
-
-            ...(user?.role === "CEO" || user?.role === "MANAGER"
-              ? [
-                  {
-                    icon: (
-                      <Badge
-                        badgeContent={pendingLeadCount}
-                        color="error"
-                        invisible={pendingLeadCount === 0}
-                      >
-                        <Notifications />
-                      </Badge>
-                    ),
-                    label: "Cereri Lead-uri",
-                    path: "/lead-requests",
-                  },
-                ]
-              : []),
-
             {
-              icon: <FilterAlt />,
-              label: "Filtreaza Proprietati",
-              path: "/filter-properties",
+              icon: (
+                <Badge
+                  badgeContent={(pendingLeadCount ?? 0) + (pendingCount ?? 0)}
+                  color="error"
+                  invisible={pendingLeadCount + pendingCount === 0}
+                >
+                  <Notifications />
+                </Badge>
+              ),
+              label: "Cereri",
+              path: "/requests",
             },
 
             ...(user?.role === "CEO"
