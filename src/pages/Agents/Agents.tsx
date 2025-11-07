@@ -45,13 +45,16 @@ const Agents = () => {
 
   const { data: users, isLoading, error } = useAllUsersQuery();
 
+  const safeUsers = users ?? [];
+
   const [page, setPage] = useState(0);
 
-  const paginated = users.slice(
+  const paginated = safeUsers.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-  const total = users.length;
+
+  const total = safeUsers.length;
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);

@@ -87,96 +87,95 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
         overflowY: "auto",
       }}
     >
-      <Box
-        sx={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          mb: 2,
-          mt: 1,
-        }}
-      >
-        <motion.img
-          src={logoSrc}
-          alt="Company Logo"
-          style={{
-            width: "130px",
-            height: "auto",
-            cursor: "pointer",
-            opacity: 0.95,
-          }}
-          whileHover={{ scale: 1.04, opacity: 1 }}
-          transition={{ duration: 0.25 }}
-        />
-      </Box>
-
       <Box>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            mb: 5,
+            mt: 1,
+          }}
+        >
+          <motion.img
+            src={logoSrc}
+            alt="Company Logo"
+            style={{
+              width: "130px",
+              height: "auto",
+              cursor: "pointer",
+              opacity: 0.95,
+            }}
+            whileHover={{ scale: 1.04, opacity: 1 }}
+            transition={{ duration: 0.25 }}
+          />
+        </Box>
+
         <Card
           sx={{
-            mb: 5,
+            mb: 3,
             borderRadius: 3,
-            borderTopLeftRadius: 0,
             background: cardGlass,
             backdropFilter: "blur(10px)",
             border: borderGlass,
             boxShadow: isDark
-              ? "0 8px 32px rgba(0,0,0,0.3)"
-              : "0 8px 32px rgba(0,0,0,0.05)",
+              ? "0 6px 24px rgba(0,0,0,0.25)"
+              : "0 6px 18px rgba(0,0,0,0.08)",
             position: "relative",
+            overflow: "hidden",
+            p: 2,
           }}
         >
-          <CardContent sx={{ p: 3, "&:last-child": { pb: 3 } }}>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                textAlign: "center",
-              }}
-            >
-              <Box sx={{ position: "relative", mb: 2 }}>
-                <Avatar
-                  src={user?.profilePicture}
-                  sx={{
-                    width: 80,
-                    height: 80,
-                    border: `3px solid ${getRoleColor(user?.role || "")}`,
-                    bgcolor: blue[400],
-                    boxShadow: `0 0 20px ${getRoleColor(user?.role || "")}44`,
-                    fontSize: "2rem",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-                </Avatar>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <Box sx={{ position: "relative", flexShrink: 0 }}>
+              <Avatar
+                src={user?.profilePicture}
+                sx={{
+                  width: 64,
+                  height: 64,
+                  border: `3px solid ${getRoleColor(user?.role || "")}`,
+                  bgcolor: blue[400],
+                  boxShadow: `0 0 18px ${getRoleColor(user?.role || "")}44`,
+                  fontSize: "1.4rem",
+                  fontWeight: 700,
+                }}
+              >
+                {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+              </Avatar>
 
-                {/* Status online */}
-                <Box
-                  sx={{
-                    position: "absolute",
-                    bottom: 4,
-                    right: 4,
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    bgcolor: "#22c55e",
-                    border: `2px solid ${isDark ? "#0f172a" : "#f8fafc"}`,
-                    boxShadow: "0 0 8px rgba(34,197,94,0.4)",
-                  }}
-                />
-              </Box>
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: 2,
+                  right: 2,
+                  width: 14,
+                  height: 14,
+                  borderRadius: "50%",
+                  bgcolor: "#22c55e",
+                  border: `2px solid ${
+                    isDark ? theme.palette.background.default : "#fff"
+                  }`,
+                  boxShadow: "0 0 6px rgba(34,197,94,0.5)",
+                }}
+              />
+            </Box>
 
+            <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
-                variant="h6"
+                variant="subtitle1"
                 sx={{
                   fontWeight: 700,
-                  mb: 0.5,
-                  background: isDark
-                    ? "linear-gradient(45deg, #e2e8f0, #38bdf8)"
-                    : "linear-gradient(45deg, #0f172a, #2563eb)",
-                  backgroundClip: "text",
-                  WebkitBackgroundClip: "text",
-                  color: "transparent",
+                  mb: 0.2,
+                  lineHeight: 1.1,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {user?.name ?? "User"}
@@ -186,7 +185,12 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
                 variant="body2"
                 sx={{
                   color: isDark ? "#cbd5e1" : "#475569",
-                  mb: 1,
+                  mb: 0.3,
+                  lineHeight: 1.1,
+                  fontSize: "0.8rem",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {user?.email ?? "user@example.com"}
@@ -194,54 +198,40 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
 
               <Box
                 sx={{
-                  px: 2,
-                  py: 0.5,
-                  borderRadius: 4,
+                  px: 1,
+                  py: 0.2,
+                  borderRadius: 2,
                   bgcolor: getRoleColor(user?.role || ""),
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 0.5,
+                  gap: 0.4,
                 }}
               >
                 <Box
                   sx={{
-                    width: 6,
-                    height: 6,
+                    width: 4,
+                    height: 4,
                     borderRadius: "50%",
                     bgcolor: "white",
                     opacity: 0.8,
                   }}
                 />
+
                 <Typography
                   variant="caption"
                   sx={{
                     color: "white",
                     fontWeight: 600,
-                    fontSize: "0.7rem",
+                    fontSize: { xs: "0.55rem", sm: "0.65rem" },
                     textTransform: "uppercase",
-                    letterSpacing: "0.5px",
+                    letterSpacing: "0.4px",
                   }}
                 >
                   {getRoleDisplayText(user?.role || "")}
                 </Typography>
               </Box>
             </Box>
-          </CardContent>
-
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 4,
-              background: `linear-gradient(90deg, ${getRoleColor(
-                user?.role || ""
-              )}, transparent)`,
-              borderTopLeftRadius: 12,
-              borderTopRightRadius: 12,
-            }}
-          />
+          </Box>
         </Card>
 
         <List>

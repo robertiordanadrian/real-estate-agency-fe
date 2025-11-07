@@ -58,6 +58,8 @@ const AppLayout = () => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              minHeight: { xs: 64, sm: 64 },
+              px: 2,
             }}
           >
             <IconButton
@@ -111,7 +113,7 @@ const AppLayout = () => {
           transition: "padding 0.3s ease",
           scrollBehavior: "smooth",
           pt: {
-            xs: `calc(${theme.mixins.toolbar?.minHeight || 56}px + 24px)`,
+            xs: `calc(64px + 24px)`,
             sm: 3,
             md: 3,
           },
