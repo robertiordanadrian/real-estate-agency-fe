@@ -77,35 +77,49 @@ const Properties = () => {
     name: string;
     role: string;
   }[] => {
-    if (!currentUser) return [];
+    if (!currentUser || !allUsers) return [];
+
+    const me = {
+      id: currentUser._id,
+      name: currentUser.name,
+      role: currentUser.role,
+    };
 
     if (currentUser.role === "CEO") {
-      return (
-        allUsers?.map((u: IUser) => ({
-          id: u._id,
-          name: u.name,
-          role: u.role,
-        })) ?? []
-      );
+      return allUsers.map((u: IUser) => ({
+        id: u._id,
+        name: u.name,
+        role: u.role,
+      }));
     }
 
     if (currentUser.role === "MANAGER") {
-      return (
-        allUsers
-          ?.filter(
-            (u: IUser) => u.role === "AGENT" || u._id === currentUser._id
-          )
-          .map((u: IUser) => ({
-            id: u._id,
-            name: u.name,
-            role: u.role,
-          })) ?? []
-      );
+      return allUsers
+        .filter((u: IUser) =>
+          ["MANAGER", "TEAM_LEAD", "AGENT"].includes(u.role)
+        )
+        .map((u: IUser) => ({
+          id: u._id,
+          name: u.name,
+          role: u.role,
+        }));
     }
 
-    return [
-      { id: currentUser._id, name: currentUser.name, role: currentUser.role },
-    ];
+    if (currentUser.role === "TEAM_LEAD") {
+      return allUsers
+        .filter((u: IUser) => ["TEAM_LEAD", "AGENT"].includes(u.role))
+        .map((u: IUser) => ({
+          id: u._id,
+          name: u.name,
+          role: u.role,
+        }));
+    }
+
+    if (currentUser.role === "AGENT") {
+      return [me];
+    }
+
+    return [me];
   }, [currentUser, allUsers]);
 
   const counts = useMemo(() => {

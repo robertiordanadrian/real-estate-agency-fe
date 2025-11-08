@@ -128,7 +128,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 {renderMultiSelect(
-                  "Sistem irigatie",
+                  "Sistem de incalzire",
                   Object.values(EIrigationSystem),
                   data.irigationSystem,
                   (v) => handleChangeArray("irigationSystem", v)

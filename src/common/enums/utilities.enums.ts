@@ -15,7 +15,7 @@ export enum EGeneral {
 }
 
 export enum EIrigationSystem {
-  HEATING_SYSTEM = "Sistem incalzire",
+  HEATING_SYSTEM = "Sistem de incalzire",
   DISTRICT_HEATING = "Termoficare",
   PRIVATE_HEATING = "Centrala proprie",
   BUILDING_HEATING = "Centrala imobil",

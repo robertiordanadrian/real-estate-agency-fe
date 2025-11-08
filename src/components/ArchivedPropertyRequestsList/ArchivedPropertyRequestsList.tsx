@@ -8,8 +8,6 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Tooltip,
-  IconButton,
   Typography,
   Chip,
   CircularProgress,
@@ -18,96 +16,122 @@ import {
 
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  usePendingLeadRequestsQuery,
-  useApproveLeadRequest,
-  useRejectLeadRequest,
-} from "../../features/leadRequests/leadRequestsQueries";
-
-import { useLeadsQuery } from "../../features/leads/leadsQueries";
+import { useArchivePropertyRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
 import { useAllUsersQuery } from "../../features/users/usersQueries";
+import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
 
+import { getChipColor } from "../../common/utils/get-chip-color.util";
 import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
-import type { ILead } from "../../common/interfaces/lead.interface";
+import type { IProperty } from "../../common/interfaces/property.interface";
 
 type SortDirection = "asc" | "desc";
+
 interface SortState {
   field: string;
   direction: SortDirection;
 }
+
 interface IdRef {
   _id: string;
   name?: string;
 }
-interface LeadRequestItem {
+
+interface ArchivedPropertyRequestItem {
   _id: string;
-  leadId: string | IdRef;
+  propertyId: string | IdRef;
   requestedBy: string | IdRef;
   requestedStatus: string;
+  approvalStatus: string;
+  approvedBy?: string;
+  rejectedBy?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
+
 interface IUserLite {
   _id: string;
   name?: string;
 }
 
-const LeadRequestsList = () => {
+const ArchivedPropertyRequestsList = () => {
   const theme = useTheme();
-  const navigate = useNavigate();
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
+  const navigate = useNavigate();
 
+  const headers: Array<{ label: string; key: string | null }> = [
+    { label: "Proprietate (SKU)", key: "property" },
+    { label: "Solicitat de", key: "requestedBy" },
+    { label: "Status cerut", key: "requestedStatus" },
+    { label: "Status aprobare", key: "approvalStatus" },
+    { label: "Aprobat de", key: "approvedBy" },
+    { label: "Creat la", key: "createdAt" },
+    { label: "Procesat la", key: "updatedAt" },
+  ];
   const rowsPerPage = 10;
 
   const [sort, setSort] = useState<SortState>({
-    field: "createdAt",
+    field: "updatedAt",
     direction: "desc",
   });
   const [page, setPage] = useState(0);
 
-  const { data: requests, isLoading, isError } = usePendingLeadRequestsQuery();
-  const { data: leads } = useLeadsQuery();
+  const {
+    data: requests,
+    isLoading,
+    isError,
+  } = useArchivePropertyRequestsQuery();
   const { data: users } = useAllUsersQuery();
-
-  const approveMutation = useApproveLeadRequest();
-  const rejectMutation = useRejectLeadRequest();
-
-  const leadsMap = useMemo(() => {
-    const map: Record<string, ILead> = {};
-    (leads ?? []).forEach((l) => (map[l._id!] = l));
-    return map;
-  }, [leads]);
+  const { data: properties } = usePropertiesQuery();
 
   const usersMap = useMemo(() => {
     const map: Record<string, IUserLite> = {};
-    (users ?? []).forEach((u: IUserLite) => {
-      if (u._id) map[u._id] = u;
+    (users as IUserLite[] | undefined)?.forEach((u) => {
+      if (u?._id) map[u._id] = u;
     });
     return map;
   }, [users]);
 
+  const propertiesMap = useMemo(() => {
+    const map: Record<
+      string,
+      Pick<IProperty, "_id" | "sku" | "generalDetails">
+    > = {};
+    (properties as IProperty[] | undefined)?.forEach((p) => {
+      if (p?._id)
+        map[p._id] = {
+          _id: p._id,
+          sku: p.sku,
+          generalDetails: p.generalDetails,
+        };
+    });
+    return map;
+  }, [properties]);
+
   const getId = (val: string | IdRef | undefined): string =>
     typeof val === "string" ? val : val?._id ?? "";
 
-  const getUserName = (raw: string | IdRef | undefined): string => {
-    const id = getId(raw);
+  const getUserName = (val: string | IdRef | undefined): string => {
+    const id = getId(val);
+    if (!id) return "-";
     const u = usersMap[id];
     return u?.name ?? "-";
   };
 
-  const getLeadName = (item: LeadRequestItem): string => {
-    const id = getId(item.leadId);
-    return leadsMap[id]?.name || "-";
+  const getApproverName = (item: ArchivedPropertyRequestItem): string => {
+    if (item.approvalStatus === "APPROVED") return getUserName(item.approvedBy);
+    if (item.approvalStatus === "REJECTED") return getUserName(item.rejectedBy);
+    return "-";
   };
 
-  const capitalize = (s: string) =>
-    s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  const displayPropertySKU = (item: ArchivedPropertyRequestItem): string => {
+    const id = getId(item.propertyId);
+    return propertiesMap[id]?.sku || id || "-";
+  };
 
   const toggleSort = (field: string) => {
     setSort((prev) =>
@@ -118,17 +142,9 @@ const LeadRequestsList = () => {
     setPage(0);
   };
 
-  const headers = [
-    { label: "Lead", key: "lead" },
-    { label: "Solicitat de", key: "requestedBy" },
-    { label: "Status cerut", key: "requestedStatus" },
-    { label: "Creat la", key: "createdAt" },
-    { label: "Actiuni", key: null },
-  ];
-
-  const renderSortIcon = (k: string | null) => {
-    if (!k) return null;
-    if (sort.field !== k)
+  const renderSortIcon = (key: string | null) => {
+    if (!key) return null;
+    if (sort.field !== key)
       return <ArrowUpwardIcon sx={{ fontSize: 12, opacity: 0.3, ml: 0.5 }} />;
     return sort.direction === "asc" ? (
       <ArrowUpwardIcon sx={{ fontSize: 12, color: accent, ml: 0.5 }} />
@@ -137,30 +153,38 @@ const LeadRequestsList = () => {
     );
   };
 
-  const getComparable = (item: LeadRequestItem, key: string) => {
+  const getComparable = (item: ArchivedPropertyRequestItem, key: string) => {
     switch (key) {
-      case "lead":
-        return getLeadName(item).toLowerCase();
+      case "property":
+        return displayPropertySKU(item).toLowerCase();
       case "requestedBy":
         return getUserName(item.requestedBy).toLowerCase();
       case "requestedStatus":
         return item.requestedStatus.toLowerCase();
+      case "approvalStatus":
+        return item.approvalStatus.toLowerCase();
+      case "approvedBy":
+        return getApproverName(item).toLowerCase();
       case "createdAt":
-        return item.createdAt ? Date.parse(item.createdAt) : -Infinity;
+      case "updatedAt":
+        return item[key as "createdAt" | "updatedAt"]
+          ? Date.parse(item[key as "createdAt" | "updatedAt"] as string)
+          : -Infinity;
       default:
         return "";
     }
   };
 
+  const list = (requests ?? []) as ArchivedPropertyRequestItem[];
+
   const sortedData = useMemo(() => {
-    const list = (requests ?? []) as LeadRequestItem[];
     return [...list].sort((a, b) => {
       const av = getComparable(a, sort.field);
       const bv = getComparable(b, sort.field);
       if (av === bv) return 0;
       return sort.direction === "asc" ? (av < bv ? -1 : 1) : av > bv ? -1 : 1;
     });
-  }, [requests, sort, usersMap, leadsMap]);
+  }, [list, sort, usersMap, propertiesMap]);
 
   const paginated = sortedData.slice(
     page * rowsPerPage,
@@ -191,7 +215,7 @@ const LeadRequestsList = () => {
   if (!sortedData.length)
     return (
       <Typography mt={2} textAlign="center" color="text.secondary">
-        Nu exista cereri.
+        Nu exista cereri arhivate.
       </Typography>
     );
 
@@ -218,7 +242,10 @@ const LeadRequestsList = () => {
             flex: 1,
             minHeight: 0,
             overflowX: "auto",
-            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar": {
+              height: 8,
+              backgroundColor: theme.palette.background.default,
+            },
             "&::-webkit-scrollbar-thumb": {
               backgroundColor: accent,
               borderRadius: 8,
@@ -226,7 +253,7 @@ const LeadRequestsList = () => {
             "& *": { whiteSpace: "nowrap" },
           }}
         >
-          <Table stickyHeader sx={{ minWidth: 1000 }}>
+          <Table stickyHeader sx={{ minWidth: 1250 }}>
             <TableHead>
               <TableRow>
                 {headers.map((h) => (
@@ -254,13 +281,16 @@ const LeadRequestsList = () => {
 
             <TableBody>
               {paginated.map((row) => {
-                const leadId = getId(row.leadId);
+                const sku = displayPropertySKU(row);
+                const approverName = getApproverName(row);
 
                 return (
                   <TableRow
                     key={row._id}
                     hover
-                    sx={{ "&:hover": { backgroundColor: `${accent}11` } }}
+                    sx={{
+                      "&:hover": { backgroundColor: `${accent}11` },
+                    }}
                   >
                     <TableCell
                       sx={{
@@ -268,57 +298,52 @@ const LeadRequestsList = () => {
                         fontWeight: 700,
                         cursor: "pointer",
                         "&:hover": { textDecoration: "underline" },
-                        fontSize: "0.85rem",
                       }}
-                      onClick={() => navigate(`/leads/${leadId}/edit`)}
+                      onClick={() => navigate(`/properties/${sku}`)}
                     >
-                      {getLeadName(row)}
+                      {sku}
                     </TableCell>
 
-                    <TableCell sx={{ fontSize: "0.85rem" }}>
-                      {getUserName(row.requestedBy)}
+                    <TableCell>{getUserName(row.requestedBy)}</TableCell>
+
+                    <TableCell>
+                      <Chip
+                        label={row.requestedStatus}
+                        size="small"
+                        color={getChipColor(row.requestedStatus)}
+                        sx={getCustomChipStyle(row.requestedStatus)}
+                      />
                     </TableCell>
 
                     <TableCell>
                       <Chip
-                        label={capitalize(row.requestedStatus)}
+                        label={
+                          row.approvalStatus === "APPROVED"
+                            ? "Aprobata"
+                            : "Respinsa"
+                        }
                         size="small"
-                        sx={getCustomChipStyle(capitalize(row.requestedStatus))}
+                        color={
+                          row.approvalStatus === "APPROVED"
+                            ? "success"
+                            : "error"
+                        }
+                        sx={{ fontWeight: 600 }}
                       />
                     </TableCell>
 
-                    <TableCell sx={{ fontSize: "0.85rem" }}>
+                    <TableCell>{approverName}</TableCell>
+
+                    <TableCell>
                       {row.createdAt
                         ? new Date(row.createdAt).toLocaleString("ro-RO")
                         : "-"}
                     </TableCell>
 
                     <TableCell>
-                      <Box sx={{ display: "flex", gap: 0.3 }}>
-                        <Tooltip title="Aproba">
-                          <span>
-                            <IconButton
-                              color="success"
-                              size="small"
-                              onClick={() => approveMutation.mutate(row._id)}
-                            >
-                              <CheckCircleOutlineIcon fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-
-                        <Tooltip title="Respinge">
-                          <span>
-                            <IconButton
-                              color="error"
-                              size="small"
-                              onClick={() => rejectMutation.mutate(row._id)}
-                            >
-                              <CancelOutlinedIcon fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </Box>
+                      {row.updatedAt
+                        ? new Date(row.updatedAt).toLocaleString("ro-RO")
+                        : "-"}
                     </TableCell>
                   </TableRow>
                 );
@@ -343,4 +368,4 @@ const LeadRequestsList = () => {
   );
 };
 
-export default LeadRequestsList;
+export default ArchivedPropertyRequestsList;

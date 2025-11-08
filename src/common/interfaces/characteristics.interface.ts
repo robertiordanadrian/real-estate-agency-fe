@@ -51,7 +51,7 @@ interface IBuilding {
   constructionStage: EConstructionStage;
   type: EBuildingType;
   structure: EBuildingStructure;
-  seismicRisk: EBuildingSeismicRisk;
+  seismicRisk: EBuildingSeismicRisk | null;
   height: string;
 }
 

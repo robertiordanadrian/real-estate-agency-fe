@@ -4,6 +4,7 @@ import { PropertyRequestsApi } from "./propertyRequestsApi";
 export const propertyRequestsKeys = {
   all: ["property-requests"] as const,
   pending: () => [...propertyRequestsKeys.all, "pending"] as const,
+  archive: () => [...propertyRequestsKeys.all, "archive"] as const,
 };
 
 export const usePendingRequestsQuery = () =>
@@ -11,6 +12,15 @@ export const usePendingRequestsQuery = () =>
     queryKey: propertyRequestsKeys.pending(),
     queryFn: async () => {
       const { data } = await PropertyRequestsApi.getPending();
+      return data;
+    },
+  });
+
+export const useArchivePropertyRequestsQuery = () =>
+  useQuery({
+    queryKey: propertyRequestsKeys.archive(),
+    queryFn: async () => {
+      const { data } = await PropertyRequestsApi.getArchive();
       return data;
     },
   });

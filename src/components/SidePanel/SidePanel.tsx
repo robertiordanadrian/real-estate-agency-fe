@@ -237,26 +237,34 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
         <List>
           {[
             { icon: <Dashboard />, label: "Dashboard", path: "/" },
+
             { icon: <ContactPhone />, label: "Leads", path: "/leads" },
+
             {
               icon: <RealEstateAgent />,
               label: "Proprietati",
               path: "/properties",
             },
 
-            {
-              icon: (
-                <Badge
-                  badgeContent={(pendingLeadCount ?? 0) + (pendingCount ?? 0)}
-                  color="error"
-                  invisible={pendingLeadCount + pendingCount === 0}
-                >
-                  <Notifications />
-                </Badge>
-              ),
-              label: "Cereri",
-              path: "/requests",
-            },
+            ...(user?.role !== "AGENT"
+              ? [
+                  {
+                    icon: (
+                      <Badge
+                        badgeContent={
+                          (pendingLeadCount ?? 0) + (pendingCount ?? 0)
+                        }
+                        color="error"
+                        invisible={pendingLeadCount + pendingCount === 0}
+                      >
+                        <Notifications />
+                      </Badge>
+                    ),
+                    label: "Cereri",
+                    path: "/requests",
+                  },
+                ]
+              : []),
 
             ...(user?.role === "CEO"
               ? [
@@ -265,11 +273,7 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
                     label: "Inregistrare Agent",
                     path: "/register",
                   },
-                  {
-                    icon: <Person />,
-                    label: "Agenti",
-                    path: "/agents",
-                  },
+                  { icon: <Person />, label: "Agenti", path: "/agents" },
                 ]
               : []),
 

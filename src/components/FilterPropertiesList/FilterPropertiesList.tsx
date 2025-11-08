@@ -1,8 +1,5 @@
 import {
   Box,
-  Card,
-  CardActions,
-  CardContent,
   Chip,
   CircularProgress,
   IconButton,
@@ -17,11 +14,13 @@ import {
   Tooltip,
   Typography,
   Avatar,
-  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { Visibility, Edit } from "@mui/icons-material";
-import { useState } from "react";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFilterPropertiesQuery } from "../../features/filterProperties/filterPropertiesQueries";
 import type { IProperty } from "../../common/interfaces/property.interface";
@@ -34,27 +33,82 @@ interface FilterPropertiesListProps {
   selectedContract?: string;
 }
 
+type SortDirection = "asc" | "desc";
+
+interface SortState {
+  field: string;
+  direction: SortDirection;
+}
+
+const sortableColumns: Record<string, (p: IProperty) => any> = {
+  status: (p) => p.generalDetails?.status,
+  sku: (p) => p.sku,
+  transactionType: (p) => p.generalDetails?.transactionType,
+  category: (p) => p.generalDetails?.category,
+  price: (p) => p.price?.priceDetails?.price,
+  bedrooms: (p) => p.characteristics?.details?.bedrooms,
+  usableArea: (p) => p.characteristics?.areas?.totalUsableArea,
+  floor: (p) => p.characteristics?.details?.floor,
+  zone: (p) => p.generalDetails?.location?.zone,
+  street: (p) => p.generalDetails?.location?.street,
+  agent: (p) => p.generalDetails?.agent,
+};
+
 function DesktopFilteredTable({
   properties,
   total,
   page,
   rowsPerPage,
   onPageChange,
+  sort,
+  onSortChange,
 }: {
   properties: IProperty[];
   total: number;
   page: number;
   rowsPerPage: number;
   onPageChange: (e: unknown, newPage: number) => void;
+  sort: SortState;
+  onSortChange: (field: string) => void;
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const navigate = useNavigate();
 
+  const headers = [
+    { label: "Imagine", key: null },
+    { label: "Status", key: "status" },
+    { label: "SKU", key: "sku" },
+    { label: "Tranzactie", key: "transactionType" },
+    { label: "Tip", key: "category" },
+    { label: "Pret (€)", key: "price" },
+    { label: "Camere", key: "bedrooms" },
+    { label: "Suprafata (mp)", key: "usableArea" },
+    { label: "Etaj", key: "floor" },
+    { label: "Zona", key: "zone" },
+    { label: "Strada", key: "street" },
+    { label: "Agent", key: "agent" },
+    { label: "Actiuni", key: null },
+  ];
+
+  const renderSortIcon = (columnKey: string | null) => {
+    if (!columnKey) return null;
+    if (sort.field !== columnKey)
+      return <ArrowUpwardIcon sx={{ fontSize: 16, opacity: 0.3, ml: 0.5 }} />;
+
+    return sort.direction === "asc" ? (
+      <ArrowUpwardIcon sx={{ fontSize: 16, color: accent, ml: 0.5 }} />
+    ) : (
+      <ArrowDownwardIcon sx={{ fontSize: 16, color: accent, ml: 0.5 }} />
+    );
+  };
+
   return (
     <Paper
       sx={{
+        flex: 1,
+        minHeight: 0,
         display: "flex",
         flexDirection: "column",
         borderRadius: 2,
@@ -95,31 +149,23 @@ function DesktopFilteredTable({
         >
           <TableHead>
             <TableRow>
-              {[
-                "Imagine",
-                "Status",
-                "SKU",
-                "Tranzactie",
-                "Tip",
-                "Pret (€)",
-                "Camere",
-                "Suprafata (mp)",
-                "Etaj",
-                "Zona",
-                "Strada",
-                "Agent",
-                "Actiuni",
-              ].map((header) => (
+              {headers.map((h) => (
                 <TableCell
-                  key={header}
+                  key={h.label}
+                  onClick={() => h.key && onSortChange(h.key)}
                   sx={{
                     color: accent,
                     fontWeight: 600,
                     borderBottom: `1px solid ${accent}22`,
                     backgroundColor: theme.palette.background.paper,
+                    cursor: h.key ? "pointer" : "default",
+                    userSelect: "none",
                   }}
                 >
-                  {header}
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    {h.label}
+                    {renderSortIcon(h.key)}
+                  </Box>
                 </TableCell>
               ))}
             </TableRow>
@@ -149,6 +195,7 @@ function DesktopFilteredTable({
                       sx={{ width: 50, height: 50 }}
                     />
                   </TableCell>
+
                   <TableCell>
                     <Chip
                       label={generalDetails.status}
@@ -158,6 +205,7 @@ function DesktopFilteredTable({
                       variant="filled"
                     />
                   </TableCell>
+
                   <TableCell>{property.sku ?? "-"}</TableCell>
                   <TableCell>
                     {generalDetails?.transactionType ?? "-"}
@@ -178,6 +226,7 @@ function DesktopFilteredTable({
                     {generalDetails?.location?.street ?? "-"}
                   </TableCell>
                   <TableCell>{generalDetails?.agent ?? "-"}</TableCell>
+
                   <TableCell align="center">
                     <Tooltip title="Vezi detalii">
                       <IconButton
@@ -228,154 +277,6 @@ function DesktopFilteredTable({
     </Paper>
   );
 }
-function MobileFilteredList({ properties }: { properties: IProperty[] }) {
-  const theme = useTheme();
-  const accent = theme.palette.primary.main;
-  const isDark = theme.palette.mode === "dark";
-  const navigate = useNavigate();
-
-  return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: {
-          xs: "1fr",
-          sm: "1fr 1fr",
-        },
-        gap: 2.5,
-      }}
-    >
-      {properties.map((property) => {
-        const img = property.images?.[0];
-        const { generalDetails, price, description } = property;
-
-        return (
-          <Card
-            key={property._id}
-            sx={{
-              borderRadius: 3,
-              overflow: "hidden",
-              boxShadow: isDark
-                ? `0 0 15px ${accent}22`
-                : `0 0 10px ${accent}11`,
-              bgcolor: theme.palette.background.paper,
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: `0 0 25px ${accent}33`,
-              },
-            }}
-          >
-            <Box
-              sx={{
-                position: "relative",
-                width: "100%",
-                aspectRatio: "16 / 9",
-                overflow: "hidden",
-                borderBottom: `1px solid ${
-                  theme.palette.mode === "dark"
-                    ? "rgba(255,255,255,0.05)"
-                    : "rgba(0,0,0,0.08)"
-                }`,
-              }}
-            >
-              <Box
-                component="img"
-                src={img || "/placeholder.jpg"}
-                alt={generalDetails?.category || "property"}
-                sx={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: img ? "cover" : "contain",
-                  backgroundColor: img
-                    ? "transparent"
-                    : theme.palette.action.hover,
-                }}
-              />
-            </Box>
-
-            <CardContent sx={{ p: 2 }}>
-              <Typography
-                variant="h6"
-                fontWeight={700}
-                sx={{
-                  color: accent,
-                  textOverflow: "ellipsis",
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                  mb: 0.5,
-                }}
-              >
-                {description?.title ?? "-"}
-              </Typography>
-
-              <Typography variant="body2" color="text.secondary">
-                {`${generalDetails?.location?.zone ?? "-"}, ${
-                  generalDetails?.location?.city ?? "-"
-                }, ${generalDetails?.location?.street ?? "-"}`}
-              </Typography>
-
-              <Typography variant="body2" color="text.secondary">
-                SKU: {property.sku ?? "-"}
-              </Typography>
-
-              <Typography variant="body2" color="text.secondary">
-                Agent: {generalDetails?.agent ?? "-"}
-              </Typography>
-
-              <Typography variant="body1" fontWeight={600}>
-                {price?.priceDetails?.price
-                  ? `${price.priceDetails.price} €`
-                  : "-"}
-              </Typography>
-
-              <Chip
-                label={generalDetails?.status ?? "-"}
-                size="small"
-                sx={{
-                  backgroundColor: accent,
-                  color: "#fff",
-                  fontWeight: 500,
-                  mt: 1,
-                }}
-              />
-            </CardContent>
-
-            <CardActions
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                borderTop: `1px solid ${
-                  isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
-                }`,
-                p: 1.5,
-              }}
-            >
-              <Tooltip title="Detalii">
-                <IconButton
-                  color="info"
-                  onClick={() => navigate(`/properties/${property.sku}`)}
-                >
-                  <Visibility />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Editează">
-                <IconButton
-                  color="warning"
-                  onClick={() => navigate(`/properties/edit/${property._id}`)}
-                >
-                  <Edit />
-                </IconButton>
-              </Tooltip>
-            </CardActions>
-          </Card>
-        );
-      })}
-    </Box>
-  );
-}
 
 const FilterPropertiesList = ({
   selectedCategory,
@@ -383,8 +284,6 @@ const FilterPropertiesList = ({
   selectedStatus,
   selectedContract,
 }: FilterPropertiesListProps) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const rowsPerPage = 10;
 
   const { data, isLoading, error } = useFilterPropertiesQuery(
@@ -395,6 +294,43 @@ const FilterPropertiesList = ({
   );
 
   const [page, setPage] = useState(0);
+
+  const [sort, setSort] = useState<SortState>({
+    field: "sku",
+    direction: "desc",
+  });
+
+  const handleSortChange = (field: string) => {
+    setSort((prev) => {
+      if (prev.field === field) {
+        return {
+          field,
+          direction: prev.direction === "asc" ? "desc" : "asc",
+        };
+      }
+      return { field, direction: "asc" };
+    });
+    setPage(0);
+  };
+
+  const sortedData = useMemo(() => {
+    if (!data) return [];
+
+    const getter = sortableColumns[sort.field];
+    if (!getter) return data;
+
+    return [...data].sort((a, b) => {
+      const av = getter(a);
+      const bv = getter(b);
+
+      if (av == null) return 1;
+      if (bv == null) return -1;
+
+      if (av < bv) return sort.direction === "asc" ? -1 : 1;
+      if (av > bv) return sort.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [data, sort]);
 
   if (isLoading)
     return (
@@ -415,29 +351,27 @@ const FilterPropertiesList = ({
       </Typography>
     );
 
-  if (!data || data.length === 0)
+  if (!sortedData || sortedData.length === 0)
     return (
       <Typography textAlign="center" color="text.secondary">
         Nicio proprietate gasita pentru categoria selectata.
       </Typography>
     );
 
-  const paginated = data.slice(
+  const paginated = sortedData.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
 
-  if (isMobile) {
-    return <MobileFilteredList properties={paginated} />;
-  }
-
   return (
     <DesktopFilteredTable
       properties={paginated}
-      total={data.length}
+      total={sortedData.length}
       page={page}
       rowsPerPage={rowsPerPage}
       onPageChange={(_, newPage) => setPage(newPage)}
+      sort={sort}
+      onSortChange={handleSortChange}
     />
   );
 };

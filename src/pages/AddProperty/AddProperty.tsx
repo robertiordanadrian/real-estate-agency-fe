@@ -121,7 +121,7 @@ const defaultCharacteristics: ICharacteristics = {
     constructionStage: EConstructionStage.FINALIZED,
     type: EBuildingType.BUILDING,
     structure: EBuildingStructure.CONCRETE,
-    seismicRisk: EBuildingSeismicRisk.CLASS_I,
+    seismicRisk: null,
     height: "",
   },
   energyPerformance: {

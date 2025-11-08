@@ -19,12 +19,18 @@ import PropertyRequestsList from "../../components/PropertyRequestsList/Property
 import LeadRequestsList from "../../components/LeadRequestsList/LeadRequestsList";
 import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
 import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
+import ArchivedLeadRequestsList from "../../components/ArchivedLeadRequestsList/ArchivedLeadRequestsList";
+import ArchivedPropertyRequestsList from "../../components/ArchivedPropertyRequestsList/ArchivedPropertyRequestsList";
+import { useUserQuery } from "../../features/users/usersQueries";
 
 const Requests = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [tab, setTab] = useState(0);
+
+  const { data: user } = useUserQuery();
+  const role = user?.role;
 
   const { data: propertyRequests, refetch: refetchProps } =
     usePendingRequestsQuery();
@@ -69,6 +75,19 @@ const Requests = () => {
             display: "flex",
             flexDirection: "column",
             minHeight: "75vh",
+
+            backgroundColor:
+              theme.palette.mode === "dark" ? "#0f1a2e" : "#f4f7fb",
+
+            border:
+              theme.palette.mode === "dark"
+                ? "1px solid rgba(255,255,255,0.05)"
+                : "1px solid rgba(0,0,0,0.08)",
+
+            boxShadow:
+              theme.palette.mode === "dark"
+                ? `0 0 25px ${theme.palette.primary.main}22`
+                : `0 3px 12px rgba(0,0,0,0.06)`,
           }}
         >
           <Box
@@ -106,56 +125,75 @@ const Requests = () => {
 
           <Divider sx={{ mb: 3 }} />
 
-          <Tabs
-            value={tab}
-            onChange={(_, newValue) => setTab(newValue)}
-            sx={{ mb: 3 }}
+          <Box
+            sx={{
+              overflowX: "auto",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              "&::-webkit-scrollbar": { display: "none" },
+              mb: 3,
+            }}
           >
-            <Tab
-              label={
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-                  <Typography sx={{ fontSize: "0.95rem", fontWeight: 500 }}>
-                    Lead-uri
-                  </Typography>
+            <Tabs
+              value={tab}
+              onChange={(_, newValue) => setTab(newValue)}
+              variant="scrollable"
+              scrollButtons={false}
+            >
+              {role !== "TEAM_LEAD" && (
+                <Tab
+                  label={
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1.2 }}
+                    >
+                      <Typography sx={{ fontSize: "0.95rem", fontWeight: 500 }}>
+                        Lead-uri
+                      </Typography>
+                      <Badge
+                        badgeContent={totalLeadRequests}
+                        color="error"
+                        invisible={totalLeadRequests === 0}
+                        sx={{ "& .MuiBadge-badge": { right: -6 } }}
+                      />
+                    </Box>
+                  }
+                />
+              )}
 
-                  <Badge
-                    badgeContent={totalLeadRequests}
-                    color="error"
-                    invisible={totalLeadRequests === 0}
-                    sx={{
-                      "& .MuiBadge-badge": {
-                        right: -6,
-                      },
-                    }}
-                  />
-                </Box>
-              }
-            />
-            <Tab
-              label={
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-                  <Typography sx={{ fontSize: "0.95rem", fontWeight: 500 }}>
-                    Proprietati
-                  </Typography>
+              <Tab
+                label={
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                    <Typography sx={{ fontSize: "0.95rem", fontWeight: 500 }}>
+                      Proprietati
+                    </Typography>
+                    <Badge
+                      badgeContent={totalPropertyRequests}
+                      color="error"
+                      invisible={totalPropertyRequests === 0}
+                      sx={{ "& .MuiBadge-badge": { right: -6 } }}
+                    />
+                  </Box>
+                }
+              />
 
-                  <Badge
-                    badgeContent={totalPropertyRequests}
-                    color="error"
-                    invisible={totalPropertyRequests === 0}
-                    sx={{
-                      "& .MuiBadge-badge": {
-                        right: -6,
-                      },
-                    }}
-                  />
-                </Box>
-              }
-            />
-          </Tabs>
+              {role !== "TEAM_LEAD" && <Tab label="Arhive Lead-uri" />}
 
-          <Box sx={{ flex: 1, overflowY: "auto" }}>
+              <Tab label="Arhive Proprietati" />
+            </Tabs>
+          </Box>
+
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             {tab === 0 && <LeadRequestsList />}
             {tab === 1 && <PropertyRequestsList />}
+            {tab === 2 && <ArchivedLeadRequestsList />}
+            {tab === 3 && <ArchivedPropertyRequestsList />}
           </Box>
         </Paper>
       </Container>

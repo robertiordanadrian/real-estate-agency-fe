@@ -1,9 +1,6 @@
 import {
   Avatar,
   Box,
-  Card,
-  CardActions,
-  CardContent,
   Chip,
   CircularProgress,
   IconButton,
@@ -17,7 +14,6 @@ import {
   TableRow,
   Tooltip,
   Typography,
-  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { Visibility, Edit } from "@mui/icons-material";
@@ -26,10 +22,6 @@ import { useNavigate } from "react-router-dom";
 import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
 import { IProperty } from "../../common/interfaces/property.interface";
 import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
-
-interface PropertiesListProps {
-  properties: IProperty[];
-}
 
 const DesktopTable = ({
   properties,
@@ -48,6 +40,39 @@ const DesktopTable = ({
   const navigate = useNavigate();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
+
+  const [sortKey, setSortKey] = useState<keyof IProperty | null>("sku");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const sortedProperties = [...properties].sort((a, b) => {
+    const valA = a[sortKey!];
+    const valB = b[sortKey!];
+
+    if (valA == null) return 1;
+    if (valB == null) return -1;
+
+    if (typeof valA === "number" && typeof valB === "number") {
+      return sortDirection === "asc" ? valA - valB : valB - valA;
+    }
+
+    return sortDirection === "asc"
+      ? String(valA).localeCompare(String(valB))
+      : String(valB).localeCompare(String(valA));
+  });
+
+  const renderSortIcon = (key: keyof IProperty) => {
+    if (sortKey !== key) return "⇅";
+    return sortDirection === "asc" ? "▲" : "▼";
+  };
+
+  const handleSort = (key: keyof IProperty) => {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
 
   return (
     <Paper
@@ -71,7 +96,6 @@ const DesktopTable = ({
           "&::-webkit-scrollbar": {
             height: 8,
             backgroundColor: theme.palette.background.default,
-            borderRadius: 8,
           },
           "&::-webkit-scrollbar-thumb": {
             backgroundColor: accent,
@@ -79,52 +103,51 @@ const DesktopTable = ({
           },
         }}
       >
-        <Table
-          stickyHeader
-          sx={{
-            minWidth: 1200,
-            "& .MuiTableCell-root": {
-              whiteSpace: "nowrap",
-              fontSize: "0.9rem",
-              px: 2,
-              py: 1.5,
-            },
-          }}
-        >
+        <Table stickyHeader sx={{ minWidth: 1200 }}>
           <TableHead>
             <TableRow>
               {[
-                "Imagine",
-                "Status",
-                "SKU",
-                "Tranzactie",
-                "Tip",
-                "Pret (€)",
-                "Camere",
-                "Suprafata (mp)",
-                "Etaj",
-                "Zona",
-                "Strada",
-                "Agent",
-                "Actiuni",
-              ].map((header) => (
+                { label: "Imagine" },
+                { label: "Status" },
+                { label: "SKU", key: "sku" as keyof IProperty },
+                { label: "Tranzactie", key: "generalDetails" },
+                { label: "Tip" },
+                { label: "Pret (€)" },
+                { label: "Camere" },
+                { label: "Suprafata (mp)" },
+                { label: "Etaj" },
+                { label: "Zona" },
+                { label: "Strada" },
+                { label: "Agent" },
+                { label: "Actiuni" },
+              ].map((col) => (
                 <TableCell
-                  key={header}
+                  key={col.label}
+                  onClick={() =>
+                    col.key && handleSort(col.key as keyof IProperty)
+                  }
                   sx={{
+                    cursor: col.key ? "pointer" : "default",
                     color: accent,
                     fontWeight: 600,
                     borderBottom: `1px solid ${accent}22`,
-                    backgroundColor: theme.palette.background.paper,
+                    userSelect: "none",
                   }}
                 >
-                  {header}
+                  {col.label}
+
+                  {col.key && (
+                    <span style={{ marginLeft: 6, fontSize: "0.75rem" }}>
+                      {renderSortIcon(col.key as keyof IProperty)}
+                    </span>
+                  )}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {properties.map((property: IProperty) => {
+            {sortedProperties.map((property) => {
               const img = property.images?.[0] ?? "";
               const { generalDetails, characteristics, price } = property;
 
@@ -143,7 +166,6 @@ const DesktopTable = ({
                     <Avatar
                       variant="rounded"
                       src={img}
-                      alt="property"
                       sx={{ width: 50, height: 50 }}
                     />
                   </TableCell>
@@ -180,8 +202,8 @@ const DesktopTable = ({
                   </TableCell>
                   <TableCell>{generalDetails?.agent ?? "-"}</TableCell>
 
-                  <TableCell align="center">
-                    <Tooltip title="Vezi detalii">
+                  <TableCell>
+                    <Tooltip title="Detalii">
                       <IconButton
                         color="info"
                         onClick={() => navigate(`/properties/${property.sku}`)}
@@ -189,6 +211,7 @@ const DesktopTable = ({
                         <Visibility />
                       </IconButton>
                     </Tooltip>
+
                     <Tooltip title="Editeaza">
                       <IconButton
                         color="warning"
@@ -207,177 +230,20 @@ const DesktopTable = ({
         </Table>
       </TableContainer>
 
-      <Box
-        sx={{
-          borderTop: `1px solid ${
-            isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
-          }`,
-        }}
-      >
-        <TablePagination
-          component="div"
-          count={total}
-          page={page}
-          onPageChange={onPageChange}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[10]}
-          sx={{
-            color: theme.palette.text.primary,
-            "& .MuiTablePagination-actions button": { color: accent },
-          }}
-        />
-      </Box>
+      <TablePagination
+        component="div"
+        count={total}
+        page={page}
+        onPageChange={onPageChange}
+        rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={[10]}
+      />
     </Paper>
-  );
-};
-
-const MobileCardList = ({ properties }: PropertiesListProps) => {
-  const theme = useTheme();
-  const navigate = useNavigate();
-  const accent = theme.palette.primary.main;
-  const isDark = theme.palette.mode === "dark";
-
-  return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: {
-          xs: "1fr",
-          sm: "1fr 1fr",
-        },
-        gap: 2,
-      }}
-    >
-      {properties.map((property: IProperty) => {
-        const img = property.images?.[0];
-        const { generalDetails, price, description } = property;
-
-        return (
-          <Card
-            key={property._id}
-            sx={{
-              borderRadius: 3,
-              overflow: "hidden",
-              boxShadow: isDark
-                ? `0 0 15px ${accent}22`
-                : `0 0 10px ${accent}11`,
-              bgcolor: theme.palette.background.paper,
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: `0 0 25px ${accent}33`,
-              },
-            }}
-          >
-            <Box
-              sx={{
-                position: "relative",
-                width: "100%",
-                aspectRatio: "16 / 9",
-                overflow: "hidden",
-                borderBottom: `1px solid ${
-                  theme.palette.mode === "dark"
-                    ? "rgba(255,255,255,0.05)"
-                    : "rgba(0,0,0,0.08)"
-                }`,
-              }}
-            >
-              <Box
-                component="img"
-                src={img || "/placeholder.jpg"}
-                alt={generalDetails?.category || "property"}
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: img ? "cover" : "contain",
-                  backgroundColor: img
-                    ? "transparent"
-                    : theme.palette.action.hover,
-                }}
-              />
-            </Box>
-            <CardContent sx={{ p: 2 }}>
-              <Typography
-                variant="h6"
-                fontWeight={700}
-                sx={{
-                  color: accent,
-                  textOverflow: "ellipsis",
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {description?.title ?? "-"}
-              </Typography>
-
-              <Typography variant="body2" color="text.secondary">
-                {`${generalDetails?.location?.zone ?? "-"}, ${
-                  generalDetails.location.city ?? "-"
-                }, ${generalDetails.location.street ?? "-"}`}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                SKU: {property.sku ?? "-"}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Agent: {property.generalDetails.agent ?? "-"}
-              </Typography>
-
-              <Typography variant="body1" fontWeight={600}>
-                {price?.priceDetails?.price
-                  ? `${price.priceDetails.price} €`
-                  : "-"}
-              </Typography>
-
-              <Chip
-                label={generalDetails?.status ?? "-"}
-                size="small"
-                sx={{
-                  ...getCustomChipStyle(generalDetails?.status ?? "-"),
-                  fontWeight: 500,
-                }}
-              />
-            </CardContent>
-
-            <CardActions
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                borderTop: `1px solid ${
-                  isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
-                }`,
-                p: 1.5,
-              }}
-            >
-              <Tooltip title="Detalii">
-                <IconButton
-                  color="info"
-                  onClick={() => navigate(`/properties/${property.sku}`)}
-                >
-                  <Visibility />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Editează">
-                <IconButton
-                  color="warning"
-                  onClick={() => navigate(`/properties/edit/${property._id}`)}
-                >
-                  <Edit />
-                </IconButton>
-              </Tooltip>
-            </CardActions>
-          </Card>
-        );
-      })}
-    </Box>
   );
 };
 
 const PropertiesList = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
   const rowsPerPage = 10;
 
   const { data: properties, isLoading, error } = usePropertiesQuery();
@@ -426,10 +292,6 @@ const PropertiesList = () => {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-
-  if (isMobile) {
-    return <MobileCardList properties={paginated} />;
-  }
 
   return (
     <DesktopTable

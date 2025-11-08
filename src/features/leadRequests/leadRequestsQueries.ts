@@ -4,6 +4,7 @@ import { LeadRequestsApi } from "./leadRequestsApi";
 export const leadRequestsKeys = {
   all: ["lead-requests"] as const,
   pending: () => [...leadRequestsKeys.all, "pending"] as const,
+  archive: () => [...leadRequestsKeys.all, "archive"] as const,
 };
 
 export const usePendingLeadRequestsQuery = () =>
@@ -11,6 +12,15 @@ export const usePendingLeadRequestsQuery = () =>
     queryKey: leadRequestsKeys.pending(),
     queryFn: async () => {
       const { data } = await LeadRequestsApi.getPending();
+      return data;
+    },
+  });
+
+export const useArchiveLeadRequestsQuery = () =>
+  useQuery({
+    queryKey: leadRequestsKeys.archive(),
+    queryFn: async () => {
+      const { data } = await LeadRequestsApi.getArchive();
       return data;
     },
   });
