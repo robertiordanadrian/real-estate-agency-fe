@@ -1,5 +1,12 @@
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import {
   Box,
+  Chip,
+  CircularProgress,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -9,32 +16,21 @@ import {
   TablePagination,
   TableRow,
   Tooltip,
-  IconButton,
   Typography,
-  Chip,
-  CircularProgress,
   useTheme,
 } from "@mui/material";
-
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
-
+import { useQueries } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import {
-  usePendingRequestsQuery,
-  useApproveRequest,
-  useRejectRequest,
-} from "../../features/propertyRequests/propertyRequestsQueries";
-
-import { useQueries } from "@tanstack/react-query";
-import { http } from "../../services/http";
-
 import { getChipColor } from "../../common/utils/get-chip-color.util";
 import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
+import {
+  useApproveRequest,
+  usePendingRequestsQuery,
+  useRejectRequest,
+} from "../../features/propertyRequests/propertyRequestsQueries";
+import { http } from "../../services/http";
 
 interface IdRef {
   _id: string;
@@ -80,13 +76,11 @@ const PropertyRequestsList = () => {
       Array.from(
         new Set(
           (data ?? []).map((r: any) =>
-            typeof r.requestedBy === "string"
-              ? r.requestedBy
-              : r.requestedBy._id
-          )
-        )
+            typeof r.requestedBy === "string" ? r.requestedBy : r.requestedBy._id,
+          ),
+        ),
       ),
-    [data]
+    [data],
   );
 
   const propertyIds = useMemo<string[]>(
@@ -94,11 +88,11 @@ const PropertyRequestsList = () => {
       Array.from(
         new Set(
           (data ?? []).map((r: any) =>
-            typeof r.propertyId === "string" ? r.propertyId : r.propertyId._id
-          )
-        )
+            typeof r.propertyId === "string" ? r.propertyId : r.propertyId._id,
+          ),
+        ),
       ),
-    [data]
+    [data],
   );
 
   const propertyQueries = useQueries({
@@ -139,7 +133,7 @@ const PropertyRequestsList = () => {
     setSort((prev) =>
       prev.field === field
         ? { field, direction: prev.direction === "asc" ? "desc" : "asc" }
-        : { field, direction: "asc" }
+        : { field, direction: "asc" },
     );
     setPage(0);
   };
@@ -147,11 +141,9 @@ const PropertyRequestsList = () => {
   const getId = (val: string | IdRef | undefined) =>
     typeof val === "string" ? val : val?._id || "";
 
-  const displayUser = (val: string | IdRef | undefined) =>
-    userMap[getId(val)]?.name ?? "-";
+  const displayUser = (val: string | IdRef | undefined) => userMap[getId(val)]?.name ?? "-";
 
-  const displaySKU = (item: PropertyReqItem) =>
-    propMap[getId(item.propertyId)]?.sku ?? "-";
+  const displaySKU = (item: PropertyReqItem) => propMap[getId(item.propertyId)]?.sku ?? "-";
 
   const getCurrentStatus = (item: PropertyReqItem) =>
     propMap[getId(item.propertyId)]?.generalDetails?.status ?? "-";
@@ -182,10 +174,7 @@ const PropertyRequestsList = () => {
     });
   }, [data, sort, propMap, userMap]);
 
-  const paginated = sortedData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   if (isLoading)
     return (
@@ -216,9 +205,7 @@ const PropertyRequestsList = () => {
     );
 
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
-    >
+    <Box sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
       <Paper
         sx={{
           flex: 1,
@@ -264,19 +251,13 @@ const PropertyRequestsList = () => {
 
                       {h.key === sort.field &&
                         (sort.direction === "asc" ? (
-                          <ArrowUpwardIcon
-                            sx={{ fontSize: 12, ml: 0.5, color: accent }}
-                          />
+                          <ArrowUpwardIcon sx={{ fontSize: 12, ml: 0.5, color: accent }} />
                         ) : (
-                          <ArrowDownwardIcon
-                            sx={{ fontSize: 12, ml: 0.5, color: accent }}
-                          />
+                          <ArrowDownwardIcon sx={{ fontSize: 12, ml: 0.5, color: accent }} />
                         ))}
 
                       {h.key && h.key !== sort.field && (
-                        <ArrowUpwardIcon
-                          sx={{ fontSize: 12, ml: 0.5, opacity: 0.25 }}
-                        />
+                        <ArrowUpwardIcon sx={{ fontSize: 12, ml: 0.5, opacity: 0.25 }} />
                       )}
                     </Box>
                   </TableCell>
@@ -286,11 +267,7 @@ const PropertyRequestsList = () => {
 
             <TableBody>
               {paginated.map((row) => (
-                <TableRow
-                  key={row._id}
-                  hover
-                  sx={{ "&:hover": { background: `${accent}11` } }}
-                >
+                <TableRow key={row._id} hover sx={{ "&:hover": { background: `${accent}11` } }}>
                   <TableCell
                     sx={{
                       color: accent,
@@ -324,9 +301,7 @@ const PropertyRequestsList = () => {
                   </TableCell>
 
                   <TableCell>
-                    {row.createdAt
-                      ? new Date(row.createdAt).toLocaleString("ro-RO")
-                      : "-"}
+                    {row.createdAt ? new Date(row.createdAt).toLocaleString("ro-RO") : "-"}
                   </TableCell>
 
                   <TableCell>

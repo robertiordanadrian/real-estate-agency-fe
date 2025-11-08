@@ -1,34 +1,31 @@
+import { Add, FilterList } from "@mui/icons-material";
 import {
   Box,
-  Container,
-  Paper,
-  Typography,
-  Divider,
+  Button,
   Chip,
-  useTheme,
+  CircularProgress,
+  Container,
+  Divider,
+  Drawer,
+  Fab,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
+  Paper,
+  Select,
   Tooltip,
-  Fab,
-  CircularProgress,
+  Typography,
   useMediaQuery,
-  Button,
-  Drawer,
+  useTheme,
 } from "@mui/material";
-import { useMemo, useState, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { ECategory, EStatus } from "../../common/enums/general-details.enums";
+import type { IUser } from "../../common/interfaces/user.interface";
 import FilterPropertiesList from "../../components/FilterPropertiesList/FilterPropertiesList";
 import { useFilterPropertiesQuery } from "../../features/filterProperties/filterPropertiesQueries";
-import {
-  useUserQuery,
-  useAllUsersQuery,
-} from "../../features/users/usersQueries";
-import type { IUser } from "../../common/interfaces/user.interface";
-import { useNavigate } from "react-router-dom";
-import { Add, FilterList } from "@mui/icons-material";
+import { useAllUsersQuery, useUserQuery } from "../../features/users/usersQueries";
 
 type ContractFilter = "CONTRACT" | "NO_CONTRACT";
 
@@ -37,7 +34,6 @@ const Properties = () => {
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const qc = useQueryClient();
   const navigate = useNavigate();
 
   const contractFilterOptions: { key: ContractFilter; label: string }[] = [
@@ -46,24 +42,18 @@ const Properties = () => {
   ];
 
   const { data: currentUser } = useUserQuery();
-  const { data: allUsers, isLoading: loadingUsers } = useAllUsersQuery();
+  const { data: allUsers, isLoading: _LOADING_USERS } = useAllUsersQuery();
 
   const isAgentReadonly = currentUser?.role === "AGENT";
 
-  const [selectedCategory, setSelectedCategory] = useState<
-    string | undefined
-  >();
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
   const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>();
   const [selectedStatus, setSelectedStatus] = useState<string | undefined>();
-  const [selectedContract, setSelectedContract] = useState<
-    ContractFilter | undefined
-  >();
+  const [selectedContract, setSelectedContract] = useState<ContractFilter | undefined>();
   const [filterOpen, setFilterOpen] = useState(false);
   const [tempCategory, setTempCategory] = useState<string | undefined>();
   const [tempStatus, setTempStatus] = useState<string | undefined>();
-  const [tempContract, setTempContract] = useState<
-    ContractFilter | undefined
-  >();
+  const [tempContract, setTempContract] = useState<ContractFilter | undefined>();
   const [tempAgentId, setTempAgentId] = useState<string | undefined>();
 
   const {
@@ -95,9 +85,7 @@ const Properties = () => {
 
     if (currentUser.role === "MANAGER") {
       return allUsers
-        .filter((u: IUser) =>
-          ["MANAGER", "TEAM_LEAD", "AGENT"].includes(u.role)
-        )
+        .filter((u: IUser) => ["MANAGER", "TEAM_LEAD", "AGENT"].includes(u.role))
         .map((u: IUser) => ({
           id: u._id,
           name: u.name,
@@ -144,8 +132,7 @@ const Properties = () => {
     const map = { CONTRACT: 0, NO_CONTRACT: 0 };
 
     allProperties?.forEach((p) => {
-      const hasContract =
-        !!p.price?.contact?.contractFile && p.price.contact.contractFile !== "";
+      const hasContract = !!p.price?.contact?.contractFile && p.price.contact.contractFile !== "";
 
       if (hasContract) map.CONTRACT++;
       else map.NO_CONTRACT++;
@@ -253,9 +240,7 @@ const Properties = () => {
                   onClick={() => setFilterOpen(true)}
                   size={isMobile ? "medium" : "large"}
                 >
-                  <FilterList
-                    sx={{ color: "white", fontSize: isMobile ? 24 : 28 }}
-                  />
+                  <FilterList sx={{ color: "white", fontSize: isMobile ? 24 : 28 }} />
                 </Fab>
               </Box>
             </Tooltip>
@@ -265,9 +250,7 @@ const Properties = () => {
             sx={{
               mb: 3,
               borderColor:
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
             }}
           />
 
@@ -352,12 +335,7 @@ const Properties = () => {
               </Select>
             </FormControl>
 
-            <Typography
-              variant="subtitle2"
-              fontWeight={700}
-              color={accent}
-              mb={1}
-            >
+            <Typography variant="subtitle2" fontWeight={700} color={accent} mb={1}>
               Tip Proprietate
             </Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 3 }}>
@@ -366,19 +344,12 @@ const Properties = () => {
                   key={cat}
                   label={`${cat} - ${counts[cat] ?? 0}`}
                   color={tempCategory === cat ? "primary" : "default"}
-                  onClick={() =>
-                    setTempCategory((prev) => (prev === cat ? undefined : cat))
-                  }
+                  onClick={() => setTempCategory((prev) => (prev === cat ? undefined : cat))}
                 />
               ))}
             </Box>
 
-            <Typography
-              variant="subtitle2"
-              fontWeight={700}
-              color={accent}
-              mb={1}
-            >
+            <Typography variant="subtitle2" fontWeight={700} color={accent} mb={1}>
               Status Proprietate
             </Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 3 }}>
@@ -387,21 +358,12 @@ const Properties = () => {
                   key={status}
                   label={`${status} - ${statusCounts[status] ?? 0}`}
                   color={tempStatus === status ? "primary" : "default"}
-                  onClick={() =>
-                    setTempStatus((prev) =>
-                      prev === status ? undefined : status
-                    )
-                  }
+                  onClick={() => setTempStatus((prev) => (prev === status ? undefined : status))}
                 />
               ))}
             </Box>
 
-            <Typography
-              variant="subtitle2"
-              fontWeight={700}
-              color={accent}
-              mb={1}
-            >
+            <Typography variant="subtitle2" fontWeight={700} color={accent} mb={1}>
               Contract
             </Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 3 }}>
@@ -411,9 +373,7 @@ const Properties = () => {
                   label={`${item.label} - ${contractCounts[item.key]}`}
                   color={tempContract === item.key ? "primary" : "default"}
                   onClick={() =>
-                    setTempContract((prev) =>
-                      prev === item.key ? undefined : item.key
-                    )
+                    setTempContract((prev) => (prev === item.key ? undefined : item.key))
                   }
                 />
               ))}
@@ -424,9 +384,7 @@ const Properties = () => {
             sx={{
               p: 3,
               borderTop: `1px solid ${
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)"
+                theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
               }`,
               display: "flex",
               justifyContent: "space-between",
@@ -446,12 +404,7 @@ const Properties = () => {
               Cancel
             </Button>
 
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              onClick={applyFilters}
-            >
+            <Button variant="contained" color="primary" fullWidth onClick={applyFilters}>
               Aplica filtre
             </Button>
           </Box>

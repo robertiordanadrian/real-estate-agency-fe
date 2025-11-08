@@ -1,21 +1,22 @@
+import { ContactPhone, Home, Person, Refresh } from "@mui/icons-material";
 import {
   Box,
-  Container,
-  Paper,
-  Typography,
-  Divider,
-  Grid,
   Card,
   CardContent,
   CircularProgress,
-  useTheme,
-  Tooltip,
+  Container,
+  Divider,
   Fab,
+  Grid,
+  Paper,
+  Tooltip,
+  Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import { ContactPhone, Home, Person, Refresh } from "@mui/icons-material";
-import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
+
 import { useLeadsQuery } from "../../features/leads/leadsQueries";
+import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
 import { useAllUsersQuery } from "../../features/users/usersQueries";
 
 const Dashboard = () => {
@@ -29,16 +30,8 @@ const Dashboard = () => {
     isLoading: isLoadingProperties,
     error: errorProperties,
   } = usePropertiesQuery();
-  const {
-    data: leads,
-    isLoading: isLoadingLeads,
-    error: errorLeads,
-  } = useLeadsQuery();
-  const {
-    data: users,
-    isLoading: isLoadingUseres,
-    error: errorsUsers,
-  } = useAllUsersQuery();
+  const { data: leads, isLoading: isLoadingLeads, error: errorLeads } = useLeadsQuery();
+  const { data: users, isLoading: isLoadingUseres, error: errorsUsers } = useAllUsersQuery();
 
   const totalProperties = properties?.length ?? 0;
   const totalLeads = leads?.length ?? 0;
@@ -116,9 +109,7 @@ const Dashboard = () => {
                   },
                 }}
               >
-                <Refresh
-                  sx={{ color: "white", fontSize: isMobile ? 22 : 26 }}
-                />
+                <Refresh sx={{ color: "white", fontSize: isMobile ? 22 : 26 }} />
               </Fab>
             </Tooltip>
           </Box>
@@ -127,9 +118,7 @@ const Dashboard = () => {
             sx={{
               mb: 3,
               borderColor:
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
             }}
           />
 
@@ -146,9 +135,7 @@ const Dashboard = () => {
                 <CircularProgress color="primary" />
               </Box>
             ) : errorProperties || errorLeads || errorsUsers ? (
-              <Typography color="error">
-                Eroare la incarcarea datelor
-              </Typography>
+              <Typography color="error">Eroare la incarcarea datelor</Typography>
             ) : (
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 3 }}>
@@ -240,9 +227,7 @@ const Dashboard = () => {
                             {totalLeads}
                           </Typography>
                         </Box>
-                        <ContactPhone
-                          sx={{ fontSize: 40, color: accentColor }}
-                        />
+                        <ContactPhone sx={{ fontSize: 40, color: accentColor }} />
                       </Box>
                     </CardContent>
                   </Card>

@@ -1,9 +1,4 @@
-import {
-  EContactType,
-  ECurrency,
-  EPaymentMethod,
-  ESignedContract,
-} from "../enums/price.enums";
+import { EContactType, ECurrency, EPaymentMethod, ESignedContract } from "../enums/price.enums";
 
 export interface IPrice {
   priceDetails: IPriceDetails;

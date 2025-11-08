@@ -1,19 +1,20 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import AppLayout from "./layouts/AppLayout";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import LoginPage from "./pages/Login/LoginPage";
-import RegisterPage from "./pages/Register/RegisterPage";
-import { ProtectedRoute } from "./features/auth/ProtectedRoute";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+
 import PropertyDetail from "./components/PropertyDetails/PropertyDetails";
-import Settings from "./pages/Settings/Settings";
 import { CEOProtectedRoute } from "./features/auth/CEOProtectedRoute";
-import Leads from "./pages/Leads/Leads";
-import Agents from "./pages/Agents/Agents";
-import EditLead from "./pages/EditLead/EditLead";
+import { ProtectedRoute } from "./features/auth/ProtectedRoute";
+import AppLayout from "./layouts/AppLayout";
 import AddProperty from "./pages/AddProperty/AddProperty";
+import Agents from "./pages/Agents/Agents";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import EditLead from "./pages/EditLead/EditLead";
 import EditProperty from "./pages/EditProperty/EditProperty";
+import Leads from "./pages/Leads/Leads";
+import LoginPage from "./pages/Login/LoginPage";
 import Properties from "./pages/Properties/Properties";
+import RegisterPage from "./pages/Register/RegisterPage";
 import Requests from "./pages/Requests/Requests";
+import Settings from "./pages/Settings/Settings";
 
 function App() {
   return (

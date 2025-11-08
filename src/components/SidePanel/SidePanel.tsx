@@ -1,38 +1,37 @@
 import {
+  ContactPhone,
+  Dashboard,
+  Logout,
+  Notifications,
+  Person,
+  PersonAdd,
+  RealEstateAgent,
+  Settings,
+} from "@mui/icons-material";
+import {
   Avatar,
+  Badge,
   Box,
   Button,
+  Card,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Typography,
-  Card,
-  CardContent,
   useTheme,
-  Badge,
 } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import {
-  Logout,
-  RealEstateAgent,
-  Dashboard,
-  Settings,
-  PersonAdd,
-  ContactPhone,
-  Person,
-  FilterAlt,
-  Notifications,
-} from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
-import { useLogout } from "../../features/auth/authMutations";
-import { useUserQuery } from "../../features/users/usersQueries";
-import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
-import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
+
 import { getRoleColor } from "../../common/utils/get-role-color.util";
 import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
+import { useLogout } from "../../features/auth/authMutations";
+import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
+import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
+import { useUserQuery } from "../../features/users/usersQueries";
 
 interface SidePanelProps {
   onNavigate?: () => void;
@@ -52,9 +51,7 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
   const iconActive = theme.palette.primary.main;
   const iconInactive = isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)";
   const cardGlass = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)";
-  const borderGlass = isDark
-    ? "1px solid rgba(255,255,255,0.08)"
-    : "1px solid rgba(0,0,0,0.08)";
+  const borderGlass = isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)";
 
   const location = useLocation();
   const { data: user } = useUserQuery();
@@ -81,9 +78,7 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
         background: panelBg,
         color: textColor,
         p: 3,
-        boxShadow: isDark
-          ? "4px 0 15px rgba(0, 0, 0, 0.4)"
-          : "4px 0 15px rgba(0, 0, 0, 0.1)",
+        boxShadow: isDark ? "4px 0 15px rgba(0, 0, 0, 0.4)" : "4px 0 15px rgba(0, 0, 0, 0.1)",
         overflowY: "auto",
       }}
     >
@@ -118,9 +113,7 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
             background: cardGlass,
             backdropFilter: "blur(10px)",
             border: borderGlass,
-            boxShadow: isDark
-              ? "0 6px 24px rgba(0,0,0,0.25)"
-              : "0 6px 18px rgba(0,0,0,0.08)",
+            boxShadow: isDark ? "0 6px 24px rgba(0,0,0,0.25)" : "0 6px 18px rgba(0,0,0,0.08)",
             position: "relative",
             overflow: "hidden",
             p: 2,
@@ -158,9 +151,7 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
                   height: 14,
                   borderRadius: "50%",
                   bgcolor: "#22c55e",
-                  border: `2px solid ${
-                    isDark ? theme.palette.background.default : "#fff"
-                  }`,
+                  border: `2px solid ${isDark ? theme.palette.background.default : "#fff"}`,
                   boxShadow: "0 0 6px rgba(34,197,94,0.5)",
                 }}
               />
@@ -251,9 +242,7 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
                   {
                     icon: (
                       <Badge
-                        badgeContent={
-                          (pendingLeadCount ?? 0) + (pendingCount ?? 0)
-                        }
+                        badgeContent={(pendingLeadCount ?? 0) + (pendingCount ?? 0)}
                         color="error"
                         invisible={pendingLeadCount + pendingCount === 0}
                       >
@@ -292,9 +281,7 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
                   sx={{
                     borderRadius: 2,
                     color: isActive(item.path) ? iconActive : iconInactive,
-                    backgroundColor: isActive(item.path)
-                      ? `${iconActive}11`
-                      : "transparent",
+                    backgroundColor: isActive(item.path) ? `${iconActive}11` : "transparent",
                     "&:hover": {
                       backgroundColor: `${iconActive}1A`,
                       transform: "translateY(-1px)",
@@ -343,9 +330,7 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
               textTransform: "none",
               borderRadius: 2,
               py: 1.2,
-              backgroundColor: isDark
-                ? "rgba(255,255,255,0.08)"
-                : "rgba(0,0,0,0.04)",
+              backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
               "&:hover": {
                 backgroundColor: "rgba(255,59,48,0.15)",
                 color: "#ff3b30",

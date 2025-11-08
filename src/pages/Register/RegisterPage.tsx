@@ -1,41 +1,43 @@
-import { useState, useEffect } from "react";
+import { ArrowBack } from "@mui/icons-material";
 import {
-  Box,
-  Button,
-  Container,
-  Paper,
-  TextField,
-  Typography,
-  CircularProgress,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
   Alert,
   Avatar,
+  Box,
+  Button,
   Card,
   CardContent,
+  CircularProgress,
+  Container,
   Divider,
-  Grid,
-  useTheme,
-  Tooltip,
   Fab,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Tooltip,
+  Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { useAppSelector } from "../../app/hook";
+import { ERole } from "../../common/enums/role.enums";
+import { IRegisterForm } from "../../common/interfaces/register-form.interface";
+import { getRoleColor } from "../../common/utils/get-role-color.util";
+import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
 import { useRegister } from "../../features/auth/authMutations";
+import { selectUser } from "../../features/auth/authSelectors";
 import {
-  useUserByIdQuery,
   useUpdateUserById,
   useUploadProfilePictureForUser,
+  useUserByIdQuery,
 } from "../../features/users/usersQueries";
-import { useAppSelector } from "../../app/hook";
-import { selectUser } from "../../features/auth/authSelectors";
-import { ArrowBack } from "@mui/icons-material";
-import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
-import { getRoleColor } from "../../common/utils/get-role-color.util";
-import { IRegisterForm } from "../../common/interfaces/register-form.interface";
-import { ERole } from "../../common/enums/role.enums";
 
 const ROLES = ["MANAGER", "TEAM_LEAD", "AGENT"];
 
@@ -50,13 +52,10 @@ const RegisterPage = () => {
 
   const editId = new URLSearchParams(location.search).get("editId");
 
-  const { data: userToEdit, isLoading: isFetchingUser } = useUserByIdQuery(
-    editId || undefined
-  );
+  const { data: userToEdit, isLoading: isFetchingUser } = useUserByIdQuery(editId || undefined);
 
   const { mutateAsync: register, isPending: isRegistering } = useRegister();
-  const { mutateAsync: updateUserById, isPending: isUpdating } =
-    useUpdateUserById();
+  const { mutateAsync: updateUserById, isPending: isUpdating } = useUpdateUserById();
   const { mutateAsync: uploadAvatarForUser, isPending: isUploading } =
     useUploadProfilePictureForUser();
 
@@ -130,18 +129,13 @@ const RegisterPage = () => {
       updateForm("profileImage", null);
     } catch (err: any) {
       const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Operatiunea a esuat. Incearca din nou.";
+        err?.response?.data?.message || err?.message || "Operatiunea a esuat. Incearca din nou.";
 
       setError(message);
     }
   };
 
-  const updateForm = <K extends keyof IRegisterForm>(
-    key: K,
-    value: IRegisterForm[K]
-  ) => {
+  const updateForm = <K extends keyof IRegisterForm>(key: K, value: IRegisterForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -256,9 +250,7 @@ const RegisterPage = () => {
                   "&:hover": { backgroundColor: theme.palette.info.dark },
                 }}
               >
-                <ArrowBack
-                  sx={{ color: "white", fontSize: isMobile ? 22 : 26 }}
-                />
+                <ArrowBack sx={{ color: "white", fontSize: isMobile ? 22 : 26 }} />
               </Fab>
             </Tooltip>
           </Box>
@@ -267,9 +259,7 @@ const RegisterPage = () => {
             sx={{
               mb: 3,
               borderColor:
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
             }}
           />
 
@@ -296,14 +286,10 @@ const RegisterPage = () => {
                     p: { xs: 2, sm: 3 },
                     bgcolor: theme.palette.background.default,
                     color: theme.palette.text.primary,
-                    boxShadow: isDark
-                      ? `0 0 20px ${accent}22`
-                      : `0 0 10px ${accent}11`,
+                    boxShadow: isDark ? `0 0 20px ${accent}22` : `0 0 10px ${accent}11`,
                   }}
                 >
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-                  >
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                     <TextField
                       label="Nume complet"
                       fullWidth
@@ -343,9 +329,7 @@ const RegisterPage = () => {
                         labelId="role-select-label"
                         value={form.role}
                         label="Rol"
-                        onChange={(e) =>
-                          updateForm("role", e.target.value as ERole)
-                        }
+                        onChange={(e) => updateForm("role", e.target.value as ERole)}
                       >
                         {ROLES.map((r) => (
                           <MenuItem key={r} value={r}>
@@ -371,9 +355,7 @@ const RegisterPage = () => {
                         },
                       }}
                     >
-                      {form.profileImage
-                        ? "Schimba imaginea"
-                        : "Incarca imagine profil"}
+                      {form.profileImage ? "Schimba imaginea" : "Incarca imagine profil"}
 
                       <input
                         type="file"
@@ -385,8 +367,7 @@ const RegisterPage = () => {
 
                           if (file) {
                             const reader = new FileReader();
-                            reader.onloadend = () =>
-                              setImagePreview(reader.result as string);
+                            reader.onloadend = () => setImagePreview(reader.result as string);
                             reader.readAsDataURL(file);
                           } else {
                             setImagePreview(null);
@@ -411,9 +392,7 @@ const RegisterPage = () => {
                     p: { xs: 2, sm: 3 },
                     bgcolor: theme.palette.background.default,
                     color: theme.palette.text.primary,
-                    boxShadow: isDark
-                      ? `0 0 20px ${accent}22`
-                      : `0 0 10px ${accent}11`,
+                    boxShadow: isDark ? `0 0 20px ${accent}22` : `0 0 10px ${accent}11`,
                   }}
                 >
                   <CardContent
@@ -437,24 +416,17 @@ const RegisterPage = () => {
                       sx={{
                         width: 100,
                         height: 100,
-                        border: `3px solid ${
-                          imagePreview ? accent : theme.palette.divider
-                        }`,
+                        border: `3px solid ${imagePreview ? accent : theme.palette.divider}`,
                         bgcolor: theme.palette.primary.light,
-                        color: theme.palette.getContrastText(
-                          theme.palette.primary.light
-                        ),
+                        color: theme.palette.getContrastText(theme.palette.primary.light),
                         fontSize: "2rem",
                         fontWeight: "bold",
                       }}
                     >
-                      {!imagePreview &&
-                        (form.name ? form.name.charAt(0).toUpperCase() : "U")}
+                      {!imagePreview && (form.name ? form.name.charAt(0).toUpperCase() : "U")}
                     </Avatar>
 
-                    <Typography variant="h6">
-                      {form.name || "Nume utilizator"}
-                    </Typography>
+                    <Typography variant="h6">{form.name || "Nume utilizator"}</Typography>
                     <Typography color="text.secondary">
                       {form.email || "email@exemplu.com"}
                     </Typography>
@@ -470,9 +442,7 @@ const RegisterPage = () => {
                         py: 0.5,
                         borderRadius: 1,
                         backgroundColor: getRoleColor(form.role),
-                        color: theme.palette.getContrastText(
-                          getRoleColor(form.role)
-                        ),
+                        color: theme.palette.getContrastText(getRoleColor(form.role)),
                         fontWeight: 600,
                         display: "inline-block",
                       }}
@@ -525,10 +495,7 @@ const RegisterPage = () => {
               disabled={isRegistering || isUploading || isUpdating}
             >
               {isRegistering || isUploading || isUpdating ? (
-                <CircularProgress
-                  size={24}
-                  sx={{ color: theme.palette.getContrastText(accent) }}
-                />
+                <CircularProgress size={24} sx={{ color: theme.palette.getContrastText(accent) }} />
               ) : editId ? (
                 "Actualizeaza agent"
               ) : (

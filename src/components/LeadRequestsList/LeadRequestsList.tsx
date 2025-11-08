@@ -1,5 +1,12 @@
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import {
   Box,
+  Chip,
+  CircularProgress,
+  IconButton,
   Paper,
   Table,
   TableBody,
@@ -9,32 +16,21 @@ import {
   TablePagination,
   TableRow,
   Tooltip,
-  IconButton,
   Typography,
-  Chip,
-  CircularProgress,
   useTheme,
 } from "@mui/material";
-
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
-
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import type { ILead } from "../../common/interfaces/lead.interface";
+import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
 import {
-  usePendingLeadRequestsQuery,
   useApproveLeadRequest,
+  usePendingLeadRequestsQuery,
   useRejectLeadRequest,
 } from "../../features/leadRequests/leadRequestsQueries";
-
 import { useLeadsQuery } from "../../features/leads/leadsQueries";
 import { useAllUsersQuery } from "../../features/users/usersQueries";
-
-import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
-import type { ILead } from "../../common/interfaces/lead.interface";
 
 type SortDirection = "asc" | "desc";
 interface SortState {
@@ -93,7 +89,7 @@ const LeadRequestsList = () => {
   }, [users]);
 
   const getId = (val: string | IdRef | undefined): string =>
-    typeof val === "string" ? val : val?._id ?? "";
+    typeof val === "string" ? val : (val?._id ?? "");
 
   const getUserName = (raw: string | IdRef | undefined): string => {
     const id = getId(raw);
@@ -106,14 +102,13 @@ const LeadRequestsList = () => {
     return leadsMap[id]?.name || "-";
   };
 
-  const capitalize = (s: string) =>
-    s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 
   const toggleSort = (field: string) => {
     setSort((prev) =>
       prev.field === field
         ? { field, direction: prev.direction === "asc" ? "desc" : "asc" }
-        : { field, direction: "asc" }
+        : { field, direction: "asc" },
     );
     setPage(0);
   };
@@ -128,8 +123,7 @@ const LeadRequestsList = () => {
 
   const renderSortIcon = (k: string | null) => {
     if (!k) return null;
-    if (sort.field !== k)
-      return <ArrowUpwardIcon sx={{ fontSize: 12, opacity: 0.3, ml: 0.5 }} />;
+    if (sort.field !== k) return <ArrowUpwardIcon sx={{ fontSize: 12, opacity: 0.3, ml: 0.5 }} />;
     return sort.direction === "asc" ? (
       <ArrowUpwardIcon sx={{ fontSize: 12, color: accent, ml: 0.5 }} />
     ) : (
@@ -162,10 +156,7 @@ const LeadRequestsList = () => {
     });
   }, [requests, sort, usersMap, leadsMap]);
 
-  const paginated = sortedData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   if (isLoading)
     return (
@@ -196,9 +187,7 @@ const LeadRequestsList = () => {
     );
 
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
-    >
+    <Box sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
       <Paper
         sx={{
           flex: 1,
@@ -288,9 +277,7 @@ const LeadRequestsList = () => {
                     </TableCell>
 
                     <TableCell sx={{ fontSize: "0.85rem" }}>
-                      {row.createdAt
-                        ? new Date(row.createdAt).toLocaleString("ro-RO")
-                        : "-"}
+                      {row.createdAt ? new Date(row.createdAt).toLocaleString("ro-RO") : "-"}
                     </TableCell>
 
                     <TableCell>

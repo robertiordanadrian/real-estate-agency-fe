@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
+import { useEffect, useState } from "react";
 
 interface PropertyMapProps {
   address: string;
@@ -7,9 +7,7 @@ interface PropertyMapProps {
 }
 
 const PropertyMap = ({ address, apiKey }: PropertyMapProps) => {
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
-    null
-  );
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     if (!address) return;
@@ -18,8 +16,8 @@ const PropertyMap = ({ address, apiKey }: PropertyMapProps) => {
       try {
         const res = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-            address
-          )}&key=${apiKey}`
+            address,
+          )}&key=${apiKey}`,
         );
         const data = await res.json();
         if (data.status === "OK" && data.results.length > 0) {

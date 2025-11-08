@@ -14,5 +14,7 @@ export const loadPersistedAuth = () => {
   try {
     const parsed = JSON.parse(raw);
     store.dispatch(rehydrate(parsed));
-  } catch {}
+  } catch {
+    // ignore JSON parse errors
+  }
 };

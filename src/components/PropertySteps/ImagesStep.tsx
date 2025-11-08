@@ -1,44 +1,37 @@
-import { useCallback } from "react";
+import { Delete, ZoomIn } from "@mui/icons-material";
 import {
   Box,
-  Typography,
-  Paper,
-  Grid,
-  Chip,
-  IconButton,
-  Tooltip,
-  useTheme,
   Card,
   CardContent,
+  Chip,
+  Grid,
+  IconButton,
+  Paper,
+  Tooltip,
+  Typography,
+  useTheme,
 } from "@mui/material";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { Delete, ZoomIn } from "@mui/icons-material";
 
 interface ImagesStepProps {
   data: string[];
   files: File[];
-  onChange: (images: string[]) => void;
-  onFilesChange: (files: File[]) => void;
+  onChange: (_images: string[]) => void;
+  onFilesChange: (_files: File[]) => void;
 }
 
-const ImagesStep = ({
-  data,
-  files,
-  onChange,
-  onFilesChange,
-}: ImagesStepProps) => {
+const ImagesStep = ({ data, files, onChange, onFilesChange }: ImagesStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      const newPreviews = acceptedFiles.map((file) =>
-        URL.createObjectURL(file)
-      );
+      const newPreviews = acceptedFiles.map((file) => URL.createObjectURL(file));
       onFilesChange([...files, ...acceptedFiles]);
       onChange([...data, ...newPreviews]);
     },
-    [data, files, onChange, onFilesChange]
+    [data, files, onChange, onFilesChange],
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -69,9 +62,7 @@ const ImagesStep = ({
       sx={{
         p: 3,
         borderRadius: 3,
-        background: isDark
-          ? theme.palette.background.paper
-          : theme.palette.background.default,
+        background: isDark ? theme.palette.background.paper : theme.palette.background.default,
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -87,9 +78,7 @@ const ImagesStep = ({
                 p: { xs: 3, sm: 4 },
                 border: "2px dashed",
                 borderRadius: 3,
-                borderColor: isDragActive
-                  ? theme.palette.primary.main
-                  : theme.palette.divider,
+                borderColor: isDragActive ? theme.palette.primary.main : theme.palette.divider,
                 backgroundColor: isDragActive
                   ? `${theme.palette.primary.main}11`
                   : theme.palette.background.paper,
@@ -105,23 +94,14 @@ const ImagesStep = ({
                   ? "Eliberează pentru a adăuga imaginile..."
                   : "Trage imaginile aici sau fă click pentru a le selecta"}
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                mt={1}
-                fontSize="0.85rem"
-              >
+              <Typography variant="body2" color="text.secondary" mt={1} fontSize="0.85rem">
                 Poti adauga pana la 20 imagini, max. 10MB fiecare
               </Typography>
             </Paper>
 
             <Grid container spacing={2} sx={{ mt: 2 }}>
               {data.length === 0 && (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ p: 2, ml: 2 }}
-                >
+                <Typography variant="body2" color="text.secondary" sx={{ p: 2, ml: 2 }}>
                   Nu exista imagini incarcate.
                 </Typography>
               )}
@@ -209,15 +189,9 @@ const ImagesStep = ({
               ))}
             </Grid>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              mt={2}
-              sx={{ fontSize: "0.85rem" }}
-            >
-              Total imagini: {data.length} (
-              {data.filter(isExistingImage).length} existente, {files.length}{" "}
-              noi)
+            <Typography variant="body2" color="text.secondary" mt={2} sx={{ fontSize: "0.85rem" }}>
+              Total imagini: {data.length} ({data.filter(isExistingImage).length} existente,{" "}
+              {files.length} noi)
             </Typography>
           </CardContent>
         </Card>

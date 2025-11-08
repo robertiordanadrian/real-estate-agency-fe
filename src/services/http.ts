@@ -1,12 +1,8 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-} from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+
 import { store } from "../app/store";
+import { selectAccessToken, selectAuth } from "../features/auth/authSelectors";
 import { logout, setCredentials } from "../features/auth/authSlice";
-import { selectAuth, selectAccessToken } from "../features/auth/authSelectors";
 
 const baseURL = import.meta.env.VITE_API_URL;
 
@@ -21,8 +17,8 @@ interface RefreshTokenRequest {
 }
 
 interface PendingRequest {
-  resolve: (value: unknown) => void;
-  reject: (error: unknown) => void;
+  resolve: (_value: unknown) => void;
+  reject: (_error: unknown) => void;
   config: InternalAxiosRequestConfig;
 }
 
@@ -39,10 +35,7 @@ export const http: AxiosInstance = axios.create({
 let isRefreshing = false;
 let pendingQueue: PendingRequest[] = [];
 
-const processQueue = (
-  error: unknown | null,
-  token: string | null = null
-): void => {
+const processQueue = (error: unknown | null, token: string | null = null): void => {
   pendingQueue.forEach(({ resolve, reject, config }) => {
     if (error) {
       reject(error);
@@ -69,7 +62,7 @@ http.interceptors.request.use(
   },
   (error: AxiosError): Promise<AxiosError> => {
     return Promise.reject(error);
-  }
+  },
 );
 
 http.interceptors.response.use(
@@ -83,10 +76,7 @@ http.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (
-      originalConfig._retry ||
-      originalConfig.url?.includes("/auth/refresh")
-    ) {
+    if (originalConfig._retry || originalConfig.url?.includes("/auth/refresh")) {
       store.dispatch(logout());
       return Promise.reject(error);
     }
@@ -109,13 +99,10 @@ http.interceptors.response.use(
         throw new Error("No user ID or refresh token available");
       }
 
-      const refreshRes = await axios.post<RefreshTokenResponse>(
-        `${baseURL}/auth/refresh`,
-        {
-          userId: auth.user.id,
-          refreshToken: auth.refreshToken,
-        } as RefreshTokenRequest
-      );
+      const refreshRes = await axios.post<RefreshTokenResponse>(`${baseURL}/auth/refresh`, {
+        userId: auth.user.id,
+        refreshToken: auth.refreshToken,
+      } as RefreshTokenRequest);
 
       const newAccessToken = refreshRes.data.access_token;
       const newRefreshToken = refreshRes.data.refresh_token;
@@ -129,7 +116,7 @@ http.interceptors.response.use(
           user: auth.user,
           accessToken: newAccessToken,
           refreshToken: newRefreshToken || auth.refreshToken,
-        })
+        }),
       );
 
       processQueue(null, newAccessToken);
@@ -146,5 +133,5 @@ http.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );

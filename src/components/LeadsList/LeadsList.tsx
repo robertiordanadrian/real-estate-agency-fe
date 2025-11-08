@@ -1,7 +1,15 @@
+import { Delete, Edit } from "@mui/icons-material";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import {
   Box,
+  Button,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   Link,
   Paper,
@@ -14,27 +22,16 @@ import {
   TableRow,
   Tooltip,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
   useTheme,
 } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-
-import { useState, useMemo } from "react";
-import {
-  useLeadsQuery,
-  useDeleteLead,
-} from "../../features/leads/leadsQueries";
-import type { ILead } from "../../common/interfaces/lead.interface";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
+
+import type { ILead } from "../../common/interfaces/lead.interface";
 import { IUser } from "../../common/interfaces/user.interface";
 import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
+import { useDeleteLead, useLeadsQuery } from "../../features/leads/leadsQueries";
+import { useAllUsersQuery } from "../../features/users/usersQueries";
 
 type SortDirection = "asc" | "desc";
 interface SortState {
@@ -93,8 +90,7 @@ const LeadsList = () => {
     handleCloseConfirm();
   };
 
-  const capitalize = (str: string) =>
-    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   const getAgentName = (agentId?: string) => {
     if (!agentId || !users) return "-";
@@ -123,22 +119,12 @@ const LeadsList = () => {
       if (bVal == null) return -1;
 
       const aNum =
-        typeof aVal === "string" && aVal !== "" && !isNaN(Number(aVal))
-          ? Number(aVal)
-          : null;
+        typeof aVal === "string" && aVal !== "" && !isNaN(Number(aVal)) ? Number(aVal) : null;
       const bNum =
-        typeof bVal === "string" && bVal !== "" && !isNaN(Number(bVal))
-          ? Number(bVal)
-          : null;
+        typeof bVal === "string" && bVal !== "" && !isNaN(Number(bVal)) ? Number(bVal) : null;
 
-      const aDate =
-        typeof aVal === "string" && !isNaN(Date.parse(aVal))
-          ? new Date(aVal)
-          : null;
-      const bDate =
-        typeof bVal === "string" && !isNaN(Date.parse(bVal))
-          ? new Date(bVal)
-          : null;
+      const aDate = typeof aVal === "string" && !isNaN(Date.parse(aVal)) ? new Date(aVal) : null;
+      const bDate = typeof bVal === "string" && !isNaN(Date.parse(bVal)) ? new Date(bVal) : null;
 
       if (aNum !== null && bNum !== null) {
         return direction === "asc" ? aNum - bNum : bNum - aNum;
@@ -195,12 +181,7 @@ const LeadsList = () => {
 
   if (isLoading)
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100%"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
         <CircularProgress />
       </Box>
     );
@@ -219,10 +200,7 @@ const LeadsList = () => {
       </Typography>
     );
 
-  const paginated = sortedData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const renderSortIcon = (columnKey: string | null) => {
     if (!columnKey) return null;
@@ -337,9 +315,7 @@ const LeadsList = () => {
                   </TableCell>
                   <TableCell>{lead.propertyType || "-"}</TableCell>
                   <TableCell>{lead.zona || "-"}</TableCell>
-                  <TableCell>
-                    {lead.budget ? `€ ${lead.budget}` : "-"}
-                  </TableCell>
+                  <TableCell>{lead.budget ? `€ ${lead.budget}` : "-"}</TableCell>
 
                   <TableCell>{lead.transactionType || "-"}</TableCell>
                   <TableCell>
@@ -352,9 +328,7 @@ const LeadsList = () => {
                       size="small"
                       sx={{
                         fontWeight: 500,
-                        ...getCustomChipStyle(
-                          capitalize(String(lead.status).toLowerCase()) || ""
-                        ),
+                        ...getCustomChipStyle(capitalize(String(lead.status).toLowerCase()) || ""),
                       }}
                     />
                   </TableCell>
@@ -379,9 +353,7 @@ const LeadsList = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    {lead.createdAt
-                      ? new Date(lead.createdAt).toLocaleString("ro-RO")
-                      : "-"}
+                    {lead.createdAt ? new Date(lead.createdAt).toLocaleString("ro-RO") : "-"}
                   </TableCell>
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={1.2}>
@@ -428,9 +400,7 @@ const LeadsList = () => {
 
         <Box
           sx={{
-            borderTop: `1px solid ${
-              isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
-            }`,
+            borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
           }}
         >
           <TablePagination
@@ -452,8 +422,7 @@ const LeadsList = () => {
         <DialogTitle>Confirmare ștergere</DialogTitle>
         <DialogContent>
           <Typography>
-            Ești sigur că vrei să ștergi lead-ul{" "}
-            <strong>{selectedLead?.name}</strong>?
+            Ești sigur că vrei să ștergi lead-ul <strong>{selectedLead?.name}</strong>?
           </Typography>
         </DialogContent>
         <DialogActions>

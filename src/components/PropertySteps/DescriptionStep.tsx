@@ -1,20 +1,21 @@
+import { PlayCircle, Tour } from "@mui/icons-material";
 import {
   Box,
+  Button,
   Card,
   CardContent,
-  Typography,
-  TextField,
   Grid,
-  Button,
   Paper,
+  TextField,
+  Typography,
   useTheme,
 } from "@mui/material";
-import { PlayCircle, Tour } from "@mui/icons-material";
+
 import { IDescription } from "../../common/interfaces/description.interface";
 
 interface DescriptionStepProps {
   data: IDescription;
-  onChange: (updated: IDescription) => void;
+  onChange: (_updated: IDescription) => void;
 }
 
 const DescriptionStep = ({ data, onChange }: DescriptionStepProps) => {
@@ -37,9 +38,7 @@ const DescriptionStep = ({ data, onChange }: DescriptionStepProps) => {
       sx={{
         p: 3,
         borderRadius: 3,
-        background: isDark
-          ? theme.palette.background.paper
-          : theme.palette.background.default,
+        background: isDark ? theme.palette.background.paper : theme.palette.background.default,
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -74,9 +73,7 @@ const DescriptionStep = ({ data, onChange }: DescriptionStepProps) => {
                 <TextField
                   label="Disponibilitate"
                   value={data.disponibility}
-                  onChange={(e) =>
-                    handleChange("disponibility", e.target.value)
-                  }
+                  onChange={(e) => handleChange("disponibility", e.target.value)}
                   fullWidth
                 />
               </Grid>
@@ -85,29 +82,26 @@ const DescriptionStep = ({ data, onChange }: DescriptionStepProps) => {
                 <TextField
                   label="Link video YouTube"
                   value={data.videoYoutubeLink}
-                  onChange={(e) =>
-                    handleChange("videoYoutubeLink", e.target.value)
-                  }
+                  onChange={(e) => handleChange("videoYoutubeLink", e.target.value)}
                   fullWidth
                 />
-                {data.videoYoutubeLink &&
-                  data.videoYoutubeLink.startsWith("http") && (
-                    <Button
-                      variant="outlined"
-                      startIcon={<PlayCircle />}
-                      onClick={() => handleOpenLink(data.videoYoutubeLink)}
-                      sx={{
-                        mt: 1,
-                        borderColor: theme.palette.primary.main,
-                        color: theme.palette.primary.main,
-                        "&:hover": {
-                          backgroundColor: `${theme.palette.primary.main}11`,
-                        },
-                      }}
-                    >
-                      Deschide video
-                    </Button>
-                  )}
+                {data.videoYoutubeLink && data.videoYoutubeLink.startsWith("http") && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<PlayCircle />}
+                    onClick={() => handleOpenLink(data.videoYoutubeLink)}
+                    sx={{
+                      mt: 1,
+                      borderColor: theme.palette.primary.main,
+                      color: theme.palette.primary.main,
+                      "&:hover": {
+                        backgroundColor: `${theme.palette.primary.main}11`,
+                      },
+                    }}
+                  >
+                    Deschide video
+                  </Button>
+                )}
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>

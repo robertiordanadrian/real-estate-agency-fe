@@ -1,41 +1,22 @@
-import { useState } from "react";
 import {
+  Alert,
   Box,
   Button,
+  Container,
+  Divider,
+  Paper,
+  Snackbar,
   Step,
   StepLabel,
   Stepper,
   Typography,
-  Snackbar,
-  Alert,
-  Container,
-  Paper,
-  Divider,
-  useTheme,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
-
-import GeneralDetailsStep from "../../components/PropertySteps/GeneralDetailsStep";
-import CharacteristicsStep from "../../components/PropertySteps/CharacteristicsStep";
-import UtilityStep from "../../components/PropertySteps/UtilityStep";
-import PriceStep from "../../components/PropertySteps/PriceStep";
-import DescriptionStep from "../../components/PropertySteps/DescriptionStep";
-import ImagesStep from "../../components/PropertySteps/ImagesStep";
-
-import type { IProperty } from "../../common/interfaces/property.interface";
-import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
-import type { ICharacteristics } from "../../common/interfaces/characteristics.interface";
-import type { IUtilities } from "../../common/interfaces/utilities.interface";
-import type { IPrice } from "../../common/interfaces/price.interface";
-import type { IDescription } from "../../common/interfaces/description.interface";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
-  ECategory,
-  EStatus,
-  EType,
-} from "../../common/enums/general-details.enums";
-import {
-  EBuildingSeismicRisk,
   EBuildingStructure,
   EBuildingType,
   EComfort,
@@ -44,26 +25,30 @@ import {
   EDestination,
   EEnergyClass,
 } from "../../common/enums/characteristics.enums";
+import { ECategory, EStatus, EType } from "../../common/enums/general-details.enums";
 import {
+  EContactType,
   ECurrency,
   EPaymentMethod,
-  EContactType,
   ESignedContract,
 } from "../../common/enums/price.enums";
-
-import { propertiesKeys } from "../../features/properties/propertiesQueries";
+import type { ICharacteristics } from "../../common/interfaces/characteristics.interface";
+import type { IDescription } from "../../common/interfaces/description.interface";
+import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
+import type { IPrice } from "../../common/interfaces/price.interface";
+import type { IProperty } from "../../common/interfaces/property.interface";
+import type { IUtilities } from "../../common/interfaces/utilities.interface";
+import CharacteristicsStep from "../../components/PropertySteps/CharacteristicsStep";
+import DescriptionStep from "../../components/PropertySteps/DescriptionStep";
+import GeneralDetailsStep from "../../components/PropertySteps/GeneralDetailsStep";
+import ImagesStep from "../../components/PropertySteps/ImagesStep";
+import PriceStep from "../../components/PropertySteps/PriceStep";
+import UtilityStep from "../../components/PropertySteps/UtilityStep";
 import { PropertiesApi } from "../../features/properties/propertiesApi";
+import { propertiesKeys } from "../../features/properties/propertiesQueries";
 import { queryClient } from "../../services/queryClient";
-import { useNavigate } from "react-router-dom";
 
-const steps = [
-  "Detalii generale",
-  "Caracteristici",
-  "Utilități",
-  "Preț",
-  "Descriere",
-  "Imagini",
-];
+const steps = ["Detalii generale", "Caracteristici", "Utilități", "Preț", "Descriere", "Imagini"];
 
 const defaultGeneralDetails: IGeneralDetails = {
   agent: "",
@@ -237,11 +222,9 @@ const AddProperty = () => {
 
       if (!propertyId) throw new Error("Lipseste _id proprietatii.");
 
-      if (imageFiles.length)
-        await PropertiesApi.uploadImages(propertyId, imageFiles);
+      if (imageFiles.length) await PropertiesApi.uploadImages(propertyId, imageFiles);
 
-      if (contractFile)
-        await PropertiesApi.uploadContract(propertyId, contractFile);
+      if (contractFile) await PropertiesApi.uploadContract(propertyId, contractFile);
 
       await queryClient.invalidateQueries({ queryKey: propertiesKeys.all });
 
@@ -251,10 +234,7 @@ const AddProperty = () => {
         navigate("/properties");
       }, 1500);
     } catch {
-      showSnackbar(
-        "A aparut o eroare la crearea proprietatii. Incearca din nou.",
-        "error"
-      );
+      showSnackbar("A aparut o eroare la crearea proprietatii. Incearca din nou.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -271,27 +251,21 @@ const AddProperty = () => {
         return (
           <GeneralDetailsStep
             data={formData.generalDetails}
-            onChange={(val) =>
-              setFormData((prev) => ({ ...prev, generalDetails: val }))
-            }
+            onChange={(val) => setFormData((prev) => ({ ...prev, generalDetails: val }))}
           />
         );
       case 1:
         return (
           <CharacteristicsStep
             data={formData.characteristics}
-            onChange={(val) =>
-              setFormData((prev) => ({ ...prev, characteristics: val }))
-            }
+            onChange={(val) => setFormData((prev) => ({ ...prev, characteristics: val }))}
           />
         );
       case 2:
         return (
           <UtilityStep
             data={formData.utilities}
-            onChange={(val) =>
-              setFormData((prev) => ({ ...prev, utilities: val }))
-            }
+            onChange={(val) => setFormData((prev) => ({ ...prev, utilities: val }))}
           />
         );
       case 3:
@@ -311,9 +285,7 @@ const AddProperty = () => {
         return (
           <DescriptionStep
             data={formData.description}
-            onChange={(val) =>
-              setFormData((prev) => ({ ...prev, description: val }))
-            }
+            onChange={(val) => setFormData((prev) => ({ ...prev, description: val }))}
           />
         );
       case 5:
@@ -321,9 +293,7 @@ const AddProperty = () => {
           <ImagesStep
             data={formData.images}
             files={imageFiles}
-            onChange={(val) =>
-              setFormData((prev) => ({ ...prev, images: val }))
-            }
+            onChange={(val) => setFormData((prev) => ({ ...prev, images: val }))}
             onFilesChange={setImageFiles}
           />
         );
@@ -425,26 +395,22 @@ const AddProperty = () => {
 
             <Button
               variant="contained"
-              onClick={
-                activeStep === steps.length - 1 ? handleSubmit : handleNext
-              }
+              onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
               disabled={isSubmitting}
               fullWidth={isMobile}
               size="large"
               sx={{
                 fontWeight: 600,
                 bgcolor: theme.palette.primary.main,
-                color: theme.palette.getContrastText(
-                  theme.palette.primary.main
-                ),
+                color: theme.palette.getContrastText(theme.palette.primary.main),
                 "&:hover": { bgcolor: theme.palette.primary.dark },
               }}
             >
               {isSubmitting
                 ? "Se trimite..."
                 : activeStep === steps.length - 1
-                ? "Trimite"
-                : "Urmatorul pas"}
+                  ? "Trimite"
+                  : "Urmatorul pas"}
             </Button>
           </Box>
         </Paper>
@@ -456,11 +422,7 @@ const AddProperty = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          variant="filled"
-        >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled">
           {snackbar.message}
         </Alert>
       </Snackbar>

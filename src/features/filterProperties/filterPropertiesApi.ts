@@ -1,12 +1,12 @@
-import { http } from "../../services/http";
 import { IProperty } from "../../common/interfaces/property.interface";
+import { http } from "../../services/http";
 
 export const FilterPropertiesApi = {
   getByFilters: async (
     category?: string,
     agentId?: string,
     status?: string,
-    contract?: string
+    contract?: string,
   ): Promise<IProperty[]> => {
     const params = new URLSearchParams();
     if (category) params.append("category", category);

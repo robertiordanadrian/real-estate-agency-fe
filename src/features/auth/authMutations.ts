@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { http } from "../../services/http";
-import { logout, setCredentials } from "./authSlice";
+
 import { useAppDispatch } from "../../app/hook";
 import { ERole } from "../../common/enums/role.enums";
+import { http } from "../../services/http";
+import { logout, setCredentials } from "./authSlice";
 
 type LoginPayload = { email: string; password: string };
 type LoginResponse = {
@@ -48,7 +49,7 @@ export const useLogin = () => {
             profilePicture: data.user.profilePicture,
             phone: data.user.phone,
           },
-        })
+        }),
       );
     },
   });
@@ -83,10 +84,7 @@ export const useLogout = () => {
 export const useRegister = () => {
   return useMutation({
     mutationFn: async (payload: RegisterPayload) => {
-      const { data } = await http.post<RegisterResponse>(
-        "/auth/register",
-        payload
-      );
+      const { data } = await http.post<RegisterResponse>("/auth/register", payload);
       return data;
     },
   });

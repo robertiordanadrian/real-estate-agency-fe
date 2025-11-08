@@ -1,3 +1,4 @@
+import { Add, Edit } from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -23,15 +24,15 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { Add, Edit } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
+import { useNavigate } from "react-router-dom";
+
 import { useAppSelector } from "../../app/hook";
-import { selectUser } from "../../features/auth/authSelectors";
 import { ERole } from "../../common/enums/role.enums";
-import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
 import { getRoleColor } from "../../common/utils/get-role-color.util";
+import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
+import { selectUser } from "../../features/auth/authSelectors";
+import { useAllUsersQuery } from "../../features/users/usersQueries";
 
 const Agents = () => {
   const theme = useTheme();
@@ -49,10 +50,7 @@ const Agents = () => {
 
   const [page, setPage] = useState(0);
 
-  const paginated = safeUsers.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginated = safeUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const total = safeUsers.length;
 
@@ -68,12 +66,7 @@ const Agents = () => {
 
   if (isLoading)
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
         <CircularProgress />
       </Box>
     );
@@ -128,9 +121,7 @@ const Agents = () => {
               color: theme.palette.text.primary,
               width: "100%",
               minHeight: "75vh",
-              boxShadow: isDark
-                ? `0 0 25px ${accent}22`
-                : `0 0 15px ${accent}11`,
+              boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
               display: "flex",
               flexDirection: "column",
             }}
@@ -172,9 +163,7 @@ const Agents = () => {
               sx={{
                 mb: 3,
                 borderColor:
-                  theme.palette.mode === "dark"
-                    ? "rgba(255,255,255,0.1)"
-                    : "rgba(0,0,0,0.1)",
+                  theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
               }}
             />
 
@@ -198,9 +187,7 @@ const Agents = () => {
                     borderRadius: 3,
                     overflow: "hidden",
                     width: "100%",
-                    boxShadow: isDark
-                      ? `0 0 15px ${accent}22`
-                      : `0 0 10px ${accent}11`,
+                    boxShadow: isDark ? `0 0 15px ${accent}22` : `0 0 10px ${accent}11`,
                     bgcolor: theme.palette.background.paper,
                     transition: "transform 0.2s ease",
                     "&:hover": {
@@ -221,21 +208,13 @@ const Agents = () => {
                         border: `2px solid ${accent}`,
                       }}
                     />
-                    <Typography
-                      variant="h6"
-                      fontWeight={700}
-                      sx={{ color: accent, mb: 1 }}
-                    >
+                    <Typography variant="h6" fontWeight={700} sx={{ color: accent, mb: 1 }}>
                       {user.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {user.email}
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mb: 1 }}
-                    >
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                       {user.phone}
                     </Typography>
                     <Chip
@@ -349,9 +328,7 @@ const Agents = () => {
             sx={{
               mb: 3,
               borderColor:
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
             }}
           />
 
@@ -359,21 +336,19 @@ const Agents = () => {
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
-                  {["Avatar", "Nume", "Email", "Telefon", "Rol", "Actiuni"].map(
-                    (h) => (
-                      <TableCell
-                        key={h}
-                        sx={{
-                          color: accent,
-                          fontWeight: 600,
-                          borderBottom: `1px solid ${accent}22`,
-                          backgroundColor: theme.palette.background.paper,
-                        }}
-                      >
-                        {h}
-                      </TableCell>
-                    )
-                  )}
+                  {["Avatar", "Nume", "Email", "Telefon", "Rol", "Actiuni"].map((h) => (
+                    <TableCell
+                      key={h}
+                      sx={{
+                        color: accent,
+                        fontWeight: 600,
+                        borderBottom: `1px solid ${accent}22`,
+                        backgroundColor: theme.palette.background.paper,
+                      }}
+                    >
+                      {h}
+                    </TableCell>
+                  ))}
                 </TableRow>
               </TableHead>
 
@@ -410,9 +385,7 @@ const Agents = () => {
                       <Tooltip title="Editeaza">
                         <IconButton
                           color="warning"
-                          onClick={() =>
-                            navigate(`/register?editId=${user._id}`)
-                          }
+                          onClick={() => navigate(`/register?editId=${user._id}`)}
                           sx={{
                             "&:hover": {
                               backgroundColor: `${theme.palette.warning.main}22`,
@@ -431,9 +404,7 @@ const Agents = () => {
 
           <Box
             sx={{
-              borderTop: `1px solid ${
-                isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
-              }`,
+              borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
             }}
           >
             <TablePagination

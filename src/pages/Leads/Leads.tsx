@@ -1,16 +1,17 @@
+import { Refresh } from "@mui/icons-material";
 import {
   Box,
   Container,
-  Paper,
-  Typography,
   Divider,
-  useTheme,
-  useMediaQuery,
   Fab,
+  Paper,
   Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import { Refresh } from "@mui/icons-material";
 import { useQueryClient } from "@tanstack/react-query";
+
 import LeadsList from "../../components/LeadsList/LeadsList";
 
 const Leads = () => {
@@ -81,9 +82,7 @@ const Leads = () => {
             <Tooltip title="Reîncarcă lista" arrow>
               <Fab
                 color="info"
-                onClick={() =>
-                  queryClient.invalidateQueries({ queryKey: ["leads"] })
-                }
+                onClick={() => queryClient.invalidateQueries({ queryKey: ["leads"] })}
                 size={isMobile ? "medium" : "large"}
                 sx={{
                   boxShadow: `0 0 12px ${theme.palette.info.main}55`,
@@ -92,9 +91,7 @@ const Leads = () => {
                   },
                 }}
               >
-                <Refresh
-                  sx={{ color: "white", fontSize: isMobile ? 22 : 26 }}
-                />
+                <Refresh sx={{ color: "white", fontSize: isMobile ? 22 : 26 }} />
               </Fab>
             </Tooltip>
           </Box>
@@ -103,9 +100,7 @@ const Leads = () => {
             sx={{
               mb: 3,
               borderColor:
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
             }}
           />
 

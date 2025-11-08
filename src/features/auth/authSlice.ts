@@ -25,7 +25,7 @@ const authSlice = createSlice({
         accessToken: string;
         refreshToken: string;
         user: IUser;
-      }>
+      }>,
     ) {
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;

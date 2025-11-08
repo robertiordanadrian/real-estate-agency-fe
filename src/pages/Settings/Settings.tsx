@@ -1,9 +1,4 @@
-import { useEffect, useState } from "react";
-import {
-  useUserQuery,
-  useUpdateUser,
-  useUploadProfilePicture,
-} from "../../features/users/usersQueries";
+import { ArrowBack } from "@mui/icons-material";
 import {
   Alert,
   Avatar,
@@ -12,24 +7,31 @@ import {
   CircularProgress,
   Container,
   Divider,
+  Fab,
+  Grid,
   InputAdornment,
   MenuItem,
   Paper,
   Snackbar,
   TextField,
-  Typography,
-  useTheme,
-  Grid,
   Tooltip,
-  Fab,
+  Typography,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import { ERole } from "../../common/enums/role.enums";
+import { blue } from "@mui/material/colors";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowBack } from "@mui/icons-material";
+import * as React from "react";
+import { useEffect, useState } from "react";
+
+import { ERole } from "../../common/enums/role.enums";
 import { ISettingsForm } from "../../common/interfaces/settings-form.interface";
 import { getRoleColor } from "../../common/utils/get-role-color.util";
-import { blue } from "@mui/material/colors";
+import {
+  useUpdateUser,
+  useUploadProfilePicture,
+  useUserQuery,
+} from "../../features/users/usersQueries";
 
 const Settings = () => {
   const theme = useTheme();
@@ -62,10 +64,7 @@ const Settings = () => {
     severity: "success",
   });
 
-  const updateForm = <K extends keyof ISettingsForm>(
-    key: K,
-    value: ISettingsForm[K]
-  ) => {
+  const updateForm = <K extends keyof ISettingsForm>(key: K, value: ISettingsForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -208,9 +207,7 @@ const Settings = () => {
                   "&:hover": { backgroundColor: theme.palette.info.dark },
                 }}
               >
-                <ArrowBack
-                  sx={{ color: "white", fontSize: isMobile ? 22 : 26 }}
-                />
+                <ArrowBack sx={{ color: "white", fontSize: isMobile ? 22 : 26 }} />
               </Fab>
             </Tooltip>
           </Box>
@@ -219,9 +216,7 @@ const Settings = () => {
             sx={{
               mb: 3,
               borderColor:
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
             }}
           />
 
@@ -244,20 +239,14 @@ const Settings = () => {
                 sx={{ mb: 4 }}
                 flexDirection="column"
               >
-                <Grid
-                  size={{ xs: 12, sm: 4 }}
-                  display="flex"
-                  justifyContent="center"
-                >
+                <Grid size={{ xs: 12, sm: 4 }} display="flex" justifyContent="center">
                   <Avatar
                     src={avatarPreview || user?.profilePicture || undefined}
                     sx={{
                       width: 100,
                       height: 100,
                       border: `3px solid ${getRoleColor(user?.role || "")}`,
-                      bgcolor: user?.profilePicture
-                        ? theme.palette.background.default
-                        : blue[400],
+                      bgcolor: user?.profilePicture ? theme.palette.background.default : blue[400],
                       boxShadow: `0 0 20px ${getRoleColor(user?.role || "")}44`,
                       fontSize: "2.5rem",
                       fontWeight: "bold",
@@ -291,12 +280,7 @@ const Settings = () => {
                     }}
                   >
                     Încarcă imagine de profil
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
+                    <input type="file" hidden accept="image/*" onChange={handleFileChange} />
                   </Button>
                 </Grid>
               </Grid>
@@ -326,9 +310,7 @@ const Settings = () => {
                     select
                     label="Rol"
                     value={form.role}
-                    onChange={(e) =>
-                      updateForm("role", e.target.value as ERole)
-                    }
+                    onChange={(e) => updateForm("role", e.target.value as ERole)}
                     fullWidth
                   >
                     {Object.values(ERole).map((r) => (
@@ -348,9 +330,7 @@ const Settings = () => {
                     fullWidth
                     slotProps={{
                       input: {
-                        endAdornment: (
-                          <InputAdornment position="end">🔒</InputAdornment>
-                        ),
+                        endAdornment: <InputAdornment position="end">🔒</InputAdornment>,
                       },
                     }}
                   />
@@ -361,15 +341,11 @@ const Settings = () => {
                     label="Confirmă parola"
                     type="password"
                     value={form.confirmPassword}
-                    onChange={(e) =>
-                      updateForm("confirmPassword", e.target.value)
-                    }
+                    onChange={(e) => updateForm("confirmPassword", e.target.value)}
                     fullWidth
                     slotProps={{
                       input: {
-                        endAdornment: (
-                          <InputAdornment position="end">🔒</InputAdornment>
-                        ),
+                        endAdornment: <InputAdornment position="end">🔒</InputAdornment>,
                       },
                     }}
                   />
@@ -396,10 +372,7 @@ const Settings = () => {
               }}
             >
               {updateUser.isPending || uploadAvatar.isPending ? (
-                <CircularProgress
-                  size={24}
-                  sx={{ color: theme.palette.getContrastText(accent) }}
-                />
+                <CircularProgress size={24} sx={{ color: theme.palette.getContrastText(accent) }} />
               ) : (
                 "Salveaza modificarile"
               )}

@@ -1,51 +1,53 @@
-import { useEffect, useState } from "react";
 import {
+  Apartment,
+  Close,
+  Description,
+  Download,
+  Edit,
+  Email,
+  Euro,
+  LocationOn,
+  Person,
+  Phone,
+  Wifi,
+  ZoomIn,
+} from "@mui/icons-material";
+import {
+  Alert,
+  Avatar,
   Box,
-  Container,
-  Typography,
-  Paper,
-  Grid,
+  Button,
   Chip,
+  Container,
   Divider,
+  Grid,
+  IconButton,
   ImageList,
   ImageListItem,
   ImageListItemBar,
-  TextField,
-  Stack,
-  Avatar,
-  Button,
-  Modal,
-  IconButton,
   InputAdornment,
-  useTheme,
+  Modal,
+  Paper,
   Snackbar,
-  Alert,
+  Stack,
+  TextField,
+  Typography,
+  useTheme,
 } from "@mui/material";
-import {
-  LocationOn,
-  Person,
-  Apartment,
-  Wifi,
-  Description,
-  Euro,
-  Close,
-  ZoomIn,
-  Edit,
-  Download,
-  Phone,
-  Email,
-} from "@mui/icons-material";
-import { useNavigate, useParams } from "react-router-dom";
-import { EType } from "../../common/enums/general-details.enums";
-import { usePropertyQuery } from "../../features/properties/propertiesQueries";
-import { useOwnerByIdQuery } from "../../features/owners/ownersQueries";
-import PropertyMap from "../PropertyMap/PropertyMap";
-import { PropertiesApi } from "../../features/properties/propertiesApi";
-import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
-import { useUserByIdQuery } from "../../features/users/usersQueries";
-import { getRoleColor } from "../../common/utils/get-role-color.util";
 import { blue } from "@mui/material/colors";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { EType } from "../../common/enums/general-details.enums";
+import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
+import { getRoleColor } from "../../common/utils/get-role-color.util";
+import { useOwnerByIdQuery } from "../../features/owners/ownersQueries";
+import { PropertiesApi } from "../../features/properties/propertiesApi";
+import { usePropertyQuery } from "../../features/properties/propertiesQueries";
+import { useUserByIdQuery } from "../../features/users/usersQueries";
+import PropertyMap from "../PropertyMap/PropertyMap";
 import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+import * as React from "react";
 
 const ImageModal = ({
   open,
@@ -248,14 +250,7 @@ const PropertyDetail = () => {
     );
   }
 
-  const {
-    generalDetails,
-    characteristics,
-    utilities,
-    price,
-    description,
-    images,
-  } = property ?? {};
+  const { generalDetails, characteristics, utilities, price, description, images } = property ?? {};
 
   const locationLabels: Record<string, string> = {
     city: "Oras",
@@ -335,13 +330,7 @@ const PropertyDetail = () => {
           }}
         >
           <Box sx={{ mb: 4 }}>
-            <Typography
-              variant="h5"
-              mb={3}
-              fontWeight={600}
-              gutterBottom
-              sx={{ mb: 2 }}
-            >
+            <Typography variant="h5" mb={3} fontWeight={600} gutterBottom sx={{ mb: 2 }}>
               {description?.title || "Proprietate fara titlu"}
             </Typography>
 
@@ -352,26 +341,20 @@ const PropertyDetail = () => {
             >
               <LocationOn sx={{ mr: 1 }} />
               {generalDetails.location.zone}, {generalDetails.location.city}
-              {generalDetails.location.street &&
-                `, ${generalDetails.location.street}`}
-              {generalDetails.location.number &&
-                ` ${generalDetails.location.number}`}
+              {generalDetails.location.street && `, ${generalDetails.location.street}`}
+              {generalDetails.location.number && ` ${generalDetails.location.number}`}
             </Typography>
 
             <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
               <Chip
-                label={`${
-                  price?.priceDetails?.price?.toLocaleString() + "€" || "N/A"
-                }`}
+                label={`${price?.priceDetails?.price?.toLocaleString() + "€" || "N/A"}`}
                 color="primary"
                 variant="filled"
                 sx={{
                   fontSize: "1.1rem",
                   fontWeight: "bold",
                   px: 2,
-                  color: theme.palette.getContrastText(
-                    theme.palette.primary.main
-                  ),
+                  color: theme.palette.getContrastText(theme.palette.primary.main),
                 }}
               />
               <Chip
@@ -395,11 +378,7 @@ const PropertyDetail = () => {
                 <DetailSection title="Galerie Proprietate" icon={<Apartment />}>
                   {images?.length ? (
                     <>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mb: 2 }}
-                      >
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                         {images.length} fotografii • click pentru a mari
                       </Typography>
 
@@ -420,11 +399,7 @@ const PropertyDetail = () => {
                             }}
                             onClick={() => setSelectedImage(img)}
                           >
-                            <img
-                              src={img}
-                              alt={`${description?.title}-${index}`}
-                              loading="lazy"
-                            />
+                            <img src={img} alt={`${description?.title}-${index}`} loading="lazy" />
                             <ImageListItemBar
                               title={`Imagine ${index + 1}`}
                               actionIcon={
@@ -524,12 +499,7 @@ const PropertyDetail = () => {
                 <DetailSection title="Locatie" icon={<LocationOn />}>
                   <Grid container spacing={2}>
                     {Object.entries(generalDetails.location)
-                      .filter(
-                        ([key]) =>
-                          !["_id", "surroundings", "interesPoints"].includes(
-                            key
-                          )
-                      )
+                      .filter(([key]) => !["_id", "surroundings", "interesPoints"].includes(key))
                       .map(([key, value]) => (
                         <Grid key={key} size={{ xs: 6, md: 4 }}>
                           <TextField
@@ -564,9 +534,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Compartimentare"
-                        value={
-                          characteristics.details.compartmentalization || "N/A"
-                        }
+                        value={characteristics.details.compartmentalization || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -656,9 +624,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="An Constructie"
-                        value={
-                          characteristics.details.yearOfConstruction || "N/A"
-                        }
+                        value={characteristics.details.yearOfConstruction || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -667,9 +633,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="An Renovare"
-                        value={
-                          characteristics.details.yearOfRenovation || "N/A"
-                        }
+                        value={characteristics.details.yearOfRenovation || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -696,9 +660,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Bai cu Geam"
-                        value={
-                          characteristics.details.bathroomWindow ? "Da" : "Nu"
-                        }
+                        value={characteristics.details.bathroomWindow ? "Da" : "Nu"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -707,9 +669,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Bucatarie Deschisa"
-                        value={
-                          characteristics.details.openKitchen ? "Da" : "Nu"
-                        }
+                        value={characteristics.details.openKitchen ? "Da" : "Nu"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -718,9 +678,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Pet Friendly"
-                        value={
-                          characteristics.details.petFriendly ? "Da" : "Nu"
-                        }
+                        value={characteristics.details.petFriendly ? "Da" : "Nu"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -729,9 +687,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Cheie la Agentie"
-                        value={
-                          characteristics.details.keyInAgency ? "Da" : "Nu"
-                        }
+                        value={characteristics.details.keyInAgency ? "Da" : "Nu"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -739,11 +695,7 @@ const PropertyDetail = () => {
                     </Grid>
 
                     <Grid size={{ xs: 12 }}>
-                      <Typography
-                        variant="subtitle1"
-                        gutterBottom
-                        sx={{ mt: 2 }}
-                      >
+                      <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                         Suprafete
                       </Typography>
                     </Grid>
@@ -757,9 +709,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">m²</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">m²</InputAdornment>,
                           },
                         }}
                       />
@@ -773,9 +723,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">m²</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">m²</InputAdornment>,
                           },
                         }}
                       />
@@ -789,9 +737,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">m²</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">m²</InputAdornment>,
                           },
                         }}
                       />
@@ -805,9 +751,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">m²</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">m²</InputAdornment>,
                           },
                         }}
                       />
@@ -821,9 +765,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">m²</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">m²</InputAdornment>,
                           },
                         }}
                       />
@@ -837,20 +779,14 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">m²</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">m²</InputAdornment>,
                           },
                         }}
                       />
                     </Grid>
 
                     <Grid size={{ xs: 12 }}>
-                      <Typography
-                        variant="subtitle1"
-                        gutterBottom
-                        sx={{ mt: 2 }}
-                      >
+                      <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                         Cladire
                       </Typography>
                     </Grid>
@@ -858,9 +794,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Etapa Constructie"
-                        value={
-                          characteristics.building.constructionStage || "N/A"
-                        }
+                        value={characteristics.building.constructionStage || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -904,11 +838,7 @@ const PropertyDetail = () => {
                     </Grid>
 
                     <Grid size={{ xs: 12 }}>
-                      <Typography
-                        variant="subtitle1"
-                        gutterBottom
-                        sx={{ mt: 2 }}
-                      >
+                      <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                         Performanta Energetica
                       </Typography>
                     </Grid>
@@ -916,9 +846,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Clasa Energetica"
-                        value={
-                          characteristics.energyPerformance.energyClass || "N/A"
-                        }
+                        value={characteristics.energyPerformance.energyClass || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -927,20 +855,13 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Consum Anual Specific"
-                        value={
-                          characteristics.energyPerformance
-                            .specificAnnualConsumption || "N/A"
-                        }
+                        value={characteristics.energyPerformance.specificAnnualConsumption || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                kWh/m²an
-                              </InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">kWh/m²an</InputAdornment>,
                           },
                         }}
                       />
@@ -949,8 +870,7 @@ const PropertyDetail = () => {
                       <TextField
                         label="Indice Emisii CO2"
                         value={
-                          characteristics.energyPerformance
-                            .co2EquivalentEmissionIndex || "N/A"
+                          characteristics.energyPerformance.co2EquivalentEmissionIndex || "N/A"
                         }
                         fullWidth
                         size="small"
@@ -958,9 +878,7 @@ const PropertyDetail = () => {
                           input: {
                             readOnly: true,
                             endAdornment: (
-                              <InputAdornment position="end">
-                                kgCO2/m²an
-                              </InputAdornment>
+                              <InputAdornment position="end">kgCO2/m²an</InputAdornment>
                             ),
                           },
                         }}
@@ -978,11 +896,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                kWh/m²an
-                              </InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">kWh/m²an</InputAdornment>,
                           },
                         }}
                       />
@@ -1019,9 +933,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">€</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">€</InputAdornment>,
                           },
                         }}
                       />
@@ -1044,11 +956,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                €/mp
-                              </InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">€/mp</InputAdornment>,
                           },
                         }}
                       />
@@ -1071,9 +979,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">€</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">€</InputAdornment>,
                           },
                         }}
                       />
@@ -1087,9 +993,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">€</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">€</InputAdornment>,
                           },
                         }}
                       />
@@ -1103,9 +1007,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">€</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">€</InputAdornment>,
                           },
                         }}
                       />
@@ -1157,11 +1059,7 @@ const PropertyDetail = () => {
                     </Grid>
 
                     <Grid size={{ xs: 12 }}>
-                      <Typography
-                        variant="subtitle1"
-                        gutterBottom
-                        sx={{ mt: 2 }}
-                      >
+                      <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                         Comisioane
                       </Typography>
                     </Grid>
@@ -1174,9 +1072,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">%</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">%</InputAdornment>,
                           },
                         }}
                       />
@@ -1199,9 +1095,7 @@ const PropertyDetail = () => {
                         slotProps={{
                           input: {
                             readOnly: true,
-                            endAdornment: (
-                              <InputAdornment position="end">%</InputAdornment>
-                            ),
+                            endAdornment: <InputAdornment position="end">%</InputAdornment>,
                           },
                         }}
                       />
@@ -1217,11 +1111,7 @@ const PropertyDetail = () => {
                     </Grid>
 
                     <Grid size={{ xs: 12 }}>
-                      <Typography
-                        variant="subtitle1"
-                        gutterBottom
-                        sx={{ mt: 2 }}
-                      >
+                      <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                         Detalii Contract
                       </Typography>
                     </Grid>
@@ -1257,9 +1147,7 @@ const PropertyDetail = () => {
                         label="Data semnarii"
                         value={
                           price.contact.signDate
-                            ? new Date(
-                                price.contact.signDate
-                              ).toLocaleDateString("ro-RO")
+                            ? new Date(price.contact.signDate).toLocaleDateString("ro-RO")
                             : "N/A"
                         }
                         fullWidth
@@ -1272,9 +1160,7 @@ const PropertyDetail = () => {
                         label="Data expirarii"
                         value={
                           price.contact.expirationDate
-                            ? new Date(
-                                price.contact.expirationDate
-                              ).toLocaleDateString("ro-RO")
+                            ? new Date(price.contact.expirationDate).toLocaleDateString("ro-RO")
                             : "N/A"
                         }
                         fullWidth
@@ -1291,10 +1177,7 @@ const PropertyDetail = () => {
                           startIcon={<Download />}
                           fullWidth
                           onClick={() =>
-                            window.open(
-                              price.contact.contractFile as string,
-                              "_blank"
-                            )
+                            window.open(price.contact.contractFile as string, "_blank")
                           }
                           sx={{
                             height: 40,
@@ -1372,13 +1255,9 @@ const PropertyDetail = () => {
                       textAlign: "center",
                       p: 2,
                       borderRadius: 2,
-                      bgcolor: isDark
-                        ? theme.palette.background.paper
-                        : theme.palette.grey[50],
+                      bgcolor: isDark ? theme.palette.background.paper : theme.palette.grey[50],
                       color: theme.palette.text.primary,
-                      boxShadow: isDark
-                        ? `0 0 10px ${accent}22`
-                        : `0 0 8px ${accent}11`,
+                      boxShadow: isDark ? `0 0 10px ${accent}22` : `0 0 8px ${accent}11`,
                     }}
                   >
                     <Avatar
@@ -1388,16 +1267,13 @@ const PropertyDetail = () => {
                         height: 90,
                         border: `3px solid ${getRoleColor(agent?.role || "")}`,
                         bgcolor: blue[400],
-                        boxShadow: `0 0 20px ${getRoleColor(
-                          agent?.role || ""
-                        )}44`,
+                        boxShadow: `0 0 20px ${getRoleColor(agent?.role || "")}44`,
                         fontSize: "2rem",
                         fontWeight: "bold",
                         color: "#fff",
                       }}
                     >
-                      {!agent?.profilePicture &&
-                        (agent?.name?.charAt(0).toUpperCase() ?? "A")}
+                      {!agent?.profilePicture && (agent?.name?.charAt(0).toUpperCase() ?? "A")}
                     </Avatar>
 
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -1459,21 +1335,15 @@ const PropertyDetail = () => {
                     sx={{
                       p: 2,
                       borderRadius: 2,
-                      bgcolor: isDark
-                        ? theme.palette.background.paper
-                        : theme.palette.grey[50],
+                      bgcolor: isDark ? theme.palette.background.paper : theme.palette.grey[50],
                       color: theme.palette.text.primary,
-                      boxShadow: isDark
-                        ? `0 0 10px ${accent}22`
-                        : `0 0 8px ${accent}11`,
+                      boxShadow: isDark ? `0 0 10px ${accent}22` : `0 0 8px ${accent}11`,
                       transition: "background-color 0.3s ease",
                     }}
                   >
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                       {owner
-                        ? `${owner.surname ?? ""} ${
-                            owner.lastname ?? ""
-                          }`.trim() || "Nespecificat"
+                        ? `${owner.surname ?? ""} ${owner.lastname ?? ""}`.trim() || "Nespecificat"
                         : "Nespecificat"}
                     </Typography>
 
@@ -1542,9 +1412,7 @@ const PropertyDetail = () => {
                     textTransform: "none",
                     fontWeight: 600,
                     bgcolor: theme.palette.primary.main,
-                    color: theme.palette.getContrastText(
-                      theme.palette.primary.main
-                    ),
+                    color: theme.palette.getContrastText(theme.palette.primary.main),
                     "&:hover": { bgcolor: theme.palette.primary.dark },
                   }}
                 >

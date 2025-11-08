@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { selectIsAuthenticated } from "./authSelectors";
+
 import { useAppSelector } from "../../app/hook";
+import { selectIsAuthenticated } from "./authSelectors";
 
 export const ProtectedRoute = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);

@@ -1,11 +1,12 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import { Provider } from "react-redux";
+
+import App from "./App";
 import { store } from "./app/store";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./services/queryClient";
 import { loadPersistedAuth, persistAuth } from "./features/auth/authPersist";
+import { queryClient } from "./services/queryClient";
 import ThemeWrapper from "./theme";
 
 loadPersistedAuth();
@@ -20,5 +21,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </ThemeWrapper>
       </QueryClientProvider>
     </Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

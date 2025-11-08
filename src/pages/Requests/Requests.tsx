@@ -1,26 +1,26 @@
+import { Notifications, Refresh } from "@mui/icons-material";
 import {
+  Badge,
   Box,
   Container,
-  Paper,
-  Typography,
   Divider,
-  Tabs,
-  Tab,
-  Badge,
-  useTheme,
-  useMediaQuery,
-  Tooltip,
   Fab,
+  Paper,
+  Tab,
+  Tabs,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useState } from "react";
-import { Notifications, Refresh } from "@mui/icons-material";
 
-import PropertyRequestsList from "../../components/PropertyRequestsList/PropertyRequestsList";
-import LeadRequestsList from "../../components/LeadRequestsList/LeadRequestsList";
-import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
-import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
 import ArchivedLeadRequestsList from "../../components/ArchivedLeadRequestsList/ArchivedLeadRequestsList";
 import ArchivedPropertyRequestsList from "../../components/ArchivedPropertyRequestsList/ArchivedPropertyRequestsList";
+import LeadRequestsList from "../../components/LeadRequestsList/LeadRequestsList";
+import PropertyRequestsList from "../../components/PropertyRequestsList/PropertyRequestsList";
+import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
+import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
 import { useUserQuery } from "../../features/users/usersQueries";
 
 const Requests = () => {
@@ -32,10 +32,8 @@ const Requests = () => {
   const { data: user } = useUserQuery();
   const role = user?.role;
 
-  const { data: propertyRequests, refetch: refetchProps } =
-    usePendingRequestsQuery();
-  const { data: leadRequests, refetch: refetchLeads } =
-    usePendingLeadRequestsQuery();
+  const { data: propertyRequests, refetch: refetchProps } = usePendingRequestsQuery();
+  const { data: leadRequests, refetch: refetchLeads } = usePendingLeadRequestsQuery();
 
   const totalLeadRequests = leadRequests?.length ?? 0;
   const totalPropertyRequests = propertyRequests?.length ?? 0;
@@ -76,8 +74,7 @@ const Requests = () => {
             flexDirection: "column",
             minHeight: "75vh",
 
-            backgroundColor:
-              theme.palette.mode === "dark" ? "#0f1a2e" : "#f4f7fb",
+            backgroundColor: theme.palette.mode === "dark" ? "#0f1a2e" : "#f4f7fb",
 
             border:
               theme.palette.mode === "dark"
@@ -99,11 +96,7 @@ const Requests = () => {
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Badge
-                badgeContent={totalAll}
-                color="error"
-                invisible={totalAll === 0}
-              >
+              <Badge badgeContent={totalAll} color="error" invisible={totalAll === 0}>
                 <Notifications color="primary" />
               </Badge>
 
@@ -113,11 +106,7 @@ const Requests = () => {
             </Box>
 
             <Tooltip title="Reîncarcă cererile" arrow>
-              <Fab
-                onClick={handleRefresh}
-                color="info"
-                size={isMobile ? "medium" : "large"}
-              >
+              <Fab onClick={handleRefresh} color="info" size={isMobile ? "medium" : "large"}>
                 <Refresh sx={{ color: "white" }} />
               </Fab>
             </Tooltip>
@@ -143,9 +132,7 @@ const Requests = () => {
               {role !== "TEAM_LEAD" && (
                 <Tab
                   label={
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", gap: 1.2 }}
-                    >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
                       <Typography sx={{ fontSize: "0.95rem", fontWeight: 500 }}>
                         Lead-uri
                       </Typography>

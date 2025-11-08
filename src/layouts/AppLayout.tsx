@@ -1,16 +1,9 @@
-import { useState } from "react";
-import {
-  Box,
-  IconButton,
-  Drawer,
-  AppBar,
-  Toolbar,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import MenuIcon from "@mui/icons-material/Menu";
+import { AppBar, Box, Drawer, IconButton, Toolbar, useMediaQuery, useTheme } from "@mui/material";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
+
 import SidePanel from "../components/SidePanel/SidePanel";
 
 const AppLayout = () => {
@@ -72,9 +65,7 @@ const AppLayout = () => {
                 backgroundColor: theme.palette.background.default,
                 "&:hover": {
                   backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.getContrastText(
-                    theme.palette.primary.main
-                  ),
+                  color: theme.palette.getContrastText(theme.palette.primary.main),
                 },
               }}
             >

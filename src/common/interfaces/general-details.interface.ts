@@ -1,9 +1,4 @@
-import {
-  EStatus,
-  EType,
-  ECategory,
-  ESurroundings,
-} from "../enums/general-details.enums";
+import { ECategory, EStatus, ESurroundings, EType } from "../enums/general-details.enums";
 
 export interface IGeneralDetails {
   agent: string;

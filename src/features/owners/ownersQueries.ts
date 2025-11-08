@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { OwnersApi } from "./ownersApi";
+
 import { IOwner } from "../../common/interfaces/owner.interface";
+import { OwnersApi } from "./ownersApi";
 
 export const ownersKeys = {
   all: ["owners", "all"] as const,
@@ -31,9 +32,7 @@ export const useOwnersBatchQuery = (ownerIds: string[]) =>
     queryKey: ["owners", "batch", ownerIds],
     queryFn: async () => {
       const unique = [...new Set(ownerIds.filter(Boolean))];
-      const results = await Promise.all(
-        unique.map((id) => OwnersApi.getById(id))
-      );
+      const results = await Promise.all(unique.map((id) => OwnersApi.getById(id)));
       const map: Record<string, IOwner> = {};
       results.forEach((o) => (map[o._id] = o));
       return map;

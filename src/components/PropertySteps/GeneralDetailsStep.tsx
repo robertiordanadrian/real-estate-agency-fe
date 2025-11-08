@@ -1,39 +1,35 @@
-import React, { useEffect, useState } from "react";
 import {
   Box,
+  Button,
   Card,
   CardContent,
-  Typography,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
+  OutlinedInput,
+  Paper,
   Select,
   TextField,
-  OutlinedInput,
-  Chip,
-  Grid,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Paper,
+  Typography,
   useTheme,
 } from "@mui/material";
 import { APIProvider } from "@vis.gl/react-google-maps";
-import {
-  EStatus,
-  EType,
-  ECategory,
-  ESurroundings,
-} from "../../common/enums/general-details.enums";
-import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
-import { OwnersApi } from "../../features/owners/ownersApi";
+import React, { useEffect, useState } from "react";
+
 import { useAppSelector } from "../../app/hook";
+import { ECategory, EStatus, ESurroundings, EType } from "../../common/enums/general-details.enums";
+import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
+import { IOwnerForm } from "../../common/interfaces/owner-form.interface";
 import { selectUser } from "../../features/auth/authSelectors";
+import { OwnersApi } from "../../features/owners/ownersApi";
 import { useOwnersQuery } from "../../features/owners/ownersQueries";
 import { queryClient } from "../../services/queryClient";
-import { IOwnerForm } from "../../common/interfaces/owner-form.interface";
 
 const defaultOwnerForm: IOwnerForm = {
   surname: "",
@@ -59,7 +55,7 @@ const locationFields: {
 ];
 interface GeneralDetailsStepProps {
   data: IGeneralDetails;
-  onChange: (updated: IGeneralDetails) => void;
+  onChange: (_updated: IGeneralDetails) => void;
 }
 
 const getAllowedStatuses = (role?: string): EStatus[] => {
@@ -95,25 +91,18 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
       const updated = { ...data };
 
       if (!updated.status) updated.status = EStatus.GREEN;
-      if (!updated.agent && user)
-        updated.agent = user.name || user.email || "Agent necunoscut";
-      if (!updated.agentId && (user?._id || user?.id))
-        updated.agentId = user._id || user.id;
+      if (!updated.agent && user) updated.agent = user.name || user.email || "Agent necunoscut";
+      if (!updated.agentId && (user?._id || user?.id)) updated.agentId = user._id || user.id;
 
       onChange(updated);
     }
   }, []);
 
-  const handleLocationChange = (
-    key: keyof IGeneralDetails["location"],
-    value: string
-  ) => {
+  const handleLocationChange = (key: keyof IGeneralDetails["location"], value: string) => {
     onChange({ ...data, location: { ...data.location, [key]: value } });
   };
 
-  const handleSurroundingsChange = (
-    event: React.ChangeEvent<{ value: unknown }>
-  ) => {
+  const handleSurroundingsChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const value = event.target.value as string[];
     const enumValues = value.map((v) => v as ESurroundings);
     onChange({
@@ -151,10 +140,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
     }
   };
 
-  const updateOwnerForm = <K extends keyof IOwnerForm>(
-    key: K,
-    value: IOwnerForm[K]
-  ) => {
+  const updateOwnerForm = <K extends keyof IOwnerForm>(key: K, value: IOwnerForm[K]) => {
     setOwnerForm((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -165,9 +151,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
         sx={{
           p: 3,
           borderRadius: 3,
-          background: isDark
-            ? theme.palette.background.paper
-            : theme.palette.background.default,
+          background: isDark ? theme.palette.background.paper : theme.palette.background.default,
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -191,9 +175,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
                     <Select
                       value={data.status ?? EStatus.GREEN}
                       label="Status"
-                      onChange={(e) =>
-                        onChange({ ...data, status: e.target.value as EStatus })
-                      }
+                      onChange={(e) => onChange({ ...data, status: e.target.value as EStatus })}
                       disabled={!isEditing}
                     >
                       {isEditing ? (
@@ -203,9 +185,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
                           </MenuItem>
                         ))
                       ) : (
-                        <MenuItem value={EStatus.GREEN}>
-                          {EStatus.GREEN}
-                        </MenuItem>
+                        <MenuItem value={EStatus.GREEN}>{EStatus.GREEN}</MenuItem>
                       )}
                     </Select>
                   </FormControl>
@@ -263,8 +243,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
                       label="Proprietar"
                       onChange={(e) => {
                         const v = e.target.value as string;
-                        if (v === "__add_new_owner__")
-                          return setOpenOwnerDialog(true);
+                        if (v === "__add_new_owner__") return setOpenOwnerDialog(true);
                         onChange({ ...data, ownerID: v });
                       }}
                     >
@@ -273,9 +252,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
                           {o.surname} {o.lastname}
                         </MenuItem>
                       ))}
-                      <MenuItem value="__add_new_owner__">
-                        + Adauga proprietar
-                      </MenuItem>
+                      <MenuItem value="__add_new_owner__">+ Adauga proprietar</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -309,9 +286,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
                     <TextField
                       label={field.label}
                       value={data.location[field.key] ?? ""}
-                      onChange={(e) =>
-                        handleLocationChange(field.key, e.target.value)
-                      }
+                      onChange={(e) => handleLocationChange(field.key, e.target.value)}
                       fullWidth
                     />
                   </Grid>
@@ -324,13 +299,9 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
                       multiple
                       value={data.location.surroundings}
                       onChange={handleSurroundingsChange as any}
-                      input={
-                        <OutlinedInput label="Puncte de interes din jur" />
-                      }
+                      input={<OutlinedInput label="Puncte de interes din jur" />}
                       renderValue={(selected) => (
-                        <Box
-                          sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
-                        >
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                           {(selected as string[]).map((value) => (
                             <Chip key={value} label={value} />
                           ))}
@@ -357,9 +328,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
               <TextField
                 label="Memo privat"
                 value={data.privatMemo}
-                onChange={(e) =>
-                  onChange({ ...data, privatMemo: e.target.value })
-                }
+                onChange={(e) => onChange({ ...data, privatMemo: e.target.value })}
                 multiline
                 rows={3}
                 fullWidth
@@ -375,9 +344,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
           >
             <DialogTitle>Adauga proprietar</DialogTitle>
             <DialogContent>
-              <Box
-                sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
-              >
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
                 <TextField
                   label="Nume"
                   value={ownerForm.surname}
@@ -410,9 +377,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
                 <TextField
                   label="Companie"
                   value={ownerForm.companyWhereHeWorks}
-                  onChange={(e) =>
-                    updateOwnerForm("companyWhereHeWorks", e.target.value)
-                  }
+                  onChange={(e) => updateOwnerForm("companyWhereHeWorks", e.target.value)}
                   fullWidth
                 />
 
@@ -435,9 +400,7 @@ const GeneralDetailsStep = ({ data, onChange }: GeneralDetailsStepProps) => {
             </DialogContent>
 
             <DialogActions>
-              <Button onClick={() => setOpenOwnerDialog(false)}>
-                Anuleaza
-              </Button>
+              <Button onClick={() => setOpenOwnerDialog(false)}>Anuleaza</Button>
               <Button variant="contained" onClick={handleCreateOwner}>
                 Salveaza
               </Button>

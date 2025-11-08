@@ -2,20 +2,25 @@ import {
   Box,
   Card,
   CardContent,
-  Typography,
+  Chip,
   FormControl,
+  Grid,
   InputLabel,
-  Select,
   MenuItem,
   OutlinedInput,
-  Chip,
-  Grid,
   Paper,
+  Select,
+  Typography,
   useTheme,
 } from "@mui/material";
-import type { IUtilities } from "../../common/interfaces/utilities.interface";
+
 import {
+  EAccounting,
+  EAdditionalSpaces,
   EAirConditioning,
+  EAppliances,
+  EExterior,
+  EFinishesEnteringDoor,
   EFinishesFlooring,
   EFinishesInsulation,
   EFinishesInteriorDoors,
@@ -23,42 +28,32 @@ import {
   EFinishesStatus,
   EFinishesWalls,
   EFinishesWindows,
-  EFinishesEnteringDoor,
-  EGeneral,
-  EIrigationSystem,
   EFurnished,
-  EKitchen,
-  EAppliances,
+  EGeneral,
   EImmobile,
+  EIrigationSystem,
+  EKitchen,
   ERecreationalSpaces,
-  EExterior,
-  EAccounting,
-  EAdditionalSpaces,
 } from "../../common/enums/utilities.enums";
+import type { IUtilities } from "../../common/interfaces/utilities.interface";
 
 interface UtilityStepProps {
   data: IUtilities;
-  onChange: (updated: IUtilities) => void;
+  onChange: (_updated: IUtilities) => void;
 }
 
 const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
-  const handleChangeArray = <K extends keyof IUtilities>(
-    key: K,
-    value: string[]
-  ) => {
+  const handleChangeArray = <K extends keyof IUtilities>(key: K, value: string[]) => {
     onChange({ ...data, [key]: value as any });
   };
 
-  const handleNestedChange = <
-    K extends keyof IUtilities,
-    N extends keyof IUtilities[K]
-  >(
+  const handleNestedChange = <K extends keyof IUtilities, N extends keyof IUtilities[K]>(
     key: K,
     nestedKey: N,
-    value: string[]
+    value: string[],
   ) => {
     onChange({
       ...data,
@@ -73,7 +68,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
     label: string,
     options: string[],
     value: string[],
-    onChange: (value: string[]) => void
+    onChange: (_value: string[]) => void,
   ) => (
     <FormControl fullWidth>
       <InputLabel>{label}</InputLabel>
@@ -105,9 +100,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
       sx={{
         p: 3,
         borderRadius: 3,
-        background: isDark
-          ? theme.palette.background.paper
-          : theme.palette.background.default,
+        background: isDark ? theme.palette.background.paper : theme.palette.background.default,
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -122,7 +115,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Utilitati generale",
                   Object.values(EGeneral),
                   data.generals,
-                  (v) => handleChangeArray("generals", v)
+                  (v) => handleChangeArray("generals", v),
                 )}
               </Grid>
 
@@ -131,7 +124,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Sistem de incalzire",
                   Object.values(EIrigationSystem),
                   data.irigationSystem,
-                  (v) => handleChangeArray("irigationSystem", v)
+                  (v) => handleChangeArray("irigationSystem", v),
                 )}
               </Grid>
 
@@ -140,7 +133,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Aer conditionat",
                   Object.values(EAirConditioning),
                   data.airConditioning,
-                  (v) => handleChangeArray("airConditioning", v)
+                  (v) => handleChangeArray("airConditioning", v),
                 )}
               </Grid>
             </Grid>
@@ -159,7 +152,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Stadiu finisaje",
                   Object.values(EFinishesStatus),
                   data.finishes.status,
-                  (v) => handleNestedChange("finishes", "status", v)
+                  (v) => handleNestedChange("finishes", "status", v),
                 )}
               </Grid>
 
@@ -168,7 +161,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Izolatii",
                   Object.values(EFinishesInsulation),
                   data.finishes.insulation,
-                  (v) => handleNestedChange("finishes", "insulation", v)
+                  (v) => handleNestedChange("finishes", "insulation", v),
                 )}
               </Grid>
 
@@ -177,7 +170,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Pereti",
                   Object.values(EFinishesWalls),
                   data.finishes.walls,
-                  (v) => handleNestedChange("finishes", "walls", v)
+                  (v) => handleNestedChange("finishes", "walls", v),
                 )}
               </Grid>
 
@@ -186,7 +179,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Pardoseli",
                   Object.values(EFinishesFlooring),
                   data.finishes.flooring,
-                  (v) => handleNestedChange("finishes", "flooring", v)
+                  (v) => handleNestedChange("finishes", "flooring", v),
                 )}
               </Grid>
 
@@ -195,7 +188,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Ferestre",
                   Object.values(EFinishesWindows),
                   data.finishes.windows,
-                  (v) => handleNestedChange("finishes", "windows", v)
+                  (v) => handleNestedChange("finishes", "windows", v),
                 )}
               </Grid>
 
@@ -204,7 +197,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Obloane",
                   Object.values(EFinishesLouver),
                   data.finishes.louver,
-                  (v) => handleNestedChange("finishes", "louver", v)
+                  (v) => handleNestedChange("finishes", "louver", v),
                 )}
               </Grid>
 
@@ -213,7 +206,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Usi intrare",
                   Object.values(EFinishesEnteringDoor),
                   data.finishes.enteringDoor,
-                  (v) => handleNestedChange("finishes", "enteringDoor", v)
+                  (v) => handleNestedChange("finishes", "enteringDoor", v),
                 )}
               </Grid>
 
@@ -222,7 +215,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Usi interioare",
                   Object.values(EFinishesInteriorDoors),
                   data.finishes.interiorDoors,
-                  (v) => handleNestedChange("finishes", "interiorDoors", v)
+                  (v) => handleNestedChange("finishes", "interiorDoors", v),
                 )}
               </Grid>
             </Grid>
@@ -241,7 +234,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Mobilier",
                   Object.values(EFurnished),
                   data.equipment.furnished,
-                  (v) => handleNestedChange("equipment", "furnished", v)
+                  (v) => handleNestedChange("equipment", "furnished", v),
                 )}
               </Grid>
 
@@ -250,7 +243,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Spatii aditionale",
                   Object.values(EAdditionalSpaces),
                   data.equipment.additionalSpaces,
-                  (v) => handleNestedChange("equipment", "additionalSpaces", v)
+                  (v) => handleNestedChange("equipment", "additionalSpaces", v),
                 )}
               </Grid>
 
@@ -259,7 +252,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Bucatarie",
                   Object.values(EKitchen),
                   data.equipment.kitchen,
-                  (v) => handleNestedChange("equipment", "kitchen", v)
+                  (v) => handleNestedChange("equipment", "kitchen", v),
                 )}
               </Grid>
 
@@ -268,7 +261,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Aparate electrocasnice",
                   Object.values(EAppliances),
                   data.equipment.appliances,
-                  (v) => handleNestedChange("equipment", "appliances", v)
+                  (v) => handleNestedChange("equipment", "appliances", v),
                 )}
               </Grid>
 
@@ -277,7 +270,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Imobile incluse",
                   Object.values(EImmobile),
                   data.equipment.immobile,
-                  (v) => handleNestedChange("equipment", "immobile", v)
+                  (v) => handleNestedChange("equipment", "immobile", v),
                 )}
               </Grid>
 
@@ -286,8 +279,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Spatii recreative",
                   Object.values(ERecreationalSpaces),
                   data.equipment.recreationalSpaces,
-                  (v) =>
-                    handleNestedChange("equipment", "recreationalSpaces", v)
+                  (v) => handleNestedChange("equipment", "recreationalSpaces", v),
                 )}
               </Grid>
 
@@ -296,7 +288,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Exterior",
                   Object.values(EExterior),
                   data.equipment.exterior,
-                  (v) => handleNestedChange("equipment", "exterior", v)
+                  (v) => handleNestedChange("equipment", "exterior", v),
                 )}
               </Grid>
 
@@ -305,7 +297,7 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
                   "Contorizare",
                   Object.values(EAccounting),
                   data.equipment.accounting,
-                  (v) => handleNestedChange("equipment", "accounting", v)
+                  (v) => handleNestedChange("equipment", "accounting", v),
                 )}
               </Grid>
             </Grid>

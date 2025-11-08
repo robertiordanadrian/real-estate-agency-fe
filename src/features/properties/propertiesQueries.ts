@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PropertiesApi } from "./propertiesApi";
+
 import { IProperty } from "../../common/interfaces/property.interface";
+import { PropertiesApi } from "./propertiesApi";
 
 export const propertiesKeys = {
   all: ["properties"] as const,

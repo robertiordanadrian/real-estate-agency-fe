@@ -1,5 +1,9 @@
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import {
   Box,
+  Chip,
+  CircularProgress,
   Paper,
   Table,
   TableBody,
@@ -9,23 +13,17 @@ import {
   TablePagination,
   TableRow,
   Typography,
-  Chip,
-  CircularProgress,
   useTheme,
 } from "@mui/material";
-
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useArchiveLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
-import { useLeadsQuery } from "../../features/leads/leadsQueries";
+import { IUser } from "../../common/interfaces/user.interface";
 import { getChipColor } from "../../common/utils/get-chip-color.util";
 import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
-import { IUser } from "../../common/interfaces/user.interface";
+import { useArchiveLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
+import { useLeadsQuery } from "../../features/leads/leadsQueries";
+import { useAllUsersQuery } from "../../features/users/usersQueries";
 
 type SortDirection = "asc" | "desc";
 interface SortState {
@@ -71,11 +69,7 @@ const ArchivedLeadRequestsList = () => {
     direction: "desc",
   });
 
-  const {
-    data: archiveData,
-    isLoading,
-    isError,
-  } = useArchiveLeadRequestsQuery();
+  const { data: archiveData, isLoading, isError } = useArchiveLeadRequestsQuery();
   const { data: users } = useAllUsersQuery();
   const { data: leads } = useLeadsQuery();
 
@@ -114,7 +108,7 @@ const ArchivedLeadRequestsList = () => {
     setSort((prev) =>
       prev.field === field
         ? { field, direction: prev.direction === "asc" ? "desc" : "asc" }
-        : { field, direction: "asc" }
+        : { field, direction: "asc" },
     );
     setPage(0);
   };
@@ -122,8 +116,7 @@ const ArchivedLeadRequestsList = () => {
   const renderSortIcon = (key: string | null) => {
     if (!key) return null;
 
-    if (sort.field !== key)
-      return <ArrowUpwardIcon sx={{ fontSize: 12, opacity: 0.3, ml: 0.5 }} />;
+    if (sort.field !== key) return <ArrowUpwardIcon sx={{ fontSize: 12, opacity: 0.3, ml: 0.5 }} />;
 
     return sort.direction === "asc" ? (
       <ArrowUpwardIcon sx={{ fontSize: 12, color: accent, ml: 0.5 }} />
@@ -162,10 +155,7 @@ const ArchivedLeadRequestsList = () => {
     });
   }, [archiveData, sort, leadMap, users]);
 
-  const paginated = sortedData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   if (isLoading)
     return (
@@ -196,9 +186,7 @@ const ArchivedLeadRequestsList = () => {
     );
 
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
-    >
+    <Box sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
       <Paper
         sx={{
           flex: 1,
@@ -288,32 +276,20 @@ const ArchivedLeadRequestsList = () => {
 
                     <TableCell>
                       <Chip
-                        label={
-                          row.approvalStatus === "APPROVED"
-                            ? "Aprobata"
-                            : "Respinsa"
-                        }
+                        label={row.approvalStatus === "APPROVED" ? "Aprobata" : "Respinsa"}
                         size="small"
-                        color={
-                          row.approvalStatus === "APPROVED"
-                            ? "success"
-                            : "error"
-                        }
+                        color={row.approvalStatus === "APPROVED" ? "success" : "error"}
                       />
                     </TableCell>
 
                     <TableCell>{approverName}</TableCell>
 
                     <TableCell>
-                      {row.createdAt
-                        ? new Date(row.createdAt).toLocaleString("ro-RO")
-                        : "-"}
+                      {row.createdAt ? new Date(row.createdAt).toLocaleString("ro-RO") : "-"}
                     </TableCell>
 
                     <TableCell>
-                      {row.updatedAt
-                        ? new Date(row.updatedAt).toLocaleString("ro-RO")
-                        : "-"}
+                      {row.updatedAt ? new Date(row.updatedAt).toLocaleString("ro-RO") : "-"}
                     </TableCell>
                   </TableRow>
                 );

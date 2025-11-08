@@ -1,6 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { LeadsApi } from "./leadsApi";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import type { ILead } from "../../common/interfaces/lead.interface";
+import { LeadsApi } from "./leadsApi";
 
 export const useLeadsQuery = () =>
   useQuery({
@@ -18,8 +19,7 @@ export const useLeadQuery = (id: string) =>
 export const useUpdateLead = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<ILead> }) =>
-      LeadsApi.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<ILead> }) => LeadsApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
     },
@@ -29,8 +29,7 @@ export const useUpdateLead = () => {
 export const useUploadContract = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, file }: { id: string; file: File }) =>
-      LeadsApi.uploadContract(id, file),
+    mutationFn: ({ id, file }: { id: string; file: File }) => LeadsApi.uploadContract(id, file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
     },

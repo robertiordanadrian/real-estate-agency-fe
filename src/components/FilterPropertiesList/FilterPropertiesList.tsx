@@ -1,4 +1,8 @@
+import { Edit, Visibility } from "@mui/icons-material";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import {
+  Avatar,
   Box,
   Chip,
   CircularProgress,
@@ -13,18 +17,14 @@ import {
   TableRow,
   Tooltip,
   Typography,
-  Avatar,
   useTheme,
 } from "@mui/material";
-import { Visibility, Edit } from "@mui/icons-material";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFilterPropertiesQuery } from "../../features/filterProperties/filterPropertiesQueries";
+
 import type { IProperty } from "../../common/interfaces/property.interface";
 import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
+import { useFilterPropertiesQuery } from "../../features/filterProperties/filterPropertiesQueries";
 
 interface FilterPropertiesListProps {
   selectedCategory?: string;
@@ -40,7 +40,7 @@ interface SortState {
   direction: SortDirection;
 }
 
-const sortableColumns: Record<string, (p: IProperty) => any> = {
+const sortableColumns: Record<string, (_p: IProperty) => any> = {
   status: (p) => p.generalDetails?.status,
   sku: (p) => p.sku,
   transactionType: (p) => p.generalDetails?.transactionType,
@@ -67,9 +67,9 @@ function DesktopFilteredTable({
   total: number;
   page: number;
   rowsPerPage: number;
-  onPageChange: (e: unknown, newPage: number) => void;
+  onPageChange: (_e: unknown, _newPage: number) => void;
   sort: SortState;
-  onSortChange: (field: string) => void;
+  onSortChange: (_field: string) => void;
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -207,24 +207,14 @@ function DesktopFilteredTable({
                   </TableCell>
 
                   <TableCell>{property.sku ?? "-"}</TableCell>
-                  <TableCell>
-                    {generalDetails?.transactionType ?? "-"}
-                  </TableCell>
+                  <TableCell>{generalDetails?.transactionType ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.category ?? "-"}</TableCell>
                   <TableCell>{price?.priceDetails?.price ?? "-"}</TableCell>
-                  <TableCell>
-                    {characteristics?.details?.bedrooms ?? "-"}
-                  </TableCell>
-                  <TableCell>
-                    {characteristics?.areas?.totalUsableArea ?? "-"}
-                  </TableCell>
-                  <TableCell>
-                    {characteristics?.details?.floor ?? "-"}
-                  </TableCell>
+                  <TableCell>{characteristics?.details?.bedrooms ?? "-"}</TableCell>
+                  <TableCell>{characteristics?.areas?.totalUsableArea ?? "-"}</TableCell>
+                  <TableCell>{characteristics?.details?.floor ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.location?.zone ?? "-"}</TableCell>
-                  <TableCell>
-                    {generalDetails?.location?.street ?? "-"}
-                  </TableCell>
+                  <TableCell>{generalDetails?.location?.street ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.agent ?? "-"}</TableCell>
 
                   <TableCell align="center">
@@ -239,9 +229,7 @@ function DesktopFilteredTable({
                     <Tooltip title="Editează">
                       <IconButton
                         color="warning"
-                        onClick={() =>
-                          navigate(`/properties/edit/${property._id}`)
-                        }
+                        onClick={() => navigate(`/properties/edit/${property._id}`)}
                       >
                         <Edit />
                       </IconButton>
@@ -256,9 +244,7 @@ function DesktopFilteredTable({
 
       <Box
         sx={{
-          borderTop: `1px solid ${
-            isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
-          }`,
+          borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
         }}
       >
         <TablePagination
@@ -290,7 +276,7 @@ const FilterPropertiesList = ({
     selectedCategory,
     selectedAgentId,
     selectedStatus,
-    selectedContract
+    selectedContract,
   );
 
   const [page, setPage] = useState(0);
@@ -334,12 +320,7 @@ const FilterPropertiesList = ({
 
   if (isLoading)
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100%"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" height="100%">
         <CircularProgress />
       </Box>
     );
@@ -358,10 +339,7 @@ const FilterPropertiesList = ({
       </Typography>
     );
 
-  const paginated = sortedData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
     <DesktopFilteredTable

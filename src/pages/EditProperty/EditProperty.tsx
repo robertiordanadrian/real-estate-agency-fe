@@ -1,47 +1,35 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import {
+  Alert,
   Box,
   Button,
+  CircularProgress,
+  Container,
+  Divider,
+  Paper,
+  Snackbar,
   Step,
   StepLabel,
   Stepper,
   Typography,
-  Snackbar,
-  Alert,
-  CircularProgress,
-  Paper,
-  Divider,
-  Container,
-  useTheme,
   useMediaQuery,
+  useTheme,
 } from "@mui/material";
-
-import GeneralDetailsStep from "../../components/PropertySteps/GeneralDetailsStep";
-import CharacteristicsStep from "../../components/PropertySteps/CharacteristicsStep";
-import UtilityStep from "../../components/PropertySteps/UtilityStep";
-import PriceStep from "../../components/PropertySteps/PriceStep";
-import DescriptionStep from "../../components/PropertySteps/DescriptionStep";
-import ImagesStep from "../../components/PropertySteps/ImagesStep";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import type { IProperty } from "../../common/interfaces/property.interface";
-
-import {
-  propertiesKeys,
-  usePropertyQuery,
-} from "../../features/properties/propertiesQueries";
+import CharacteristicsStep from "../../components/PropertySteps/CharacteristicsStep";
+import DescriptionStep from "../../components/PropertySteps/DescriptionStep";
+import GeneralDetailsStep from "../../components/PropertySteps/GeneralDetailsStep";
+import ImagesStep from "../../components/PropertySteps/ImagesStep";
+import PriceStep from "../../components/PropertySteps/PriceStep";
+import UtilityStep from "../../components/PropertySteps/UtilityStep";
 import { PropertiesApi } from "../../features/properties/propertiesApi";
+import { propertiesKeys, usePropertyQuery } from "../../features/properties/propertiesQueries";
 import { http } from "../../services/http";
 import { queryClient } from "../../services/queryClient";
 
-const steps = [
-  "Detalii generale",
-  "Caracteristici",
-  "Utilități",
-  "Preț",
-  "Descriere",
-  "Imagini",
-];
+const steps = ["Detalii generale", "Caracteristici", "Utilități", "Preț", "Descriere", "Imagini"];
 
 const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
@@ -105,12 +93,9 @@ const EditProperty = () => {
 
       if (error.response) {
         const status = error.response.status;
-        if (status === 413)
-          errorMessage =
-            "Fisierele sunt prea mari. Redu dimensiunea imaginilor.";
+        if (status === 413) errorMessage = "Fisierele sunt prea mari. Redu dimensiunea imaginilor.";
         else if (status === 415)
-          errorMessage =
-            "Tipul fisierului nu este acceptat. Incearca doar imagini.";
+          errorMessage = "Tipul fisierului nu este acceptat. Incearca doar imagini.";
         else if (error.response.data?.message) {
           errorMessage = error.response.data.message;
         } else if (status === 400) {
@@ -121,7 +106,7 @@ const EditProperty = () => {
       }
 
       showSnackbar(errorMessage, "error");
-      
+
       setTimeout(() => navigate("/properties"), 2000);
     } finally {
       setIsSubmitting(false);
@@ -142,9 +127,7 @@ const EditProperty = () => {
           <GeneralDetailsStep
             data={formData.generalDetails}
             onChange={(val) =>
-              setFormData((prev) =>
-                prev ? { ...prev, generalDetails: val } : null
-              )
+              setFormData((prev) => (prev ? { ...prev, generalDetails: val } : null))
             }
           />
         );
@@ -153,9 +136,7 @@ const EditProperty = () => {
           <CharacteristicsStep
             data={formData.characteristics}
             onChange={(val) =>
-              setFormData((prev) =>
-                prev ? { ...prev, characteristics: val } : null
-              )
+              setFormData((prev) => (prev ? { ...prev, characteristics: val } : null))
             }
           />
         );
@@ -163,9 +144,7 @@ const EditProperty = () => {
         return (
           <UtilityStep
             data={formData.utilities}
-            onChange={(val) =>
-              setFormData((prev) => (prev ? { ...prev, utilities: val } : null))
-            }
+            onChange={(val) => setFormData((prev) => (prev ? { ...prev, utilities: val } : null))}
           />
         );
       case 3:
@@ -185,11 +164,7 @@ const EditProperty = () => {
         return (
           <DescriptionStep
             data={formData.description}
-            onChange={(val) =>
-              setFormData((prev) =>
-                prev ? { ...prev, description: val } : null
-              )
-            }
+            onChange={(val) => setFormData((prev) => (prev ? { ...prev, description: val } : null))}
           />
         );
       case 5:
@@ -197,9 +172,7 @@ const EditProperty = () => {
           <ImagesStep
             data={formData.images || []}
             files={imageFiles}
-            onChange={(val) =>
-              setFormData((prev) => (prev ? { ...prev, images: val } : null))
-            }
+            onChange={(val) => setFormData((prev) => (prev ? { ...prev, images: val } : null))}
             onFilesChange={setImageFiles}
           />
         );
@@ -223,10 +196,10 @@ const EditProperty = () => {
 
         if (fetchedProperty?.price?.contact) {
           fetchedProperty.price.contact.signDate = parseToDate(
-            fetchedProperty.price.contact.signDate
+            fetchedProperty.price.contact.signDate,
           );
           fetchedProperty.price.contact.expirationDate = parseToDate(
-            fetchedProperty.price.contact.expirationDate
+            fetchedProperty.price.contact.expirationDate,
           );
         }
 
@@ -265,11 +238,7 @@ const EditProperty = () => {
         <Typography variant="h5" color="error">
           Proprietatea nu a fost gasita.
         </Typography>
-        <Button
-          variant="contained"
-          sx={{ mt: 2 }}
-          onClick={() => navigate("/properties")}
-        >
+        <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate("/properties")}>
           Inapoi la lista
         </Button>
       </Box>
@@ -369,25 +338,21 @@ const EditProperty = () => {
             <Button
               variant="contained"
               fullWidth={isMobile}
-              onClick={
-                activeStep === steps.length - 1 ? handleSubmit : handleNext
-              }
+              onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
               disabled={isSubmitting}
               size="large"
               sx={{
                 fontWeight: 600,
                 bgcolor: theme.palette.primary.main,
-                color: theme.palette.getContrastText(
-                  theme.palette.primary.main
-                ),
+                color: theme.palette.getContrastText(theme.palette.primary.main),
                 "&:hover": { bgcolor: theme.palette.primary.dark },
               }}
             >
               {isSubmitting
                 ? "Se actualizează..."
                 : activeStep === steps.length - 1
-                ? "Actualizează proprietatea"
-                : "Următorul pas"}
+                  ? "Actualizează proprietatea"
+                  : "Următorul pas"}
             </Button>
           </Box>
         </Paper>
@@ -399,11 +364,7 @@ const EditProperty = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          variant="filled"
-        >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled">
           {snackbar.message}
         </Alert>
       </Snackbar>

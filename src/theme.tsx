@@ -1,13 +1,13 @@
-import React, { useMemo, useState, useEffect } from "react";
+import { DarkMode, LightMode } from "@mui/icons-material";
 import {
-  ThemeProvider,
   createTheme,
   CssBaseline,
-  responsiveFontSizes,
   IconButton,
+  responsiveFontSizes,
+  ThemeProvider,
 } from "@mui/material";
 import { blue, deepPurple } from "@mui/material/colors";
-import { DarkMode, LightMode } from "@mui/icons-material";
+import React, { useEffect, useMemo, useState } from "react";
 
 const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
   const [mode, setMode] = useState<"light" | "dark">("dark");
@@ -91,17 +91,13 @@ const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
                 borderRadius: "10px",
               },
               "&::-webkit-scrollbar-thumb": {
-                backgroundColor:
-                  mode === "dark" ? themeParam.palette.primary.main : blue[500],
+                backgroundColor: mode === "dark" ? themeParam.palette.primary.main : blue[500],
                 borderRadius: "10px",
                 border: `2px solid ${themeParam.palette.background.default}`,
                 transition: "background-color 0.3s ease",
               },
               "&::-webkit-scrollbar-thumb:hover": {
-                backgroundColor:
-                  mode === "dark"
-                    ? themeParam.palette.primary.light
-                    : blue[700],
+                backgroundColor: mode === "dark" ? themeParam.palette.primary.light : blue[700],
               },
             },
           }),
@@ -142,11 +138,7 @@ const ThemeWrapper = ({ children }: { children: React.ReactNode }) => {
           },
         }}
       >
-        {mode === "dark" ? (
-          <LightMode sx={{ fontSize: 22 }} />
-        ) : (
-          <DarkMode sx={{ fontSize: 22 }} />
-        )}
+        {mode === "dark" ? <LightMode sx={{ fontSize: 22 }} /> : <DarkMode sx={{ fontSize: 22 }} />}
       </IconButton>
     </ThemeProvider>
   );

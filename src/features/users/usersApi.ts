@@ -18,7 +18,7 @@ export const UsersApi = {
 
   updateUserById: async (
     userId: string,
-    payload: { name?: string; email?: string; phone?: string; role?: string }
+    payload: { name?: string; email?: string; phone?: string; role?: string },
   ) => {
     const { data } = await http.patch(`/users/${userId}`, payload);
     return data;
@@ -47,20 +47,13 @@ export const UsersApi = {
   uploadProfilePictureForUser: async (userId: string, file: File) => {
     const formData = new FormData();
     formData.append("avatar", file);
-    const { data } = await http.post(
-      `/users/${userId}/profile-picture`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
+    const { data } = await http.post(`/users/${userId}/profile-picture`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return data;
   },
 
-  updateRole: async (
-    userId: string,
-    role: "CEO" | "MANAGER" | "TEAM_LEAD" | "AGENT"
-  ) => {
+  updateRole: async (userId: string, role: "CEO" | "MANAGER" | "TEAM_LEAD" | "AGENT") => {
     const { data } = await http.patch(`/users/${userId}/role`, { role });
     return data;
   },

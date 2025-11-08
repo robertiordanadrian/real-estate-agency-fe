@@ -1,3 +1,4 @@
+import { Edit, Visibility } from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -16,12 +17,12 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { Visibility, Edit } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
+
 import { IProperty } from "../../common/interfaces/property.interface";
 import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
+import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
 
 const DesktopTable = ({
   properties,
@@ -33,7 +34,7 @@ const DesktopTable = ({
   properties: IProperty[];
   page: number;
   rowsPerPage: number;
-  onPageChange: (e: unknown, page: number) => void;
+  onPageChange: (_e: unknown, _page: number) => void;
   total: number;
 }) => {
   const theme = useTheme();
@@ -123,9 +124,7 @@ const DesktopTable = ({
               ].map((col) => (
                 <TableCell
                   key={col.label}
-                  onClick={() =>
-                    col.key && handleSort(col.key as keyof IProperty)
-                  }
+                  onClick={() => col.key && handleSort(col.key as keyof IProperty)}
                   sx={{
                     cursor: col.key ? "pointer" : "default",
                     color: accent,
@@ -163,11 +162,7 @@ const DesktopTable = ({
                   }}
                 >
                   <TableCell>
-                    <Avatar
-                      variant="rounded"
-                      src={img}
-                      sx={{ width: 50, height: 50 }}
-                    />
+                    <Avatar variant="rounded" src={img} sx={{ width: 50, height: 50 }} />
                   </TableCell>
 
                   <TableCell>
@@ -182,24 +177,14 @@ const DesktopTable = ({
                   </TableCell>
 
                   <TableCell>{property.sku ?? "-"}</TableCell>
-                  <TableCell>
-                    {generalDetails?.transactionType ?? "-"}
-                  </TableCell>
+                  <TableCell>{generalDetails?.transactionType ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.category ?? "-"}</TableCell>
                   <TableCell>{price?.priceDetails?.price ?? "-"}</TableCell>
-                  <TableCell>
-                    {characteristics?.details?.bedrooms ?? "-"}
-                  </TableCell>
-                  <TableCell>
-                    {characteristics?.areas?.totalUsableArea ?? "-"}
-                  </TableCell>
-                  <TableCell>
-                    {characteristics?.details?.floor ?? "-"}
-                  </TableCell>
+                  <TableCell>{characteristics?.details?.bedrooms ?? "-"}</TableCell>
+                  <TableCell>{characteristics?.areas?.totalUsableArea ?? "-"}</TableCell>
+                  <TableCell>{characteristics?.details?.floor ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.location?.zone ?? "-"}</TableCell>
-                  <TableCell>
-                    {generalDetails?.location?.street ?? "-"}
-                  </TableCell>
+                  <TableCell>{generalDetails?.location?.street ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.agent ?? "-"}</TableCell>
 
                   <TableCell>
@@ -215,9 +200,7 @@ const DesktopTable = ({
                     <Tooltip title="Editeaza">
                       <IconButton
                         color="warning"
-                        onClick={() =>
-                          navigate(`/properties/edit/${property._id}`)
-                        }
+                        onClick={() => navigate(`/properties/edit/${property._id}`)}
                       >
                         <Edit />
                       </IconButton>
@@ -288,10 +271,7 @@ const PropertiesList = () => {
     );
 
   const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
-  const paginated = properties.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginated = properties.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
     <DesktopTable

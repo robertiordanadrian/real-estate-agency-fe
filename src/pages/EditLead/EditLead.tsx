@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ArrowBack, AttachFile } from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -18,21 +18,15 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { AttachFile, ArrowBack } from "@mui/icons-material";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  useLeadQuery,
-  useUpdateLead,
-  useUploadContract,
-} from "../../features/leads/leadsQueries";
+import { IEditLeadForm } from "common/interfaces/edit-lead-form.interface";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import { ELeadStatus } from "../../common/enums/lead-status.enum";
 import { ERole } from "../../common/enums/role.enums";
 import { IUser } from "../../common/interfaces/user.interface";
-import {
-  useAllUsersQuery,
-  useUserQuery,
-} from "../../features/users/usersQueries";
-import { IEditLeadForm } from "common/interfaces/edit-lead-form.interface";
+import { useLeadQuery, useUpdateLead, useUploadContract } from "../../features/leads/leadsQueries";
+import { useAllUsersQuery, useUserQuery } from "../../features/users/usersQueries";
 
 const EditLead = () => {
   const theme = useTheme();
@@ -66,10 +60,7 @@ const EditLead = () => {
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  const handleChange = <K extends keyof IEditLeadForm>(
-    key: K,
-    value: IEditLeadForm[K]
-  ) => {
+  const handleChange = <K extends keyof IEditLeadForm>(key: K, value: IEditLeadForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
   const handleSave = async () => {
@@ -147,12 +138,7 @@ const EditLead = () => {
 
   if (isLoading)
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="60vh"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" height="60vh">
         <CircularProgress />
       </Box>
     );
@@ -230,9 +216,7 @@ const EditLead = () => {
                   },
                 }}
               >
-                <ArrowBack
-                  sx={{ color: "white", fontSize: isMobile ? 22 : 26 }}
-                />
+                <ArrowBack sx={{ color: "white", fontSize: isMobile ? 22 : 26 }} />
               </Fab>
             </Tooltip>
           </Box>
@@ -241,9 +225,7 @@ const EditLead = () => {
             sx={{
               mb: 3,
               borderColor:
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.1)"
-                  : "rgba(0,0,0,0.1)",
+                theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
             }}
           />
 
@@ -300,9 +282,7 @@ const EditLead = () => {
                   onChange={(e) => handleChange("budget", e.target.value)}
                   fullWidth
                   InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">€</InputAdornment>
-                    ),
+                    endAdornment: <InputAdornment position="end">€</InputAdornment>,
                   }}
                 />
               </Grid>
@@ -311,9 +291,7 @@ const EditLead = () => {
                 <TextField
                   label="Tranzacție"
                   value={form.transactionType}
-                  onChange={(e) =>
-                    handleChange("transactionType", e.target.value)
-                  }
+                  onChange={(e) => handleChange("transactionType", e.target.value)}
                   fullWidth
                 />
               </Grid>
@@ -322,9 +300,7 @@ const EditLead = () => {
                   select
                   label="Status"
                   value={form.status ?? lead.status ?? ELeadStatus.GREEN}
-                  onChange={(e) =>
-                    handleChange("status", e.target.value as ELeadStatus)
-                  }
+                  onChange={(e) => handleChange("status", e.target.value as ELeadStatus)}
                   fullWidth
                 >
                   {Object.values(ELeadStatus).map((s) => (
@@ -348,7 +324,7 @@ const EditLead = () => {
                         (u: IUser) =>
                           u.role === ERole.MANAGER ||
                           u.role === ERole.TEAM_LEAD ||
-                          u.role === ERole.AGENT
+                          u.role === ERole.AGENT,
                       )
                       .map((user: IUser) => (
                         <MenuItem key={user._id} value={user._id}>
@@ -364,9 +340,8 @@ const EditLead = () => {
                   <TextField
                     label="Agent Asignat"
                     value={
-                      allUsers?.find(
-                        (u: IUser) => u._id === (form.agentId ?? lead.agentId)
-                      )?.name ?? "Nespecificat"
+                      allUsers?.find((u: IUser) => u._id === (form.agentId ?? lead.agentId))
+                        ?.name ?? "Nespecificat"
                     }
                     fullWidth
                     disabled
@@ -410,9 +385,7 @@ const EditLead = () => {
                     display: "block",
                   }}
                 >
-                  {fileName ||
-                    lead.contractUrl?.split("/").pop() ||
-                    "Incarca fisier contract"}
+                  {fileName || lead.contractUrl?.split("/").pop() || "Incarca fisier contract"}
                 </Box>
 
                 <input
@@ -454,9 +427,7 @@ const EditLead = () => {
                 sx={{ mt: 2, fontWeight: 600 }}
                 disabled={!file || uploadContract.isPending}
               >
-                {uploadContract.isPending
-                  ? "Se încarcă..."
-                  : "Încarcă contract"}
+                {uploadContract.isPending ? "Se încarcă..." : "Încarcă contract"}
               </Button>
             </Box>
 
@@ -479,10 +450,7 @@ const EditLead = () => {
               }}
             >
               {updateLead.isPending ? (
-                <CircularProgress
-                  size={24}
-                  sx={{ color: theme.palette.getContrastText(accent) }}
-                />
+                <CircularProgress size={24} sx={{ color: theme.palette.getContrastText(accent) }} />
               ) : (
                 "Salveaza modificarile"
               )}

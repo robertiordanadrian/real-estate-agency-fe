@@ -1,5 +1,9 @@
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import {
   Box,
+  Chip,
+  CircularProgress,
   Paper,
   Table,
   TableBody,
@@ -9,24 +13,17 @@ import {
   TablePagination,
   TableRow,
   Typography,
-  Chip,
-  CircularProgress,
   useTheme,
 } from "@mui/material";
-
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useArchivePropertyRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
-import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
-
+import type { IProperty } from "../../common/interfaces/property.interface";
 import { getChipColor } from "../../common/utils/get-chip-color.util";
 import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
-import type { IProperty } from "../../common/interfaces/property.interface";
+import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
+import { useArchivePropertyRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
+import { useAllUsersQuery } from "../../features/users/usersQueries";
 
 type SortDirection = "asc" | "desc";
 
@@ -80,11 +77,7 @@ const ArchivedPropertyRequestsList = () => {
   });
   const [page, setPage] = useState(0);
 
-  const {
-    data: requests,
-    isLoading,
-    isError,
-  } = useArchivePropertyRequestsQuery();
+  const { data: requests, isLoading, isError } = useArchivePropertyRequestsQuery();
   const { data: users } = useAllUsersQuery();
   const { data: properties } = usePropertiesQuery();
 
@@ -97,10 +90,7 @@ const ArchivedPropertyRequestsList = () => {
   }, [users]);
 
   const propertiesMap = useMemo(() => {
-    const map: Record<
-      string,
-      Pick<IProperty, "_id" | "sku" | "generalDetails">
-    > = {};
+    const map: Record<string, Pick<IProperty, "_id" | "sku" | "generalDetails">> = {};
     (properties as IProperty[] | undefined)?.forEach((p) => {
       if (p?._id)
         map[p._id] = {
@@ -113,7 +103,7 @@ const ArchivedPropertyRequestsList = () => {
   }, [properties]);
 
   const getId = (val: string | IdRef | undefined): string =>
-    typeof val === "string" ? val : val?._id ?? "";
+    typeof val === "string" ? val : (val?._id ?? "");
 
   const getUserName = (val: string | IdRef | undefined): string => {
     const id = getId(val);
@@ -137,15 +127,14 @@ const ArchivedPropertyRequestsList = () => {
     setSort((prev) =>
       prev.field === field
         ? { field, direction: prev.direction === "asc" ? "desc" : "asc" }
-        : { field, direction: "asc" }
+        : { field, direction: "asc" },
     );
     setPage(0);
   };
 
   const renderSortIcon = (key: string | null) => {
     if (!key) return null;
-    if (sort.field !== key)
-      return <ArrowUpwardIcon sx={{ fontSize: 12, opacity: 0.3, ml: 0.5 }} />;
+    if (sort.field !== key) return <ArrowUpwardIcon sx={{ fontSize: 12, opacity: 0.3, ml: 0.5 }} />;
     return sort.direction === "asc" ? (
       <ArrowUpwardIcon sx={{ fontSize: 12, color: accent, ml: 0.5 }} />
     ) : (
@@ -186,10 +175,7 @@ const ArchivedPropertyRequestsList = () => {
     });
   }, [list, sort, usersMap, propertiesMap]);
 
-  const paginated = sortedData.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   if (isLoading)
     return (
@@ -220,9 +206,7 @@ const ArchivedPropertyRequestsList = () => {
     );
 
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}
-    >
+    <Box sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
       <Paper
         sx={{
           flex: 1,
@@ -317,17 +301,9 @@ const ArchivedPropertyRequestsList = () => {
 
                     <TableCell>
                       <Chip
-                        label={
-                          row.approvalStatus === "APPROVED"
-                            ? "Aprobata"
-                            : "Respinsa"
-                        }
+                        label={row.approvalStatus === "APPROVED" ? "Aprobata" : "Respinsa"}
                         size="small"
-                        color={
-                          row.approvalStatus === "APPROVED"
-                            ? "success"
-                            : "error"
-                        }
+                        color={row.approvalStatus === "APPROVED" ? "success" : "error"}
                         sx={{ fontWeight: 600 }}
                       />
                     </TableCell>
@@ -335,15 +311,11 @@ const ArchivedPropertyRequestsList = () => {
                     <TableCell>{approverName}</TableCell>
 
                     <TableCell>
-                      {row.createdAt
-                        ? new Date(row.createdAt).toLocaleString("ro-RO")
-                        : "-"}
+                      {row.createdAt ? new Date(row.createdAt).toLocaleString("ro-RO") : "-"}
                     </TableCell>
 
                     <TableCell>
-                      {row.updatedAt
-                        ? new Date(row.updatedAt).toLocaleString("ro-RO")
-                        : "-"}
+                      {row.updatedAt ? new Date(row.updatedAt).toLocaleString("ro-RO") : "-"}
                     </TableCell>
                   </TableRow>
                 );

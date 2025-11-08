@@ -1,7 +1,7 @@
 import { EStatus } from "../../common/enums/general-details.enums";
 
 export const getChipColor = (
-  status: string
+  status: string,
 ): "default" | "primary" | "secondary" | "success" | "error" | "warning" => {
   switch (status) {
     case EStatus.GREEN:

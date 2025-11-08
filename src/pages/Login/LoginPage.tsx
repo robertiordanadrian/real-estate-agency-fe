@@ -1,16 +1,18 @@
-import { useState } from "react";
 import {
+  Alert,
   Box,
   Button,
+  CircularProgress,
   Container,
   Paper,
   TextField,
   Typography,
-  CircularProgress,
   useTheme,
-  Alert,
 } from "@mui/material";
+import { useState } from "react";
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
+
 import { useLogin } from "../../features/auth/authMutations";
 
 const LoginPage = () => {
@@ -34,9 +36,7 @@ const LoginPage = () => {
       setTimeout(() => navigate("/", { replace: true }), 100);
     } catch (err: any) {
       const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Autentificarea a esuat. Incearca din nou.";
+        err?.response?.data?.message || err?.message || "Autentificarea a esuat. Incearca din nou.";
       setError(message);
     }
   };
@@ -82,12 +82,7 @@ const LoginPage = () => {
             Autentificare in cont
           </Typography>
 
-          <Typography
-            variant="body2"
-            align="center"
-            color="text.secondary"
-            mb={3}
-          >
+          <Typography variant="body2" align="center" color="text.secondary" mb={3}>
             Introdu datele tale de acces pentru a continua.
           </Typography>
 
@@ -137,10 +132,7 @@ const LoginPage = () => {
               }}
             >
               {isPending ? (
-                <CircularProgress
-                  size={24}
-                  sx={{ color: theme.palette.getContrastText(accent) }}
-                />
+                <CircularProgress size={24} sx={{ color: theme.palette.getContrastText(accent) }} />
               ) : (
                 "Logheaza-te"
               )}

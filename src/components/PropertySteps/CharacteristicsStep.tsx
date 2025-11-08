@@ -2,19 +2,20 @@ import {
   Box,
   Card,
   CardContent,
-  Typography,
-  TextField,
   FormControl,
+  FormControlLabel,
+  Grid,
+  InputAdornment,
   InputLabel,
   MenuItem,
-  Select,
-  FormControlLabel,
-  Switch,
-  InputAdornment,
-  Grid,
-  useTheme,
   Paper,
+  Select,
+  Switch,
+  TextField,
+  Typography,
+  useTheme,
 } from "@mui/material";
+
 import {
   EBuildingSeismicRisk,
   EBuildingStructure,
@@ -24,9 +25,9 @@ import {
   EEnergyClass,
 } from "../../common/enums/characteristics.enums";
 import type {
+  IAreas,
   ICharacteristics,
   IDetails,
-  IAreas,
 } from "../../common/interfaces/characteristics.interface";
 
 const detailFields = [
@@ -55,7 +56,7 @@ const areaFields = [
 
 interface CharacteristicsStepProps {
   data: ICharacteristics;
-  onChange: (updated: ICharacteristics) => void;
+  onChange: (_updated: ICharacteristics) => void;
 }
 
 const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
@@ -76,20 +77,14 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
     });
   };
 
-  const handleBuildingChange = (
-    key: keyof ICharacteristics["building"],
-    value: any
-  ) => {
+  const handleBuildingChange = (key: keyof ICharacteristics["building"], value: any) => {
     onChange({
       ...data,
       building: { ...data.building, [key]: value },
     });
   };
 
-  const handleEnergyChange = (
-    key: keyof ICharacteristics["energyPerformance"],
-    value: any
-  ) => {
+  const handleEnergyChange = (key: keyof ICharacteristics["energyPerformance"], value: any) => {
     onChange({
       ...data,
       energyPerformance: { ...data.energyPerformance, [key]: value },
@@ -102,9 +97,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
       sx={{
         p: 3,
         borderRadius: 3,
-        background: isDark
-          ? theme.palette.background.paper
-          : theme.palette.background.default,
+        background: isDark ? theme.palette.background.paper : theme.palette.background.default,
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -121,9 +114,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   <Select
                     value={data.details.type}
                     label="Tip proprietate"
-                    onChange={(e) =>
-                      handleDetailsChange("type", e.target.value)
-                    }
+                    onChange={(e) => handleDetailsChange("type", e.target.value)}
                   >
                     {Object.values(EBuildingType).map((val) => (
                       <MenuItem key={val} value={val}>
@@ -140,9 +131,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   <Select
                     value={data.details.destination}
                     label="Destinatie"
-                    onChange={(e) =>
-                      handleDetailsChange("destination", e.target.value)
-                    }
+                    onChange={(e) => handleDetailsChange("destination", e.target.value)}
                   >
                     {Object.values(EDestination).map((val) => (
                       <MenuItem key={val} value={val}>
@@ -159,10 +148,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                     label={field.label}
                     value={data.details[field.key as keyof IDetails] as string}
                     onChange={(e) =>
-                      handleDetailsChange(
-                        field.key as keyof IDetails,
-                        e.target.value
-                      )
+                      handleDetailsChange(field.key as keyof IDetails, e.target.value)
                     }
                     fullWidth
                   />
@@ -176,9 +162,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   control={
                     <Switch
                       checked={data.details.openKitchen}
-                      onChange={(e) =>
-                        handleDetailsChange("openKitchen", e.target.checked)
-                      }
+                      onChange={(e) => handleDetailsChange("openKitchen", e.target.checked)}
                     />
                   }
                   label="Bucatarie deschisa"
@@ -190,9 +174,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   control={
                     <Switch
                       checked={data.details.bathroomWindow}
-                      onChange={(e) =>
-                        handleDetailsChange("bathroomWindow", e.target.checked)
-                      }
+                      onChange={(e) => handleDetailsChange("bathroomWindow", e.target.checked)}
                     />
                   }
                   label="Geam la baie"
@@ -204,9 +186,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   control={
                     <Switch
                       checked={data.details.petFriendly}
-                      onChange={(e) =>
-                        handleDetailsChange("petFriendly", e.target.checked)
-                      }
+                      onChange={(e) => handleDetailsChange("petFriendly", e.target.checked)}
                     />
                   }
                   label="Pet friendly"
@@ -218,9 +198,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   control={
                     <Switch
                       checked={data.details.keyInAgency}
-                      onChange={(e) =>
-                        handleDetailsChange("keyInAgency", e.target.checked)
-                      }
+                      onChange={(e) => handleDetailsChange("keyInAgency", e.target.checked)}
                     />
                   }
                   label="Cheia in agentie"
@@ -242,15 +220,11 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   <TextField
                     label={field.label}
                     value={data.areas[field.key]}
-                    onChange={(e) =>
-                      handleAreasChange(field.key, e.target.value)
-                    }
+                    onChange={(e) => handleAreasChange(field.key, e.target.value)}
                     fullWidth
                     slotProps={{
                       input: {
-                        endAdornment: (
-                          <InputAdornment position="end">m²</InputAdornment>
-                        ),
+                        endAdornment: <InputAdornment position="end">m²</InputAdornment>,
                       },
                     }}
                   />
@@ -273,9 +247,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   <Select
                     value={data.building.constructionStage}
                     label="Stadiu constructie"
-                    onChange={(e) =>
-                      handleBuildingChange("constructionStage", e.target.value)
-                    }
+                    onChange={(e) => handleBuildingChange("constructionStage", e.target.value)}
                   >
                     {Object.values(EConstructionStage).map((val) => (
                       <MenuItem key={val} value={val}>
@@ -292,9 +264,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   <Select
                     value={data.building.type}
                     label="Tip cladire"
-                    onChange={(e) =>
-                      handleBuildingChange("type", e.target.value)
-                    }
+                    onChange={(e) => handleBuildingChange("type", e.target.value)}
                   >
                     {Object.values(EBuildingType).map((val) => (
                       <MenuItem key={val} value={val}>
@@ -311,9 +281,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   <Select
                     value={data.building.structure}
                     label="Structura"
-                    onChange={(e) =>
-                      handleBuildingChange("structure", e.target.value)
-                    }
+                    onChange={(e) => handleBuildingChange("structure", e.target.value)}
                   >
                     {Object.values(EBuildingStructure).map((val) => (
                       <MenuItem key={val} value={val}>
@@ -330,9 +298,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   <Select
                     value={data.building.seismicRisk}
                     label="Risc seismic"
-                    onChange={(e) =>
-                      handleBuildingChange("seismicRisk", e.target.value)
-                    }
+                    onChange={(e) => handleBuildingChange("seismicRisk", e.target.value)}
                   >
                     {Object.values(EBuildingSeismicRisk).map((val) => (
                       <MenuItem key={val} value={val}>
@@ -347,9 +313,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                 <TextField
                   label="Inaltime cladire"
                   value={data.building.height}
-                  onChange={(e) =>
-                    handleBuildingChange("height", e.target.value)
-                  }
+                  onChange={(e) => handleBuildingChange("height", e.target.value)}
                   fullWidth
                 />
               </Grid>
@@ -370,9 +334,7 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                   <Select
                     value={data.energyPerformance.energyClass}
                     label="Clasa energetica"
-                    onChange={(e) =>
-                      handleEnergyChange("energyClass", e.target.value)
-                    }
+                    onChange={(e) => handleEnergyChange("energyClass", e.target.value)}
                   >
                     {Object.values(EEnergyClass).map((val) => (
                       <MenuItem key={val} value={val}>
@@ -387,18 +349,11 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                 <TextField
                   label="Consum anual specific"
                   value={data.energyPerformance.specificAnnualConsumption}
-                  onChange={(e) =>
-                    handleEnergyChange(
-                      "specificAnnualConsumption",
-                      e.target.value
-                    )
-                  }
+                  onChange={(e) => handleEnergyChange("specificAnnualConsumption", e.target.value)}
                   fullWidth
                   slotProps={{
                     input: {
-                      endAdornment: (
-                        <InputAdornment position="end">kWh/m²an</InputAdornment>
-                      ),
+                      endAdornment: <InputAdornment position="end">kWh/m²an</InputAdornment>,
                     },
                   }}
                 />
@@ -408,20 +363,11 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
                 <TextField
                   label="Indice emisii CO₂"
                   value={data.energyPerformance.co2EquivalentEmissionIndex}
-                  onChange={(e) =>
-                    handleEnergyChange(
-                      "co2EquivalentEmissionIndex",
-                      e.target.value
-                    )
-                  }
+                  onChange={(e) => handleEnergyChange("co2EquivalentEmissionIndex", e.target.value)}
                   fullWidth
                   slotProps={{
                     input: {
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          kgCO₂/m²an
-                        </InputAdornment>
-                      ),
+                      endAdornment: <InputAdornment position="end">kgCO₂/m²an</InputAdornment>,
                     },
                   }}
                 />
@@ -430,22 +376,14 @@ const CharacteristicsStep = ({ data, onChange }: CharacteristicsStepProps) => {
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <TextField
                   label="Consum surse regenerabile"
-                  value={
-                    data.energyPerformance
-                      .specificConsumptionFromRenewableSources
-                  }
+                  value={data.energyPerformance.specificConsumptionFromRenewableSources}
                   onChange={(e) =>
-                    handleEnergyChange(
-                      "specificConsumptionFromRenewableSources",
-                      e.target.value
-                    )
+                    handleEnergyChange("specificConsumptionFromRenewableSources", e.target.value)
                   }
                   fullWidth
                   slotProps={{
                     input: {
-                      endAdornment: (
-                        <InputAdornment position="end">kWh/m²an</InputAdornment>
-                      ),
+                      endAdornment: <InputAdornment position="end">kWh/m²an</InputAdornment>,
                     },
                   }}
                 />
