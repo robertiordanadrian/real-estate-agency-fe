@@ -29,7 +29,7 @@ import { propertiesKeys, usePropertyQuery } from "../../features/properties/prop
 import { http } from "../../services/http";
 import { queryClient } from "../../services/queryClient";
 
-const steps = ["Detalii generale", "Caracteristici", "Utilități", "Preț", "Descriere", "Imagini"];
+const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
 const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
@@ -297,9 +297,19 @@ const EditProperty = () => {
             orientation={isMobile ? "vertical" : "horizontal"}
             sx={{ mb: 3 }}
           >
-            {steps.map((label) => (
+            {steps.map((label, index) => (
               <Step key={label}>
-                <StepLabel>{label}</StepLabel>
+                <StepLabel
+                  onClick={() => setActiveStep(index)}
+                  sx={{
+                    cursor: "pointer",
+                    "& .MuiStepLabel-label": {
+                      "&:hover": { color: accent },
+                    },
+                  }}
+                >
+                  {label}
+                </StepLabel>
               </Step>
             ))}
           </Stepper>

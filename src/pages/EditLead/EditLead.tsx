@@ -18,6 +18,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
 import { IEditLeadForm } from "common/interfaces/edit-lead-form.interface";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -132,6 +133,17 @@ const EditLead = () => {
         zona: lead.zona ?? "",
         budget: lead.budget ?? "",
         transactionType: lead.transactionType ?? "",
+
+        idSeries: lead.idSeries ?? "",
+        idNumber: lead.idNumber ?? "",
+        cnp: lead.cnp ?? "",
+        idExpirationDate: lead.idExpirationDate
+          ? new Date(lead.idExpirationDate).toISOString()
+          : "",
+        address: lead.address ?? "",
+
+        status: lead.status ?? undefined,
+        agentId: lead.agentId ?? undefined,
       });
     }
   }, [lead]);
@@ -154,10 +166,11 @@ const EditLead = () => {
     <Box
       sx={{
         width: "100%",
-        height: "100%",
+        minHeight: "100%",
+        height: "auto",
         display: "flex",
         justifyContent: "center",
-        alignItems: "flex-start",
+        alignItems: "stretch",
         boxSizing: "border-box",
       }}
     >
@@ -427,9 +440,71 @@ const EditLead = () => {
                 sx={{ mt: 2, fontWeight: 600 }}
                 disabled={!file || uploadContract.isPending}
               >
-                {uploadContract.isPending ? "Se încarcă..." : "Încarcă contract"}
+                {uploadContract.isPending ? "Se incarca..." : "Incarca contract"}
               </Button>
             </Box>
+
+            {lead.contractUrl && (
+              <Grid container spacing={2} sx={{ mt: 4 }}>
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="h6" fontWeight={700} mb={1}>
+                    Date Act de Identitate
+                  </Typography>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="Serie buletin"
+                    value={form.idSeries ?? ""}
+                    onChange={(e) => handleChange("idSeries", e.target.value)}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="Numar buletin"
+                    value={form.idNumber ?? ""}
+                    onChange={(e) => handleChange("idNumber", e.target.value)}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <TextField
+                    label="CNP"
+                    value={form.cnp ?? ""}
+                    onChange={(e) => handleChange("cnp", e.target.value)}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <DatePicker
+                    label="Data expirarii"
+                    value={form.idExpirationDate ? new Date(form.idExpirationDate) : null}
+                    onChange={(newValue) =>
+                      handleChange("idExpirationDate", newValue ? newValue.toISOString() : "")
+                    }
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                      },
+                    }}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    label="Adresa"
+                    value={form.address ?? ""}
+                    onChange={(e) => handleChange("address", e.target.value)}
+                    fullWidth
+                    multiline
+                    minRows={2}
+                  />
+                </Grid>
+              </Grid>
+            )}
 
             <Button
               variant="contained"

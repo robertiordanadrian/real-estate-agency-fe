@@ -17,6 +17,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
 
 import {
@@ -349,35 +350,35 @@ const PriceStep = ({ data, onChange }: PriceStepProps) => {
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <TextField
+                <DatePicker
                   label="Data semnarii"
-                  type="date"
-                  value={
-                    data.contact.signDate
-                      ? new Date(data.contact.signDate).toISOString().split("T")[0]
-                      : ""
-                  }
-                  onChange={(e) => handleContactChange("signDate", new Date(e.target.value))}
-                  fullWidth
+                  value={data.contact.signDate ? new Date(data.contact.signDate) : null}
+                  onChange={(newValue) => {
+                    handleContactChange("signDate", newValue ? newValue.toISOString() : null);
+                  }}
                   slotProps={{
-                    inputLabel: { shrink: true },
+                    textField: {
+                      fullWidth: true,
+                      variant: "outlined",
+                      size: "medium",
+                    },
                   }}
                 />
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <TextField
+                <DatePicker
                   label="Data expirarii"
-                  type="date"
-                  value={
-                    data.contact.expirationDate
-                      ? new Date(data.contact.expirationDate).toISOString().split("T")[0]
-                      : ""
-                  }
-                  onChange={(e) => handleContactChange("expirationDate", new Date(e.target.value))}
-                  fullWidth
+                  value={data.contact.expirationDate ? new Date(data.contact.expirationDate) : null}
+                  onChange={(newValue) => {
+                    handleContactChange("expirationDate", newValue ? newValue.toISOString() : null);
+                  }}
                   slotProps={{
-                    inputLabel: { shrink: true },
+                    textField: {
+                      fullWidth: true,
+                      variant: "outlined",
+                      size: "medium",
+                    },
                   }}
                 />
               </Grid>

@@ -1,6 +1,8 @@
 import { Edit, Visibility } from "@mui/icons-material";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
   Avatar,
   Box,
@@ -22,6 +24,7 @@ import {
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { ESignedContract } from "../../common/enums/price.enums";
 import type { IProperty } from "../../common/interfaces/property.interface";
 import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
 import { useFilterPropertiesQuery } from "../../features/filterProperties/filterPropertiesQueries";
@@ -40,6 +43,18 @@ interface SortState {
   direction: SortDirection;
 }
 
+const getFullAddress = (p: IProperty) => {
+  const loc = p.generalDetails?.location;
+  if (!loc) return "-";
+
+  const street = loc.street || "";
+  const number = loc.number || "";
+  const zone = loc.zone || "";
+
+  const base = `${street} ${number}`.trim();
+  return zone ? `${base} (${zone})` : base || "-";
+};
+
 const sortableColumns: Record<string, (_p: IProperty) => any> = {
   status: (p) => p.generalDetails?.status,
   sku: (p) => p.sku,
@@ -48,9 +63,8 @@ const sortableColumns: Record<string, (_p: IProperty) => any> = {
   price: (p) => p.price?.priceDetails?.price,
   bedrooms: (p) => p.characteristics?.details?.bedrooms,
   usableArea: (p) => p.characteristics?.areas?.totalUsableArea,
-  floor: (p) => p.characteristics?.details?.floor,
-  zone: (p) => p.generalDetails?.location?.zone,
-  street: (p) => p.generalDetails?.location?.street,
+  address: (p) => getFullAddress(p).toLowerCase(),
+  contract: (p) => (p.price?.contact?.signedContract === ESignedContract.NO ? 0 : 1),
   agent: (p) => p.generalDetails?.agent,
 };
 
@@ -85,9 +99,8 @@ function DesktopFilteredTable({
     { label: "Pret (€)", key: "price" },
     { label: "Camere", key: "bedrooms" },
     { label: "Suprafata (mp)", key: "usableArea" },
-    { label: "Etaj", key: "floor" },
-    { label: "Zona", key: "zone" },
-    { label: "Strada", key: "street" },
+    { label: "Adresa", key: "address" },
+    { label: "Contract", key: "contract" },
     { label: "Agent", key: "agent" },
     { label: "Actiuni", key: null },
   ];
@@ -212,9 +225,18 @@ function DesktopFilteredTable({
                   <TableCell>{price?.priceDetails?.price ?? "-"}</TableCell>
                   <TableCell>{characteristics?.details?.bedrooms ?? "-"}</TableCell>
                   <TableCell>{characteristics?.areas?.totalUsableArea ?? "-"}</TableCell>
-                  <TableCell>{characteristics?.details?.floor ?? "-"}</TableCell>
-                  <TableCell>{generalDetails?.location?.zone ?? "-"}</TableCell>
-                  <TableCell>{generalDetails?.location?.street ?? "-"}</TableCell>
+                  <TableCell>{getFullAddress(property)}</TableCell>
+                  <TableCell>
+                    {property.price?.contact?.signedContract !== ESignedContract.NO ? (
+                      <Tooltip title="Are contract">
+                        <CheckCircleIcon sx={{ color: "rgb(34,197,94)", fontSize: 22 }} />
+                      </Tooltip>
+                    ) : (
+                      <Tooltip title="Nu are contract">
+                        <CancelIcon sx={{ color: "rgb(239,68,68)", fontSize: 22 }} />
+                      </Tooltip>
+                    )}
+                  </TableCell>
                   <TableCell>{generalDetails?.agent ?? "-"}</TableCell>
 
                   <TableCell align="center">

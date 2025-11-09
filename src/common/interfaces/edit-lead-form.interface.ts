@@ -9,4 +9,9 @@ export interface IEditLeadForm {
   transactionType: string;
   status?: ELeadStatus;
   agentId?: string;
+  idSeries?: string;
+  idNumber?: string;
+  cnp?: string;
+  idExpirationDate?: string;
+  address?: string;
 }

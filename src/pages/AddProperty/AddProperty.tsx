@@ -48,7 +48,7 @@ import { PropertiesApi } from "../../features/properties/propertiesApi";
 import { propertiesKeys } from "../../features/properties/propertiesQueries";
 import { queryClient } from "../../services/queryClient";
 
-const steps = ["Detalii generale", "Caracteristici", "Utilități", "Preț", "Descriere", "Imagini"];
+const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
 const defaultGeneralDetails: IGeneralDetails = {
   agent: "",

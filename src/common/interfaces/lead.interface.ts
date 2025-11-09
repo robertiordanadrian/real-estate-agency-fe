@@ -16,4 +16,9 @@ export interface ILead {
   agentId?: string;
   contractUrl?: string;
   status: ELeadStatus;
+  idSeries?: string;
+  idNumber?: string;
+  cnp?: string;
+  idExpirationDate?: string;
+  address?: string;
 }
