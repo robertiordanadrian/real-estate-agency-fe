@@ -6,6 +6,7 @@ import {
   Edit,
   Email,
   Euro,
+  History,
   LocationOn,
   Person,
   Phone,
@@ -329,11 +330,51 @@ const PropertyDetail = () => {
             overflowY: "auto",
           }}
         >
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h5" mb={3} fontWeight={600} gutterBottom sx={{ mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 2,
+            }}
+          >
+            <Typography
+              variant="h5"
+              fontWeight={600}
+              sx={{
+                flex: 1,
+                textAlign: "left",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
               {description?.title || "Proprietate fara titlu"}
             </Typography>
 
+            <Button
+              variant="outlined"
+              color="info"
+              startIcon={<History />}
+              onClick={() => navigate(`/properties/${propertyId}/logs`)}
+              sx={{
+                textTransform: "none",
+                fontWeight: 600,
+                borderRadius: 2,
+                borderColor: theme.palette.info.main,
+                color: theme.palette.info.main,
+                whiteSpace: "nowrap",
+                "&:hover": {
+                  borderColor: theme.palette.info.dark,
+                  backgroundColor: theme.palette.info.dark + "11",
+                },
+              }}
+            >
+              Vezi istoric modificari
+            </Button>
+          </Box>
+
+          <Box sx={{ mb: 4 }}>
             <Typography
               variant="subtitle1"
               color="text.secondary"

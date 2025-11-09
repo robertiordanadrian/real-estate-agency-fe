@@ -12,6 +12,7 @@ import EditProperty from "./pages/EditProperty/EditProperty";
 import Leads from "./pages/Leads/Leads";
 import LoginPage from "./pages/Login/LoginPage";
 import Properties from "./pages/Properties/Properties";
+import PropertyLogsPage from "./pages/PropertyLogs/PropertyLogs";
 import RegisterPage from "./pages/Register/RegisterPage";
 import Requests from "./pages/Requests/Requests";
 import Settings from "./pages/Settings/Settings";
@@ -31,6 +32,7 @@ function App() {
             <Route path="/properties" element={<Properties />} />
             <Route path="/properties/add" element={<AddProperty />} />
             <Route path="/properties/:sku" element={<PropertyDetail />} />
+            <Route path="/properties/:id/logs" element={<PropertyLogsPage />} />
             <Route path="/properties/edit/:id" element={<EditProperty />} />
             <Route path="/requests" element={<Requests />} />
             <Route element={<CEOProtectedRoute />}>

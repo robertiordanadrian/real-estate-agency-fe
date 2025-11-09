@@ -1,0 +1,80 @@
+export const fieldLabelMap: Record<string, string> = {
+  // ✅ GENERAL DETAILS
+  "generalDetails.status": "Status",
+  "generalDetails.transactionType": "Tip tranzactie",
+  "generalDetails.category": "Categorie",
+  "generalDetails.residentialComplex": "Complex rezidential",
+  "generalDetails.privatMemo": "Memo privat",
+
+  // ✅ LOCATION
+  "generalDetails.location.city": "Oras",
+  "generalDetails.location.zone": "Zona",
+  "generalDetails.location.street": "Strada",
+  "generalDetails.location.number": "Numar",
+  "generalDetails.location.building": "Bloc",
+  "generalDetails.location.stairwell": "Scara",
+  "generalDetails.location.apartment": "Apartament",
+  "generalDetails.location.interesPoints": "Puncte de interes",
+  "generalDetails.location.surroundings": "Imprejurimi",
+
+  // ✅ PRICE DETAILS
+  "price.priceDetails.price": "Pret",
+  "price.priceDetails.currency": "Moneda",
+  "price.priceDetails.pricePerMp": "Pret / mp",
+  "price.priceDetails.lastPrice": "Ultimul pret",
+  "price.priceDetails.garagePrice": "Pret garaj",
+  "price.priceDetails.parkingPrice": "Pret parcare",
+  "price.priceDetails.privateNotePrice": "Notite private pret",
+  "price.priceDetails.paymentMethod": "Metoda plata",
+
+  // ✅ CONTRACT
+  "price.contact.type": "Tip contract",
+  "price.contact.signedContract": "Contract semnat",
+  "price.contact.contractNumber": "Numar contract",
+  "price.contact.signDate": "Data semnarii",
+  "price.contact.expirationDate": "Data expirarii",
+
+  // ✅ CHARACTERISTICS – DETAILS
+  "characteristics.details.type": "Tip proprietate",
+  "characteristics.details.destination": "Destinatie",
+  "characteristics.details.rooms": "Camere",
+  "characteristics.details.kitchens": "Bucatarii",
+  "characteristics.details.bedrooms": "Dormitoare",
+  "characteristics.details.bathrooms": "Bai",
+  "characteristics.details.balconies": "Balcoane",
+  "characteristics.details.terraces": "Terase",
+  "characteristics.details.parkingLots": "Locuri parcare",
+  "characteristics.details.garages": "Garaje",
+  "characteristics.details.yearOfConstruction": "An constructie",
+  "characteristics.details.yearOfRenovation": "An renovare",
+  "characteristics.details.openKitchen": "Bucatarie deschisa",
+  "characteristics.details.bathroomWindow": "Geam baie",
+  "characteristics.details.petFriendly": "Pet friendly",
+  "characteristics.details.keyInAgency": "Cheia in agentie",
+
+  // ✅ AREAS
+  "characteristics.areas.usableArea": "Suprafata utila",
+  "characteristics.areas.builtupArea": "Suprafata construita",
+  "characteristics.areas.totalUsableArea": "Suprafata utila totala",
+  "characteristics.areas.balconyArea": "Suprafata balcon",
+  "characteristics.areas.terraceArea": "Suprafata terasa",
+  "characteristics.areas.gardenArea": "Suprafata teren",
+
+  // ✅ BUILDING
+  "characteristics.building.constructionStage": "Stadiu constructie",
+  "characteristics.building.type": "Tip cladire",
+  "characteristics.building.structure": "Structura",
+  "characteristics.building.seismicRisk": "Risc seismic",
+  "characteristics.building.height": "Inaltime cladire",
+
+  // ✅ DESCRIPTION
+  "description.title": "Titlu",
+  "description.description": "Descriere",
+  "description.disponibility": "Disponibilitate",
+  "description.videoYoutubeLink": "Link video YouTube",
+  "description.virtualTour": "Tur virtual",
+};
+
+export const getReadableFieldLabel = (path: string): string => {
+  return fieldLabelMap[path] ?? path;
+};
