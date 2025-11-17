@@ -1,4 +1,4 @@
-import { http } from "../../services/http";
+import { http } from "@/services/http";
 
 export const PropertyRequestsApi = {
   getPending: () => http.get("/property-requests/pending"),

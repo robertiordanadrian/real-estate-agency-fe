@@ -24,10 +24,12 @@ import {
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ESignedContract } from "../../common/enums/price.enums";
-import type { IProperty } from "../../common/interfaces/property.interface";
-import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
-import { useFilterPropertiesQuery } from "../../features/filterProperties/filterPropertiesQueries";
+import { ESignedContract } from "@/common/enums/property/price.enums";
+import type { IProperty } from "@/common/interfaces/property/property.interface";
+import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
+import { useFilterPropertiesQuery } from "@/features/filterProperties/filterPropertiesQueries";
+import { useQuery } from "@tanstack/react-query";
+import { UsersApi } from "@/features/users/usersApi";
 
 interface FilterPropertiesListProps {
   selectedCategory?: string;
@@ -65,7 +67,6 @@ const sortableColumns: Record<string, (_p: IProperty) => any> = {
   usableArea: (p) => p.characteristics?.areas?.totalUsableArea,
   address: (p) => getFullAddress(p).toLowerCase(),
   contract: (p) => (p.price?.contact?.signedContract === ESignedContract.NO ? 0 : 1),
-  agent: (p) => p.generalDetails?.agent,
 };
 
 function DesktopFilteredTable({
@@ -90,6 +91,10 @@ function DesktopFilteredTable({
   const accent = theme.palette.primary.main;
   const navigate = useNavigate();
 
+  const { data: users } = useQuery({
+    queryKey: ["users-all"],
+    queryFn: UsersApi.getAll,
+  });
   const headers = [
     { label: "Imagine", key: null },
     { label: "Status", key: "status" },
@@ -116,6 +121,13 @@ function DesktopFilteredTable({
       <ArrowDownwardIcon sx={{ fontSize: 16, color: accent, ml: 0.5 }} />
     );
   };
+
+  const usersMap = useMemo(() => {
+    if (!users) return {};
+    const map: Record<string, any> = {};
+    users.forEach((u: any) => (map[u._id] = u));
+    return map;
+  }, [users]);
 
   return (
     <Paper
@@ -237,7 +249,13 @@ function DesktopFilteredTable({
                       </Tooltip>
                     )}
                   </TableCell>
-                  <TableCell>{generalDetails?.agent ?? "-"}</TableCell>
+                  <TableCell>
+                    {(() => {
+                      const agentId = generalDetails?.agentId;
+                      const agent = agentId ? usersMap[agentId] : null;
+                      return agent ? `${agent.name} (${agent.role})` : "-";
+                    })()}
+                  </TableCell>
 
                   <TableCell align="center">
                     <Tooltip title="Vezi detalii">

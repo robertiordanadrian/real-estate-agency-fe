@@ -1,4 +1,4 @@
-import { ERole } from "../enums/role.enums";
+import { ERole } from "@/common/enums/role/role.enums";
 
 export function normalizeRole(role: string | ERole): ERole {
   switch (role) {

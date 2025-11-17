@@ -1,5 +1,5 @@
-import { store } from "../../app/store";
-import { rehydrate } from "./authSlice";
+import { store } from "@/app/store";
+import { rehydrate } from "@/features/auth/authSlice";
 
 const KEY = "app.auth";
 

@@ -1,41 +1,16 @@
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
-import { useEffect, useState } from "react";
 
 interface PropertyMapProps {
-  address: string;
+  lat: number | null;
+  lng: number | null;
   apiKey: string;
 }
 
-const PropertyMap = ({ address, apiKey }: PropertyMapProps) => {
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
-
-  useEffect(() => {
-    if (!address) return;
-
-    const geocode = async () => {
-      try {
-        const res = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-            address,
-          )}&key=${apiKey}`,
-        );
-        const data = await res.json();
-        if (data.status === "OK" && data.results.length > 0) {
-          const { lat, lng } = data.results[0].geometry.location;
-          setCoords({ lat, lng });
-        } else {
-          console.warn("Geocoding failed:", data.status);
-        }
-      } catch (e) {
-        console.error("Geocoding error:", e);
-      }
-    };
-
-    geocode();
-  }, [address, apiKey]);
+const PropertyMap = ({ lat, lng, apiKey }: PropertyMapProps) => {
+  const coords = lat && lng ? { lat, lng } : { lat: 44.4268, lng: 26.1025 };
 
   return (
-    <APIProvider apiKey={apiKey} libraries={["places"]}>
+    <APIProvider apiKey={apiKey}>
       <div
         style={{
           width: "100%",
@@ -45,13 +20,8 @@ const PropertyMap = ({ address, apiKey }: PropertyMapProps) => {
           boxShadow: "0 0 10px rgba(0,0,0,0.2)",
         }}
       >
-        <Map
-          center={coords || { lat: 44.4268, lng: 26.1025 }}
-          zoom={coords ? 16 : 6}
-          disableDefaultUI
-          mapId="property-map"
-        >
-          {coords && <Marker position={coords} />}
+        <Map center={coords} zoom={lat && lng ? 17 : 6} disableDefaultUI mapId="property-map">
+          {lat && lng && <Marker position={coords} />}
         </Map>
       </div>
     </APIProvider>

@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { useAppDispatch } from "../../app/hook";
-import { ERole } from "../../common/enums/role.enums";
-import { http } from "../../services/http";
-import { logout, setCredentials } from "./authSlice";
+import { useAppDispatch } from "@/app/hook";
+import { ERole } from "@/common/enums/role/role.enums";
+import { http } from "@/services/http";
+import { logout, setCredentials } from "@/features/auth/authSlice";
 
 type LoginPayload = { email: string; password: string };
 type LoginResponse = {

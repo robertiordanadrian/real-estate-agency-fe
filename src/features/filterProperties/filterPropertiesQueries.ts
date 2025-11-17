@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { IProperty } from "../../common/interfaces/property.interface";
-import { FilterPropertiesApi } from "./filterPropertiesApi";
+import { IProperty } from "@/common/interfaces/property/property.interface";
+import { FilterPropertiesApi } from "@/features/filterProperties/filterPropertiesApi";
 
 export const useFilterPropertiesQuery = (
   category?: string,

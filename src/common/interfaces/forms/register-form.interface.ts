@@ -1,4 +1,4 @@
-import { ERole } from "common/enums/role.enums";
+import { ERole } from "@/common/enums/role/role.enums";
 
 export interface IRegisterForm {
   name: string;

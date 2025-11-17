@@ -27,17 +27,17 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useAppSelector } from "../../app/hook";
-import { ERole } from "../../common/enums/role.enums";
-import { IRegisterForm } from "../../common/interfaces/register-form.interface";
-import { getRoleColor } from "../../common/utils/get-role-color.util";
-import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
-import { useRegister } from "../../features/auth/authMutations";
-import { selectUser } from "../../features/auth/authSelectors";
+import { ERole } from "@/common/enums/role/role.enums";
+import { IRegisterForm } from "@/common/interfaces/forms/register-form.interface";
+import { getRoleColor } from "@/common/utils/get-role-color.util";
+import { getRoleDisplayText } from "@/common/utils/get-role-display-text.util";
+import { useRegister } from "@/features/auth/authMutations";
+import { selectUser } from "@/features/auth/authSelectors";
 import {
   useUpdateUserById,
   useUploadProfilePictureForUser,
   useUserByIdQuery,
-} from "../../features/users/usersQueries";
+} from "@/features/users/usersQueries";
 
 const ROLES = ["MANAGER", "TEAM_LEAD", "AGENT"];
 

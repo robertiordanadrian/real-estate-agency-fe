@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CardContent,
+  FormControl,
   Grid,
   Paper,
   TextField,
@@ -11,130 +12,193 @@ import {
   useTheme,
 } from "@mui/material";
 
-import { IDescription } from "../../common/interfaces/description.interface";
+import { IDescription } from "@/common/interfaces/property/description.interface";
+import { DatePicker } from "@mui/x-date-pickers";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
 interface DescriptionStepProps {
   data: IDescription;
-  onChange: (_updated: IDescription) => void;
+  onChange: (updated: IDescription | ((prev: IDescription) => IDescription)) => void;
+  descriptionTouched: boolean;
 }
 
-const DescriptionStep = ({ data, onChange }: DescriptionStepProps) => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
+export interface DescriptionStepRef {
+  validate: () => boolean;
+}
 
-  const handleChange = (key: keyof IDescription, value: string) => {
-    onChange({ ...data, [key]: value });
-  };
-
-  const handleOpenLink = (url: string) => {
-    if (url && url.startsWith("http")) {
-      window.open(url, "_blank");
-    }
-  };
-
-  return (
-    <Paper
-      elevation={2}
-      sx={{
-        p: 3,
-        borderRadius: 3,
-        background: isDark ? theme.palette.background.paper : theme.palette.background.default,
-      }}
-    >
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        <Card sx={{ borderRadius: 3 }}>
-          <CardContent>
-            <Typography variant="h6" mb={2} fontWeight={600}>
-              Descriere proprietate
-            </Typography>
-
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12 }}>
-                <TextField
-                  label="Titlu"
-                  value={data.title}
-                  onChange={(e) => handleChange("title", e.target.value)}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12 }}>
-                <TextField
-                  label="Descriere"
-                  value={data.description}
-                  onChange={(e) => handleChange("description", e.target.value)}
-                  fullWidth
-                  multiline
-                  minRows={6}
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <TextField
-                  label="Disponibilitate"
-                  value={data.disponibility}
-                  onChange={(e) => handleChange("disponibility", e.target.value)}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <TextField
-                  label="Link video YouTube"
-                  value={data.videoYoutubeLink}
-                  onChange={(e) => handleChange("videoYoutubeLink", e.target.value)}
-                  fullWidth
-                />
-                {data.videoYoutubeLink && data.videoYoutubeLink.startsWith("http") && (
-                  <Button
-                    variant="outlined"
-                    startIcon={<PlayCircle />}
-                    onClick={() => handleOpenLink(data.videoYoutubeLink)}
-                    sx={{
-                      mt: 1,
-                      borderColor: theme.palette.primary.main,
-                      color: theme.palette.primary.main,
-                      "&:hover": {
-                        backgroundColor: `${theme.palette.primary.main}11`,
-                      },
-                    }}
-                  >
-                    Deschide video
-                  </Button>
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                <TextField
-                  label="Link tur virtual"
-                  value={data.virtualTour}
-                  onChange={(e) => handleChange("virtualTour", e.target.value)}
-                  fullWidth
-                />
-                {data.virtualTour && data.virtualTour.startsWith("http") && (
-                  <Button
-                    variant="outlined"
-                    startIcon={<Tour />}
-                    onClick={() => handleOpenLink(data.virtualTour)}
-                    sx={{
-                      mt: 1,
-                      borderColor: theme.palette.primary.main,
-                      color: theme.palette.primary.main,
-                      "&:hover": {
-                        backgroundColor: `${theme.palette.primary.main}11`,
-                      },
-                    }}
-                  >
-                    Deschide tur virtual
-                  </Button>
-                )}
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Box>
-    </Paper>
-  );
+type DescriptionErrors = {
+  title?: boolean;
+  description?: boolean;
 };
+
+const DescriptionStep = forwardRef<DescriptionStepRef, DescriptionStepProps>(
+  ({ data, onChange, descriptionTouched }, ref) => {
+    const theme = useTheme();
+    const isDark = theme.palette.mode === "dark";
+    const [descriptionErrors, setDescriptionErrors] = useState<DescriptionErrors>({});
+
+    const validateDescription = () => {
+      const newErrors: DescriptionErrors = {};
+      if (!data.title) newErrors.title = true;
+      if (!data.description) newErrors.description = true;
+
+      setDescriptionErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    };
+
+    const clearError = (key: keyof DescriptionErrors) => {
+      setDescriptionErrors((prev) => {
+        if (!prev[key]) return prev;
+        const newErr = { ...prev };
+        delete newErr[key];
+        return newErr;
+      });
+    };
+
+    const handleChange = (key: keyof IDescription, value: string) => {
+      onChange({ ...data, [key]: value });
+    };
+
+    const handleOpenLink = (url: string) => {
+      if (url && url.startsWith("http")) {
+        window.open(url, "_blank");
+      }
+    };
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        validate: validateDescription,
+      }),
+      [validateDescription],
+    );
+
+    return (
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          borderRadius: 3,
+          background: isDark ? theme.palette.background.paper : theme.palette.background.default,
+        }}
+      >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <Card sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" mb={2} fontWeight={600}>
+                Descriere proprietate
+              </Typography>
+
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12 }}>
+                  <FormControl required fullWidth>
+                    <TextField
+                      label="Titlu"
+                      value={data.title}
+                      onChange={(e) => {
+                        clearError("title");
+                        onChange((prev) => ({ ...prev, title: e.target.value }));
+                      }}
+                      fullWidth
+                      error={descriptionTouched && !!descriptionErrors.title}
+                      required
+                    />
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 12 }}>
+                  <FormControl required fullWidth>
+                    <TextField
+                      label="Descriere"
+                      value={data.description}
+                      onChange={(e) => {
+                        clearError("description");
+                        onChange((prev) => ({ ...prev, description: e.target.value }));
+                      }}
+                      fullWidth
+                      multiline
+                      minRows={6}
+                      error={descriptionTouched && !!descriptionErrors.title}
+                      required
+                    />
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <DatePicker
+                    label="Disponibilitate"
+                    value={data.disponibility ? new Date(data.disponibility) : null}
+                    onChange={(newValue) =>
+                      handleChange("disponibility", newValue ? newValue.toISOString() : "")
+                    }
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        variant: "outlined",
+                        size: "medium",
+                      },
+                    }}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <TextField
+                    label="Link video YouTube"
+                    value={data.videoYoutubeLink}
+                    onChange={(e) => handleChange("videoYoutubeLink", e.target.value)}
+                    fullWidth
+                  />
+                  {data.videoYoutubeLink && data.videoYoutubeLink.startsWith("http") && (
+                    <Button
+                      variant="outlined"
+                      startIcon={<PlayCircle />}
+                      onClick={() => handleOpenLink(data.videoYoutubeLink as string)}
+                      sx={{
+                        mt: 1,
+                        borderColor: theme.palette.primary.main,
+                        color: theme.palette.primary.main,
+                        "&:hover": {
+                          backgroundColor: `${theme.palette.primary.main}11`,
+                        },
+                      }}
+                    >
+                      Deschide video
+                    </Button>
+                  )}
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <TextField
+                    label="Link tur virtual"
+                    value={data.virtualTour}
+                    onChange={(e) => handleChange("virtualTour", e.target.value)}
+                    fullWidth
+                  />
+                  {data.virtualTour && data.virtualTour.startsWith("http") && (
+                    <Button
+                      variant="outlined"
+                      startIcon={<Tour />}
+                      onClick={() => handleOpenLink(data.virtualTour as string)}
+                      sx={{
+                        mt: 1,
+                        borderColor: theme.palette.primary.main,
+                        color: theme.palette.primary.main,
+                        "&:hover": {
+                          backgroundColor: `${theme.palette.primary.main}11`,
+                        },
+                      }}
+                    >
+                      Deschide tur virtual
+                    </Button>
+                  )}
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Box>
+      </Paper>
+    );
+  },
+);
 
 export default DescriptionStep;

@@ -1,4 +1,4 @@
-import { ELeadStatus } from "common/enums/lead-status.enum";
+import { ELeadStatus } from "@/common/enums/lead/lead-status.enum";
 
 export interface IEditLeadForm {
   name: string;

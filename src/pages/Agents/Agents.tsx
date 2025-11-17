@@ -28,11 +28,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAppSelector } from "../../app/hook";
-import { ERole } from "../../common/enums/role.enums";
-import { getRoleColor } from "../../common/utils/get-role-color.util";
-import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
-import { selectUser } from "../../features/auth/authSelectors";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
+import { ERole } from "@/common/enums/role/role.enums";
+import { getRoleColor } from "@/common/utils/get-role-color.util";
+import { getRoleDisplayText } from "@/common/utils/get-role-display-text.util";
+import { selectUser } from "@/features/auth/authSelectors";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
 
 const Agents = () => {
   const theme = useTheme();

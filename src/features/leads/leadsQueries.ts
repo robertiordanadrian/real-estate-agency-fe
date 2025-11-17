@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { ILead } from "../../common/interfaces/lead.interface";
-import { LeadsApi } from "./leadsApi";
+import type { ILead } from "@/common/interfaces/lead/lead.interface";
+import { LeadsApi } from "@/features/leads/leadsApi";
 
 export const useLeadsQuery = () =>
   useQuery({

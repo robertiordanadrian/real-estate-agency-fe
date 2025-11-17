@@ -1,4 +1,4 @@
-import LeadRequestsList from "../../components/LeadRequestsList/LeadRequestsList";
+import LeadRequestsList from "@/components/LeadRequestsList/LeadRequestsList";
 
 const LeadRequests = () => {
   return <LeadRequestsList />;

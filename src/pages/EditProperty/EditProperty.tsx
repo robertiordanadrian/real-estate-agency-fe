@@ -14,20 +14,26 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import type { IProperty } from "../../common/interfaces/property.interface";
-import CharacteristicsStep from "../../components/PropertySteps/CharacteristicsStep";
-import DescriptionStep from "../../components/PropertySteps/DescriptionStep";
-import GeneralDetailsStep from "../../components/PropertySteps/GeneralDetailsStep";
-import ImagesStep from "../../components/PropertySteps/ImagesStep";
-import PriceStep from "../../components/PropertySteps/PriceStep";
-import UtilityStep from "../../components/PropertySteps/UtilityStep";
-import { PropertiesApi } from "../../features/properties/propertiesApi";
-import { propertiesKeys, usePropertyQuery } from "../../features/properties/propertiesQueries";
-import { http } from "../../services/http";
-import { queryClient } from "../../services/queryClient";
+import type { IProperty } from "@/common/interfaces/property/property.interface";
+import CharacteristicsStep, {
+  CharacteristicsSteppRef,
+} from "@/components/PropertySteps/CharacteristicsStep";
+import DescriptionStep, { DescriptionStepRef } from "@/components/PropertySteps/DescriptionStep";
+import GeneralDetailsStep, {
+  GeneralDetailsStepRef,
+} from "@/components/PropertySteps/GeneralDetailsStep";
+import ImagesStep from "@/components/PropertySteps/ImagesStep";
+import PriceStep, { PriceStepRef } from "@/components/PropertySteps/PriceStep";
+import UtilityStep from "@/components/PropertySteps/UtilityStep";
+
+import { PropertiesApi } from "@/features/properties/propertiesApi";
+import { propertiesKeys, usePropertyQuery } from "@/features/properties/propertiesQueries";
+import { http } from "@/services/http";
+import { queryClient } from "@/services/queryClient";
 
 const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
@@ -45,13 +51,25 @@ const EditProperty = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState<IProperty | null>(null);
+
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [contractFile, setContractFile] = useState<File | null>(null);
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error",
   });
+
+  const [generalDetailsTouched, setGeneralDetailsTouched] = useState(false);
+  const [characteristicsTouched, setCharacteristicsTouched] = useState(false);
+  const [priceTouched, setPriceTouched] = useState(false);
+  const [descriptionTouched, setDescriptionTouched] = useState(false);
+
+  const generalDetailsStepRef = useRef<GeneralDetailsStepRef>(null);
+  const characteristicsStepRef = useRef<CharacteristicsSteppRef>(null);
+  const priceStepRef = useRef<PriceStepRef>(null);
+  const descriptionStepRef = useRef<DescriptionStepRef>(null);
 
   const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({ open: true, message, severity });
@@ -59,15 +77,57 @@ const EditProperty = () => {
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
-  const parseToDate = (value: unknown): Date | null => {
-    if (!value) return null;
-    const date = new Date(value as string);
-    return isNaN(date.getTime()) ? null : date;
+
+  const handleNext = () => {
+    if (!formData) return;
+
+    if (activeStep === 0) {
+      setGeneralDetailsTouched(true);
+      const isValid = generalDetailsStepRef.current?.validate();
+      if (!isValid) {
+        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        return;
+      }
+    }
+
+    if (activeStep === 1) {
+      setCharacteristicsTouched(true);
+      const isValid = characteristicsStepRef.current?.validate();
+      if (!isValid) {
+        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        return;
+      }
+    }
+
+    if (activeStep === 3) {
+      setPriceTouched(true);
+      const isValid = priceStepRef.current?.validate();
+      if (!isValid) {
+        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        return;
+      }
+    }
+
+    if (activeStep === 4) {
+      setDescriptionTouched(true);
+      const isValid = descriptionStepRef.current?.validate();
+      if (!isValid) {
+        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        return;
+      }
+    }
+
+    setActiveStep((p) => p + 1);
   };
+
+  const handleBack = () => {
+    setActiveStep((p) => p - 1);
+  };
+
   const handleSubmit = async () => {
     if (!formData || !id) return;
-    setIsSubmitting(true);
 
+    setIsSubmitting(true);
     try {
       const { images, ...propertyPayload } = formData;
 
@@ -88,36 +148,13 @@ const EditProperty = () => {
       setTimeout(() => navigate(`/properties`), 1500);
       setContractFile(null);
     } catch (error: any) {
-      let errorMessage =
-        "A aparut o eroare la actualizarea proprietatii. Te rugam sa incerci din nou.";
-
-      if (error.response) {
-        const status = error.response.status;
-        if (status === 413) errorMessage = "Fisierele sunt prea mari. Redu dimensiunea imaginilor.";
-        else if (status === 415)
-          errorMessage = "Tipul fisierului nu este acceptat. Incearca doar imagini.";
-        else if (error.response.data?.message) {
-          errorMessage = error.response.data.message;
-        } else if (status === 400) {
-          errorMessage = "Date invalide. Verifica toate campurile.";
-        }
-      } else if (error.request) {
-        errorMessage = "Eroare de retea. Verifica conexiunea la internet.";
-      }
-
-      showSnackbar(errorMessage, "error");
-
-      setTimeout(() => navigate("/properties"), 2000);
+      console.error(error);
+      showSnackbar("A aparut o eroare la actualizarea proprietatii.", "error");
     } finally {
       setIsSubmitting(false);
     }
   };
-  const handleNext = () => {
-    setActiveStep((p) => p + 1);
-  };
-  const handleBack = () => {
-    setActiveStep((p) => p - 1);
-  };
+
   const renderStep = () => {
     if (!formData) return null;
 
@@ -125,18 +162,38 @@ const EditProperty = () => {
       case 0:
         return (
           <GeneralDetailsStep
+            ref={generalDetailsStepRef}
             data={formData.generalDetails}
-            onChange={(val) =>
-              setFormData((prev) => (prev ? { ...prev, generalDetails: val } : null))
+            generalDetailsTouched={generalDetailsTouched}
+            onChange={(updated) =>
+              setFormData((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      generalDetails:
+                        typeof updated === "function" ? updated(prev.generalDetails) : updated,
+                    }
+                  : null,
+              )
             }
           />
         );
       case 1:
         return (
           <CharacteristicsStep
+            ref={characteristicsStepRef}
             data={formData.characteristics}
-            onChange={(val) =>
-              setFormData((prev) => (prev ? { ...prev, characteristics: val } : null))
+            characteristicsStepTouched={characteristicsTouched}
+            onChange={(updated) =>
+              setFormData((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      characteristics:
+                        typeof updated === "function" ? updated(prev.characteristics) : updated,
+                    }
+                  : null,
+              )
             }
           />
         );
@@ -150,27 +207,44 @@ const EditProperty = () => {
       case 3:
         return (
           <PriceStep
+            ref={priceStepRef}
+            priceTouched={priceTouched}
+            usableArea={Number(formData.characteristics.areas.usableArea)}
             data={formData.price}
-            onChange={(val) => {
-              if (val.contact.contractFile instanceof File) {
-                setContractFile(val.contact.contractFile);
-                val.contact.contractFile = "";
+            onChange={(updated) => {
+              const result = typeof updated === "function" ? updated(formData.price) : updated;
+
+              if (result.contact.contractFile instanceof File) {
+                setContractFile(result.contact.contractFile);
               }
-              setFormData((prev) => (prev ? { ...prev, price: val } : null));
+
+              setFormData((prev) => (prev ? { ...prev, price: result } : null));
             }}
           />
         );
       case 4:
         return (
           <DescriptionStep
+            ref={descriptionStepRef}
+            descriptionTouched={descriptionTouched}
             data={formData.description}
-            onChange={(val) => setFormData((prev) => (prev ? { ...prev, description: val } : null))}
+            onChange={(updated) =>
+              setFormData((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      description:
+                        typeof updated === "function" ? updated(prev.description) : updated,
+                    }
+                  : null,
+              )
+            }
           />
         );
       case 5:
         return (
           <ImagesStep
-            data={formData.images || []}
+            data={formData.images as string[]}
             files={imageFiles}
             onChange={(val) => setFormData((prev) => (prev ? { ...prev, images: val } : null))}
             onFilesChange={setImageFiles}
@@ -192,15 +266,6 @@ const EditProperty = () => {
         if (!fetchedProperty) {
           const res = await http.get(`/properties/${id}`);
           fetchedProperty = res.data;
-        }
-
-        if (fetchedProperty?.price?.contact) {
-          fetchedProperty.price.contact.signDate = parseToDate(
-            fetchedProperty.price.contact.signDate,
-          );
-          fetchedProperty.price.contact.expirationDate = parseToDate(
-            fetchedProperty.price.contact.expirationDate,
-          );
         }
 
         setFormData(fetchedProperty ?? null);
@@ -244,6 +309,7 @@ const EditProperty = () => {
       </Box>
     );
 
+  // 🔥 Layout IDENTIC cu AddProperty
   return (
     <Box
       sx={{
@@ -314,8 +380,10 @@ const EditProperty = () => {
             ))}
           </Stepper>
 
+          {/* Content scroll EXACT ca in AddProperty */}
           <Box sx={{ mt: 2, flex: 1, overflowY: "auto" }}>{renderStep()}</Box>
 
+          {/* Footer cu butoane fixe in Paper */}
           <Box
             sx={{
               display: "flex",

@@ -6,11 +6,14 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 
-import App from "./App";
-import { store } from "./app/store";
-import { loadPersistedAuth, persistAuth } from "./features/auth/authPersist";
-import { queryClient } from "./services/queryClient";
-import ThemeWrapper from "./theme";
+import { APIProvider } from "@vis.gl/react-google-maps";
+
+import App from "@/App";
+import { store } from "@/app/store";
+import { loadPersistedAuth, persistAuth } from "@/features/auth/authPersist";
+import { queryClient } from "@/services/queryClient";
+import ThemeWrapper from "@/theme";
+import { ImobiliareInitializer } from "@/features/imobiliare/ImobiliareInitializer";
 
 loadPersistedAuth();
 store.subscribe(persistAuth);
@@ -21,7 +24,16 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
         <ThemeWrapper>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ro}>
-            <App />
+            <APIProvider
+              apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+              libraries={["places"]}
+              version="weekly"
+              onLoad={() => console.log("Google Maps API loaded")}
+              onError={() => console.log("Error loading Google Maps API")}
+            >
+              <ImobiliareInitializer />
+              <App />
+            </APIProvider>
           </LocalizationProvider>
         </ThemeWrapper>
       </QueryClientProvider>

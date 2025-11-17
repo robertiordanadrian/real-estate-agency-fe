@@ -15,9 +15,9 @@ import {
   useTheme,
 } from "@mui/material";
 
-import { useLeadsQuery } from "../../features/leads/leadsQueries";
-import { usePropertiesQuery } from "../../features/properties/propertiesQueries";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
+import { useLeadsQuery } from "@/features/leads/leadsQueries";
+import { usePropertiesQuery } from "@/features/properties/propertiesQueries";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
 
 const Dashboard = () => {
   const theme = useTheme();

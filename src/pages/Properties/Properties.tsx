@@ -21,11 +21,11 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { ECategory, EStatus } from "../../common/enums/general-details.enums";
-import type { IUser } from "../../common/interfaces/user.interface";
-import FilterPropertiesList from "../../components/FilterPropertiesList/FilterPropertiesList";
-import { useFilterPropertiesQuery } from "../../features/filterProperties/filterPropertiesQueries";
-import { useAllUsersQuery, useUserQuery } from "../../features/users/usersQueries";
+import { ECategory, EStatus } from "@/common/enums/property/general-details.enums";
+import type { IUser } from "@/common/interfaces/user/user.interface";
+import FilterPropertiesList from "@/components/FilterPropertiesList/FilterPropertiesList";
+import { useFilterPropertiesQuery } from "@/features/filterProperties/filterPropertiesQueries";
+import { useAllUsersQuery, useUserQuery } from "@/features/users/usersQueries";
 
 type ContractFilter = "CONTRACT" | "NO_CONTRACT";
 
@@ -295,7 +295,7 @@ const Properties = () => {
           {/* HEADER */}
           <Box sx={{ p: 3, pb: 2 }}>
             <Typography variant="h6" fontWeight={700}>
-              Filtre Proprietăți
+              Filtre Proprietati
             </Typography>
           </Box>
 

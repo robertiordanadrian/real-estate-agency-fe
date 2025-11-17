@@ -1,5 +1,5 @@
-import type { ILead } from "../../common/interfaces/lead.interface";
-import { http } from "../../services/http";
+import type { ILead } from "@/common/interfaces/lead/lead.interface";
+import { http } from "@/services/http";
 
 export const LeadsApi = {
   async getAll(): Promise<ILead[]> {

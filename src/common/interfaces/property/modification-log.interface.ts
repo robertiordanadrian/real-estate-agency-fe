@@ -5,8 +5,8 @@ export interface IModifiedField {
 }
 
 export interface IModificationLogEntry {
-  _id: string;
-  date: string;
-  agentId: string;
-  modifiedFields: IModifiedField[];
+  _id: string | null;
+  date: string | null;
+  agentId: string | null;
+  modifiedFields: IModifiedField[] | null;
 }

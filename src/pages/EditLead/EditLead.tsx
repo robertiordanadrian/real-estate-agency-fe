@@ -19,15 +19,15 @@ import {
   useTheme,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { IEditLeadForm } from "common/interfaces/edit-lead-form.interface";
+import { IEditLeadForm } from "@/common/interfaces/forms/edit-lead-form.interface";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { ELeadStatus } from "../../common/enums/lead-status.enum";
-import { ERole } from "../../common/enums/role.enums";
-import { IUser } from "../../common/interfaces/user.interface";
-import { useLeadQuery, useUpdateLead, useUploadContract } from "../../features/leads/leadsQueries";
-import { useAllUsersQuery, useUserQuery } from "../../features/users/usersQueries";
+import { ELeadStatus } from "@/common/enums/lead/lead-status.enum";
+import { ERole } from "@/common/enums/role/role.enums";
+import { IUser } from "@/common/interfaces/user/user.interface";
+import { useLeadQuery, useUpdateLead, useUploadContract } from "@/features/leads/leadsQueries";
+import { useAllUsersQuery, useUserQuery } from "@/features/users/usersQueries";
 
 const EditLead = () => {
   const theme = useTheme();

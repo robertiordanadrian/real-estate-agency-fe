@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { PropertyRequestsApi } from "./propertyRequestsApi";
+import { PropertyRequestsApi } from "@/features/propertyRequests/propertyRequestsApi";
 
 export const propertyRequestsKeys = {
   all: ["property-requests"] as const,

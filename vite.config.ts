@@ -1,11 +1,14 @@
-import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
   plugins: [react()],
-  define: {
-    "import.meta.env.VITE_GOOGLE_MAPS_API_KEY": JSON.stringify(
-      process.env.VITE_GOOGLE_MAPS_API_KEY,
-    ),
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+      "@components": path.resolve(__dirname, "src/components"),
+      "@features": path.resolve(__dirname, "src/features"),
+    },
   },
 });

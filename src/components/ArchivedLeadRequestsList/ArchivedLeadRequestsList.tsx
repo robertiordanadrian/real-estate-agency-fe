@@ -18,12 +18,12 @@ import {
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { IUser } from "../../common/interfaces/user.interface";
-import { getChipColor } from "../../common/utils/get-chip-color.util";
-import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
-import { useArchiveLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
-import { useLeadsQuery } from "../../features/leads/leadsQueries";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
+import { IUser } from "@/common/interfaces/user/user.interface";
+import { getChipColor } from "@/common/utils/get-chip-color.util";
+import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
+import { useArchiveLeadRequestsQuery } from "@/features/leadRequests/leadRequestsQueries";
+import { useLeadsQuery } from "@/features/leads/leadsQueries";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
 
 type SortDirection = "asc" | "desc";
 interface SortState {

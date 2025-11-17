@@ -9,10 +9,10 @@ import {
 import { Box, Paper, Typography } from "@mui/material";
 import React from "react";
 
-import type { IModificationLogEntry } from "../..//common/interfaces/modification-log.interface";
-import { IUser } from "../..//common/interfaces/user.interface";
-import { getReadableFieldLabel } from "../..//common/utils/logFieldMap";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
+import type { IModificationLogEntry } from "@/common/interfaces/property/modification-log.interface";
+import { IUser } from "@/common/interfaces/user/user.interface";
+import { getReadableFieldLabel } from "@/common/utils/logFieldMap";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
 
 interface PropertyLogsProps {
   logs: IModificationLogEntry[];

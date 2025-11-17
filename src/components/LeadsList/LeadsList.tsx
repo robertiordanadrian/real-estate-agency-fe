@@ -27,11 +27,11 @@ import {
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import type { ILead } from "../../common/interfaces/lead.interface";
-import { IUser } from "../../common/interfaces/user.interface";
-import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
-import { useDeleteLead, useLeadsQuery } from "../../features/leads/leadsQueries";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
+import type { ILead } from "@/common/interfaces/lead/lead.interface";
+import { IUser } from "@/common/interfaces/user/user.interface";
+import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
+import { useDeleteLead, useLeadsQuery } from "@/features/leads/leadsQueries";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
 
 type SortDirection = "asc" | "desc";
 interface SortState {

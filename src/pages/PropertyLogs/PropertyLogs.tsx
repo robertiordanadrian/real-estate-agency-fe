@@ -11,8 +11,8 @@ import {
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 
-import PropertyLogs from "../../components/PropertyLogs/PropertyLogs";
-import { usePropertyQuery } from "../../features/properties/propertiesQueries";
+import PropertyLogs from "@/components/PropertyLogs/PropertyLogs";
+import { usePropertyQuery } from "@/features/properties/propertiesQueries";
 
 const PropertyLogsPage = () => {
   const theme = useTheme();

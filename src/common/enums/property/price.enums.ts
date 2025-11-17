@@ -13,10 +13,8 @@ export enum EPaymentMethod {
 export enum EContactType {
   BROKERAGE = "Intermediere",
   EXCLUSIVE = "Exclusivitate",
-  EXCLUSIVE_REPRESENTATION = "Reprezentare exclusiva",
 }
 export enum ESignedContract {
   YES = "Da",
-  NO = "No",
-  PENDING = "In curs",
+  NO = "Nu",
 }

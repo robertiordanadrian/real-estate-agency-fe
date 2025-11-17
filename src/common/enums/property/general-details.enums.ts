@@ -14,14 +14,11 @@ export enum EType {
 }
 
 export enum ECategory {
-  APARTMENT = "Apartament",
-  HOUSE = "Casa / Vila",
-  LAND = "Teren",
-  OFFICE_SPACE = "Spatiu birou",
-  COMMERCIAL_SPACE = "Spatiu comercial",
-  INDUSTRIAL_SPACE = "Spatiu industrial",
-  HOTEL = "Hotel / Pensiune",
+  APARTMENT_BUILDING = "apartment-building",
+  HOUSE_VILLA = "house-villa",
+  COMMERCIAL = "commercial",
 }
+
 export enum ESurroundings {
   SCHOOLS = "Scoli",
   GREEN_ZONES = "Zone verzi",
@@ -33,3 +30,9 @@ export enum ESurroundings {
   GYMS = "Sali de sport",
   COFFEE_SHOPS = "Cafenele",
 }
+
+export const ECategoryLabels: Record<ECategory, string> = {
+  [ECategory.APARTMENT_BUILDING]: "Bloc / Apartament",
+  [ECategory.HOUSE_VILLA]: "Casa / Vila",
+  [ECategory.COMMERCIAL]: "Spatiu comercial",
+};

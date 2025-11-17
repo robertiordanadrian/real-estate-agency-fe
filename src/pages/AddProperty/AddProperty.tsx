@@ -13,163 +13,148 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import {
-  EBuildingStructure,
-  EBuildingType,
-  EComfort,
-  ECompartmentalization,
-  EConstructionStage,
-  EDestination,
-  EEnergyClass,
-} from "../../common/enums/characteristics.enums";
-import { ECategory, EStatus, EType } from "../../common/enums/general-details.enums";
-import {
-  EContactType,
-  ECurrency,
-  EPaymentMethod,
-  ESignedContract,
-} from "../../common/enums/price.enums";
-import type { ICharacteristics } from "../../common/interfaces/characteristics.interface";
-import type { IDescription } from "../../common/interfaces/description.interface";
-import type { IGeneralDetails } from "../../common/interfaces/general-details.interface";
-import type { IPrice } from "../../common/interfaces/price.interface";
-import type { IProperty } from "../../common/interfaces/property.interface";
-import type { IUtilities } from "../../common/interfaces/utilities.interface";
-import CharacteristicsStep from "../../components/PropertySteps/CharacteristicsStep";
-import DescriptionStep from "../../components/PropertySteps/DescriptionStep";
-import GeneralDetailsStep from "../../components/PropertySteps/GeneralDetailsStep";
-import ImagesStep from "../../components/PropertySteps/ImagesStep";
-import PriceStep from "../../components/PropertySteps/PriceStep";
-import UtilityStep from "../../components/PropertySteps/UtilityStep";
-import { PropertiesApi } from "../../features/properties/propertiesApi";
-import { propertiesKeys } from "../../features/properties/propertiesQueries";
-import { queryClient } from "../../services/queryClient";
+import { EStatus } from "@/common/enums/property/general-details.enums";
+import type { ICharacteristics } from "@/common/interfaces/property/characteristics.interface";
+import type { IDescription } from "@/common/interfaces/property/description.interface";
+import type { IGeneralDetails } from "@/common/interfaces/property/general-details.interface";
+import type { IPrice } from "@/common/interfaces/property/price.interface";
+import type { IProperty } from "@/common/interfaces/property/property.interface";
+import type { IUtilities } from "@/common/interfaces/property/utilities.interface";
+import CharacteristicsStep, {
+  CharacteristicsSteppRef,
+} from "@/components/PropertySteps/CharacteristicsStep";
+import DescriptionStep from "@/components/PropertySteps/DescriptionStep";
+import GeneralDetailsStep, {
+  GeneralDetailsStepRef,
+} from "@/components/PropertySteps/GeneralDetailsStep";
+import ImagesStep from "@/components/PropertySteps/ImagesStep";
+import PriceStep, { PriceStepRef } from "@/components/PropertySteps/PriceStep";
+import UtilityStep from "@/components/PropertySteps/UtilityStep";
+import { PropertiesApi } from "@/features/properties/propertiesApi";
+import { propertiesKeys } from "@/features/properties/propertiesQueries";
+import { queryClient } from "@/services/queryClient";
+import { useAppSelector } from "@/app/hook";
+import { selectUser } from "@/features/auth/authSelectors";
 
 const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
 const defaultGeneralDetails: IGeneralDetails = {
-  agent: "",
+  agentId: null,
   status: EStatus.GREEN,
-  transactionType: EType.SALE,
-  category: ECategory.APARTMENT,
-  ownerID: "",
-  residentialComplex: "",
+  transactionType: null,
+  category: null,
+  ownerID: null,
   location: {
-    city: "",
-    zone: "",
-    street: "",
-    number: "",
-    building: "",
-    stairwell: "",
-    apartment: "",
-    interesPoints: "",
+    city: null,
+    zone: null,
+    street: null,
+    number: null,
+    building: null,
+    stairwell: null,
+    apartment: null,
     surroundings: [],
+    latitude: null,
+    longitude: null,
   },
-  privatMemo: "",
 };
 
 const defaultCharacteristics: ICharacteristics = {
   details: {
-    type: "",
-    destination: EDestination.RESIDENTIAL,
-    rooms: "",
-    bedrooms: "",
-    kitchens: "",
-    bathrooms: "",
-    balconies: "",
-    terraces: "",
-    floor: "",
-    orientare: "",
-    yearOfConstruction: "",
-    yearOfRenovation: "",
-    parkingLots: "",
-    garages: "",
+    rooms: null,
+    bedrooms: null,
+    kitchens: null,
+    bathrooms: null,
+    balconies: null,
+    terraces: null,
+    floor: null,
+    yearOfConstruction: null,
+    yearOfRenovation: null,
+    parkingLots: null,
+    garages: null,
     bathroomWindow: false,
     openKitchen: false,
     petFriendly: false,
     keyInAgency: false,
-    compartmentalization: ECompartmentalization.DUPLEX,
-    comfort: EComfort.LUX,
   },
   areas: {
-    usableArea: "",
-    builtupArea: "",
-    totalUsableArea: "",
-    balconyArea: "",
-    terraceArea: "",
-    gardenArea: "",
+    usableArea: null,
+    builtupArea: null,
+    totalUsableArea: null,
+    balconyArea: null,
+    terraceArea: null,
+    gardenArea: null,
   },
   building: {
-    constructionStage: EConstructionStage.FINALIZED,
-    type: EBuildingType.BUILDING,
-    structure: EBuildingStructure.CONCRETE,
+    constructionStage: null,
+    type: null,
+    structure: null,
     seismicRisk: null,
-    height: "",
+    basement: null,
+    demiBasement: null,
+    groundFloor: null,
+    floors: null,
+    attic: null,
+    pod: null,
   },
   energyPerformance: {
-    energyClass: EEnergyClass.A,
-    specificAnnualConsumption: "",
-    co2EquivalentEmissionIndex: "",
-    specificConsumptionFromRenewableSources: "",
+    energyClass: null,
+    specificAnnualConsumption: null,
+    co2EquivalentEmissionIndex: null,
+    specificConsumptionFromRenewableSources: null,
   },
 };
 
 const defaultUtilities: IUtilities = {
-  generals: [],
-  irigationSystem: [],
-  airConditioning: [],
-  finishes: {
-    status: [],
-    insulation: [],
-    walls: [],
-    flooring: [],
-    windows: [],
-    louver: [],
-    enteringDoor: [],
-    interiorDoors: [],
-  },
-  equipment: {
-    furnished: [],
-    additionalSpaces: [],
-    kitchen: [],
-    accounting: [],
-    appliances: [],
-    immobile: [],
-    recreationalSpaces: [],
-    exterior: [],
-  },
+  amenities_general: [],
+  amenities_heating: [],
+  amenities_conditioning: [],
+  amenities_internet: [],
+  amenities_double_pane_windows: [],
+  amenities_interior_condition: [],
+  amenities_interior_doors: [],
+  amenities_entrance_door: [],
+  amenities_shutters: [],
+  amenities_blind: [],
+  amenities_thermal_insulation: [],
+  amenities_flooring: [],
+  amenities_walls: [],
+  amenities_utility_spaces: [],
+  amenities_kitchen: [],
+  amenities_furnished: [],
+  amenities_appliances: [],
+  amenities_meters: [],
+  amenities_miscellaneous: [],
+  amenities_real_estate_facilities: [],
+  amenities_real_estate_services: [],
+  amenities_hotel_services: [],
+  amenities_street_development: [],
+  amenities_features: [],
+  amenities_access: [],
+  amenities_other_characteristics: [],
 };
 
 const defaultPrice: IPrice = {
   priceDetails: {
-    price: "",
-    currency: ECurrency.EUR,
-    tva: false,
-    pricePerMp: "",
-    lastPrice: "",
-    negociablePrice: false,
-    requestPrice: false,
-    showPricePerMp: false,
-    paymentMethod: EPaymentMethod.CASH,
-    garagePrice: "",
-    parkingPrice: "",
-    privateNotePrice: "",
+    price: null,
+    tva: null,
+    pricePerMp: null,
+    garagePrice: null,
+    parkingPrice: null,
   },
   commissions: {
-    buyerCommission: "",
-    buyerCommissionValue: "",
-    ownerCommission: "",
-    ownerCommissionValue: "",
+    buyerCommission: null,
+    buyerCommissionValue: null,
+    ownerCommission: null,
+    ownerCommissionValue: null,
   },
   contact: {
-    type: EContactType.BROKERAGE,
-    signedContract: ESignedContract.NO,
-    contractNumber: "",
-    signDate: new Date(),
-    expirationDate: new Date(),
+    type: null,
+    signedContract: null,
+    contractNumber: null,
+    signDate: null,
+    expirationDate: null,
     contractFile: null,
   },
 };
@@ -187,10 +172,24 @@ const AddProperty = () => {
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const user = useAppSelector(selectUser);
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [generalDetailsTouched, setGeneralDetailsTouched] = useState(false);
+  const generalDetailsStepRef = useRef<GeneralDetailsStepRef>(null);
+
+  const [characteristicsTouched, setCharacteristicsTouched] = useState(false);
+  const characteristicsStepRef = useRef<CharacteristicsSteppRef>(null);
+
+  const [priceTouched, setPriceTouched] = useState(false);
+  const priceStepRef = useRef<PriceStepRef>(null);
+
+  const [descriptionTouched, setDescriptionTouched] = useState(false);
+  const descriptionStepRef = useRef<PriceStepRef>(null);
+
   const [formData, setFormData] = useState<IProperty>({
     generalDetails: defaultGeneralDetails,
     characteristics: defaultCharacteristics,
@@ -198,9 +197,11 @@ const AddProperty = () => {
     price: defaultPrice,
     description: defaultDescription,
     images: [],
+    modificationLogs: [],
   });
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [contractFile, setContractFile] = useState<File | null>(null);
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -240,6 +241,38 @@ const AddProperty = () => {
     }
   };
   const handleNext = () => {
+    if (activeStep === 0) {
+      setGeneralDetailsTouched(true);
+      const isValid = generalDetailsStepRef.current?.validate();
+      if (!isValid) {
+        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        return;
+      }
+    }
+    if (activeStep === 1) {
+      setCharacteristicsTouched(true);
+      const isValid = characteristicsStepRef.current?.validate();
+      if (!isValid) {
+        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        return;
+      }
+    }
+    if (activeStep === 3) {
+      setPriceTouched(true);
+      const isValid = priceStepRef.current?.validate();
+      if (!isValid) {
+        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        return;
+      }
+    }
+    if (activeStep === 4) {
+      setDescriptionTouched(true);
+      const isValid = descriptionStepRef.current?.validate();
+      if (!isValid) {
+        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        return;
+      }
+    }
     setActiveStep((p) => p + 1);
   };
   const handleBack = () => {
@@ -250,15 +283,31 @@ const AddProperty = () => {
       case 0:
         return (
           <GeneralDetailsStep
+            ref={generalDetailsStepRef}
             data={formData.generalDetails}
-            onChange={(val) => setFormData((prev) => ({ ...prev, generalDetails: val }))}
+            onChange={(updater) =>
+              setFormData((prev) => ({
+                ...prev,
+                generalDetails:
+                  typeof updater === "function" ? updater(prev.generalDetails) : updater,
+              }))
+            }
+            generalDetailsTouched={generalDetailsTouched}
           />
         );
       case 1:
         return (
           <CharacteristicsStep
+            ref={characteristicsStepRef}
             data={formData.characteristics}
-            onChange={(val) => setFormData((prev) => ({ ...prev, characteristics: val }))}
+            onChange={(updater) =>
+              setFormData((prev) => ({
+                ...prev,
+                characteristics:
+                  typeof updater === "function" ? updater(prev.characteristics) : updater,
+              }))
+            }
+            characteristicsStepTouched={characteristicsTouched}
           />
         );
       case 2:
@@ -271,27 +320,40 @@ const AddProperty = () => {
       case 3:
         return (
           <PriceStep
+            usableArea={Number(formData.characteristics.areas.usableArea)}
             data={formData.price}
-            onChange={(val) => {
-              if (val.contact.contractFile instanceof File) {
-                setContractFile(val.contact.contractFile);
-                val.contact.contractFile = "";
+            onChange={(updated) => {
+              setFormData((prev) => ({
+                ...prev,
+                price: typeof updated === "function" ? updated(prev.price) : updated,
+              }));
+              const result = typeof updated === "function" ? updated(formData.price) : updated;
+              if (result.contact.contractFile instanceof File) {
+                setContractFile(result.contact.contractFile);
               }
-              setFormData((prev) => ({ ...prev, price: val }));
             }}
+            priceTouched={priceTouched}
+            ref={priceStepRef}
           />
         );
       case 4:
         return (
           <DescriptionStep
+            ref={descriptionStepRef}
             data={formData.description}
-            onChange={(val) => setFormData((prev) => ({ ...prev, description: val }))}
+            onChange={(updater) =>
+              setFormData((prev) => ({
+                ...prev,
+                description: typeof updater === "function" ? updater(prev.description) : updater,
+              }))
+            }
+            descriptionTouched={descriptionTouched}
           />
         );
       case 5:
         return (
           <ImagesStep
-            data={formData.images}
+            data={formData.images as string[]}
             files={imageFiles}
             onChange={(val) => setFormData((prev) => ({ ...prev, images: val }))}
             onFilesChange={setImageFiles}
@@ -301,6 +363,18 @@ const AddProperty = () => {
         return null;
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        generalDetails: {
+          ...prev.generalDetails,
+          agentId: user.id,
+        },
+      }));
+    }
+  }, [user]);
 
   return (
     <Box

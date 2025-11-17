@@ -1,5 +1,5 @@
-import { IProperty } from "../../common/interfaces/property.interface";
-import { http } from "../../services/http";
+import { IProperty } from "@/common/interfaces/property/property.interface";
+import { http } from "@/services/http";
 
 export const PropertiesApi = {
   getAll: async (): Promise<IProperty[]> => {

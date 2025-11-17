@@ -23,14 +23,14 @@ import { useQueries } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getChipColor } from "../../common/utils/get-chip-color.util";
-import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
+import { getChipColor } from "@/common/utils/get-chip-color.util";
+import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import {
   useApproveRequest,
   usePendingRequestsQuery,
   useRejectRequest,
-} from "../../features/propertyRequests/propertyRequestsQueries";
-import { http } from "../../services/http";
+} from "@/features/propertyRequests/propertyRequestsQueries";
+import { http } from "@/services/http";
 
 interface IdRef {
   _id: string;

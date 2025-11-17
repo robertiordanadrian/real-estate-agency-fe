@@ -24,14 +24,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { useEffect, useState } from "react";
 
-import { ERole } from "../../common/enums/role.enums";
-import { ISettingsForm } from "../../common/interfaces/settings-form.interface";
-import { getRoleColor } from "../../common/utils/get-role-color.util";
+import { ERole } from "@/common/enums/role/role.enums";
+import { ISettingsForm } from "@/common/interfaces/forms/settings-form.interface";
+import { getRoleColor } from "@/common/utils/get-role-color.util";
 import {
   useUpdateUser,
   useUploadProfilePicture,
   useUserQuery,
-} from "../../features/users/usersQueries";
+} from "@/features/users/usersQueries";
 
 const Settings = () => {
   const theme = useTheme();

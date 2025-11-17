@@ -1,5 +1,5 @@
-import { IOwner } from "../../common/interfaces/owner.interface";
-import { http } from "../../services/http";
+import { IOwner } from "@/common/interfaces/owner/owner.interface";
+import { http } from "@/services/http";
 
 export const OwnersApi = {
   getAll: async () => {

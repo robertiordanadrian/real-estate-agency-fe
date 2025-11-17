@@ -26,12 +26,12 @@ import { blue } from "@mui/material/colors";
 import { motion } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
 
-import { getRoleColor } from "../../common/utils/get-role-color.util";
-import { getRoleDisplayText } from "../../common/utils/get-role-display-text.util";
-import { useLogout } from "../../features/auth/authMutations";
-import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
-import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
-import { useUserQuery } from "../../features/users/usersQueries";
+import { getRoleColor } from "@/common/utils/get-role-color.util";
+import { getRoleDisplayText } from "@/common/utils/get-role-display-text.util";
+import { useLogout } from "@/features/auth/authMutations";
+import { usePendingLeadRequestsQuery } from "@/features/leadRequests/leadRequestsQueries";
+import { usePendingRequestsQuery } from "@/features/propertyRequests/propertyRequestsQueries";
+import { useUserQuery } from "@/features/users/usersQueries";
 
 interface SidePanelProps {
   onNavigate?: () => void;

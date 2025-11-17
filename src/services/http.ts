@@ -1,8 +1,8 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
-import { store } from "../app/store";
-import { selectAccessToken, selectAuth } from "../features/auth/authSelectors";
-import { logout, setCredentials } from "../features/auth/authSlice";
+import { store } from "@/app/store";
+import { selectAccessToken, selectAuth } from "@/features/auth/authSelectors";
+import { logout, setCredentials } from "@/features/auth/authSlice";
 
 const baseURL = import.meta.env.VITE_API_URL;
 

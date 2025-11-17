@@ -4,7 +4,7 @@ import { AppBar, Box, Drawer, IconButton, Toolbar, useMediaQuery, useTheme } fro
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
-import SidePanel from "../components/SidePanel/SidePanel";
+import SidePanel from "@/components/SidePanel/SidePanel";
 
 const AppLayout = () => {
   const theme = useTheme();

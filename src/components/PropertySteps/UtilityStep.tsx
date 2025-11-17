@@ -14,28 +14,38 @@ import {
   useTheme,
 } from "@mui/material";
 
+import type { IUtilities } from "@/common/interfaces/property/utilities.interface";
 import {
-  EAccounting,
-  EAdditionalSpaces,
-  EAirConditioning,
-  EAppliances,
-  EExterior,
-  EFinishesEnteringDoor,
-  EFinishesFlooring,
-  EFinishesInsulation,
-  EFinishesInteriorDoors,
-  EFinishesLouver,
-  EFinishesStatus,
-  EFinishesWalls,
-  EFinishesWindows,
-  EFurnished,
-  EGeneral,
-  EImmobile,
-  EIrigationSystem,
-  EKitchen,
-  ERecreationalSpaces,
-} from "../../common/enums/utilities.enums";
-import type { IUtilities } from "../../common/interfaces/utilities.interface";
+  EAmenityGeneral,
+  EAmenityHeating,
+  EAmenityConditioning,
+  EAmenityInternet,
+  EAmenityDoublePaneWindows,
+  EAmenityInteriorCondition,
+  EAmenityInteriorDoors,
+  EAmenityEntranceDoor,
+  EAmenityShutters,
+  EAmenityBlind,
+  EAmenityThermalInsulation,
+  EAmenityFlooring,
+  EAmenityWalls,
+  EAmenityUtilitySpaces,
+  EAmenityKitchen,
+  EAmenityFurnished,
+  EAmenityMeters,
+  EAmenityRealEstateFacilities,
+  EAmenityAppliances,
+  EAmenityMiscellaneous,
+  EAmenityRealEstateServices,
+  EAmenityHotelServices,
+  EAmenityStreetDevelopment,
+  EAmenityFeatures,
+  EAmenityAccess,
+  EAmenityOtherCharacteristics,
+} from "@/common/enums/property/utilities.enums";
+
+import { UtilitiesLabels } from "@/common/enums/property/utilities.enums";
+import { getEnumLabel, getEnumOptions } from "@/common/utils/utilities-step.util";
 
 interface UtilityStepProps {
   data: IUtilities;
@@ -46,53 +56,45 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
-  const handleChangeArray = <K extends keyof IUtilities>(key: K, value: string[]) => {
-    onChange({ ...data, [key]: value as any });
+  const handleChange = <K extends keyof IUtilities>(key: K, value: string[]) => {
+    onChange({ ...data, [key]: value });
   };
 
-  const handleNestedChange = <K extends keyof IUtilities, N extends keyof IUtilities[K]>(
-    key: K,
-    nestedKey: N,
+  const Multi = (
+    label: string,
+    groupKey: keyof typeof UtilitiesLabels,
+    enumObj: Record<string, string>,
+    field: keyof IUtilities,
     value: string[],
   ) => {
-    onChange({
-      ...data,
-      [key]: {
-        ...data[key],
-        [nestedKey]: value,
-      },
-    });
-  };
+    const options = getEnumOptions(enumObj, UtilitiesLabels[groupKey]);
 
-  const renderMultiSelect = (
-    label: string,
-    options: string[],
-    value: string[],
-    onChange: (_value: string[]) => void,
-  ) => (
-    <FormControl fullWidth>
-      <InputLabel>{label}</InputLabel>
-      <Select
-        multiple
-        value={value}
-        onChange={(e) => onChange(e.target.value as string[])}
-        input={<OutlinedInput label={label} />}
-        renderValue={(selected) => (
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-            {selected.map((val) => (
-              <Chip key={val} label={val} />
-            ))}
-          </Box>
-        )}
-      >
-        {options.map((opt) => (
-          <MenuItem key={opt} value={opt}>
-            {opt}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
+    return (
+      <FormControl fullWidth>
+        <InputLabel>{label}</InputLabel>
+
+        <Select
+          multiple
+          value={value ?? []}
+          input={<OutlinedInput label={label} />}
+          onChange={(e) => handleChange(field, e.target.value as string[])}
+          renderValue={(selected) => (
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+              {selected.map((v) => (
+                <Chip key={v} label={getEnumLabel(UtilitiesLabels[groupKey], v)} />
+              ))}
+            </Box>
+          )}
+        >
+          {options.map((opt) => (
+            <MenuItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    );
+  };
 
   return (
     <Paper
@@ -106,198 +108,348 @@ const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
-            <Typography variant="h6" mb={2} fontWeight={600}>
+            <Typography variant="h6" mb={2}>
               Utilitati generale
             </Typography>
             <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
                   "Utilitati generale",
-                  Object.values(EGeneral),
-                  data.generals,
-                  (v) => handleChangeArray("generals", v),
+                  "EAmenityGeneral",
+                  EAmenityGeneral,
+                  "amenities_general",
+                  data.amenities_general ?? [],
                 )}
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Sistem de incalzire",
-                  Object.values(EIrigationSystem),
-                  data.irigationSystem,
-                  (v) => handleChangeArray("irigationSystem", v),
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Sistem incalzire",
+                  "EAmenityHeating",
+                  EAmenityHeating,
+                  "amenities_heating",
+                  data.amenities_heating ?? [],
                 )}
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Aer conditionat",
-                  Object.values(EAirConditioning),
-                  data.airConditioning,
-                  (v) => handleChangeArray("airConditioning", v),
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Climatizare",
+                  "EAmenityConditioning",
+                  EAmenityConditioning,
+                  "amenities_conditioning",
+                  data.amenities_conditioning ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Internet",
+                  "EAmenityInternet",
+                  EAmenityInternet,
+                  "amenities_internet",
+                  data.amenities_internet ?? [],
                 )}
               </Grid>
             </Grid>
           </CardContent>
         </Card>
-
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
-            <Typography variant="h6" mb={2} fontWeight={600}>
+            <Typography variant="h6" mb={2}>
+              Tamplarie / Usi
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Geamuri / Termopan",
+                  "EAmenityDoublePaneWindows",
+                  EAmenityDoublePaneWindows,
+                  "amenities_double_pane_windows",
+                  data.amenities_double_pane_windows ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Stare interior",
+                  "EAmenityInteriorCondition",
+                  EAmenityInteriorCondition,
+                  "amenities_interior_condition",
+                  data.amenities_interior_condition ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Usi interioare",
+                  "EAmenityInteriorDoors",
+                  EAmenityInteriorDoors,
+                  "amenities_interior_doors",
+                  data.amenities_interior_doors ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Usa intrare",
+                  "EAmenityEntranceDoor",
+                  EAmenityEntranceDoor,
+                  "amenities_entrance_door",
+                  data.amenities_entrance_door ?? [],
+                )}
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2}>
               Finisaje
             </Typography>
-
             <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Stadiu finisaje",
-                  Object.values(EFinishesStatus),
-                  data.finishes.status,
-                  (v) => handleNestedChange("finishes", "status", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Izolatii",
-                  Object.values(EFinishesInsulation),
-                  data.finishes.insulation,
-                  (v) => handleNestedChange("finishes", "insulation", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Pereti",
-                  Object.values(EFinishesWalls),
-                  data.finishes.walls,
-                  (v) => handleNestedChange("finishes", "walls", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Pardoseli",
-                  Object.values(EFinishesFlooring),
-                  data.finishes.flooring,
-                  (v) => handleNestedChange("finishes", "flooring", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Ferestre",
-                  Object.values(EFinishesWindows),
-                  data.finishes.windows,
-                  (v) => handleNestedChange("finishes", "windows", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
                   "Obloane",
-                  Object.values(EFinishesLouver),
-                  data.finishes.louver,
-                  (v) => handleNestedChange("finishes", "louver", v),
+                  "EAmenityShutters",
+                  EAmenityShutters,
+                  "amenities_shutters",
+                  data.amenities_shutters ?? [],
                 )}
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Usi intrare",
-                  Object.values(EFinishesEnteringDoor),
-                  data.finishes.enteringDoor,
-                  (v) => handleNestedChange("finishes", "enteringDoor", v),
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Jaluzele",
+                  "EAmenityBlind",
+                  EAmenityBlind,
+                  "amenities_blind",
+                  data.amenities_blind ?? [],
                 )}
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Usi interioare",
-                  Object.values(EFinishesInteriorDoors),
-                  data.finishes.interiorDoors,
-                  (v) => handleNestedChange("finishes", "interiorDoors", v),
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Izolatii",
+                  "EAmenityThermalInsulation",
+                  EAmenityThermalInsulation,
+                  "amenities_thermal_insulation",
+                  data.amenities_thermal_insulation ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Pardoseli",
+                  "EAmenityFlooring",
+                  EAmenityFlooring,
+                  "amenities_flooring",
+                  data.amenities_flooring ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Pereti",
+                  "EAmenityWalls",
+                  EAmenityWalls,
+                  "amenities_walls",
+                  data.amenities_walls ?? [],
                 )}
               </Grid>
             </Grid>
           </CardContent>
         </Card>
-
         <Card sx={{ borderRadius: 3 }}>
           <CardContent>
-            <Typography variant="h6" mb={2} fontWeight={600}>
+            <Typography variant="h6" mb={2}>
+              Spatii utilitare
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Spatii utilitare",
+                  "EAmenityUtilitySpaces",
+                  EAmenityUtilitySpaces,
+                  "amenities_utility_spaces",
+                  data.amenities_utility_spaces ?? [],
+                )}
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2}>
               Echipamente
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Bucatarie",
+                  "EAmenityKitchen",
+                  EAmenityKitchen,
+                  "amenities_kitchen",
+                  data.amenities_kitchen ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Mobilier",
+                  "EAmenityFurnished",
+                  EAmenityFurnished,
+                  "amenities_furnished",
+                  data.amenities_furnished ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Electrocasnice",
+                  "EAmenityAppliances",
+                  EAmenityAppliances,
+                  "amenities_appliances",
+                  data.amenities_appliances ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Contorizare",
+                  "EAmenityMeters",
+                  EAmenityMeters,
+                  "amenities_meters",
+                  data.amenities_meters ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Diverse / Securitate",
+                  "EAmenityMiscellaneous",
+                  EAmenityMiscellaneous,
+                  "amenities_miscellaneous",
+                  data.amenities_miscellaneous ?? [],
+                )}
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2}>
+              Facilitati imobiliare
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Facilitati",
+                  "EAmenityRealEstateFacilities",
+                  EAmenityRealEstateFacilities,
+                  "amenities_real_estate_facilities",
+                  data.amenities_real_estate_facilities ?? [],
+                )}
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2}>
+              Servicii
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Servicii imobiliare",
+                  "EAmenityRealEstateServices",
+                  EAmenityRealEstateServices,
+                  "amenities_real_estate_services",
+                  data.amenities_real_estate_services ?? [],
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Servicii hotel",
+                  "EAmenityHotelServices",
+                  EAmenityHotelServices,
+                  "amenities_hotel_services",
+                  data.amenities_hotel_services ?? [],
+                )}
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2}>
+              Infrastructura
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Dezvoltare stradala",
+                  "EAmenityStreetDevelopment",
+                  EAmenityStreetDevelopment,
+                  "amenities_street_development",
+                  data.amenities_street_development ?? [],
+                )}
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2}>
+              Acces
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Acces",
+                  "EAmenityAccess",
+                  EAmenityAccess,
+                  "amenities_access",
+                  data.amenities_access ?? [],
+                )}
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2}>
+              Caracteristici speciale
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Caracteristici",
+                  "EAmenityOtherCharacteristics",
+                  EAmenityOtherCharacteristics,
+                  "amenities_other_characteristics",
+                  data.amenities_other_characteristics ?? [],
+                )}
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+        <Card sx={{ borderRadius: 3 }}>
+          <CardContent>
+            <Typography variant="h6" mb={2}>
+              Dotari speciale / Caracteristici tehnice
             </Typography>
 
             <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Mobilier",
-                  Object.values(EFurnished),
-                  data.equipment.furnished,
-                  (v) => handleNestedChange("equipment", "furnished", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Spatii aditionale",
-                  Object.values(EAdditionalSpaces),
-                  data.equipment.additionalSpaces,
-                  (v) => handleNestedChange("equipment", "additionalSpaces", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Bucatarie",
-                  Object.values(EKitchen),
-                  data.equipment.kitchen,
-                  (v) => handleNestedChange("equipment", "kitchen", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Aparate electrocasnice",
-                  Object.values(EAppliances),
-                  data.equipment.appliances,
-                  (v) => handleNestedChange("equipment", "appliances", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Imobile incluse",
-                  Object.values(EImmobile),
-                  data.equipment.immobile,
-                  (v) => handleNestedChange("equipment", "immobile", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Spatii recreative",
-                  Object.values(ERecreationalSpaces),
-                  data.equipment.recreationalSpaces,
-                  (v) => handleNestedChange("equipment", "recreationalSpaces", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Exterior",
-                  Object.values(EExterior),
-                  data.equipment.exterior,
-                  (v) => handleNestedChange("equipment", "exterior", v),
-                )}
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                {renderMultiSelect(
-                  "Contorizare",
-                  Object.values(EAccounting),
-                  data.equipment.accounting,
-                  (v) => handleNestedChange("equipment", "accounting", v),
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {Multi(
+                  "Dotari speciale",
+                  "EAmenityFeatures",
+                  EAmenityFeatures,
+                  "amenities_features",
+                  data.amenities_features ?? [],
                 )}
               </Grid>
             </Grid>

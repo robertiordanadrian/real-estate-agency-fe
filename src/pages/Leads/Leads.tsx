@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 
-import LeadsList from "../../components/LeadsList/LeadsList";
+import LeadsList from "@/components/LeadsList/LeadsList";
 
 const Leads = () => {
   const theme = useTheme();

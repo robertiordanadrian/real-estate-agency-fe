@@ -22,15 +22,15 @@ import {
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import type { ILead } from "../../common/interfaces/lead.interface";
-import { getCustomChipStyle } from "../../common/utils/get-custom-chip-style.util";
+import type { ILead } from "@/common/interfaces/lead/lead.interface";
+import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import {
   useApproveLeadRequest,
   usePendingLeadRequestsQuery,
   useRejectLeadRequest,
-} from "../../features/leadRequests/leadRequestsQueries";
-import { useLeadsQuery } from "../../features/leads/leadsQueries";
-import { useAllUsersQuery } from "../../features/users/usersQueries";
+} from "@/features/leadRequests/leadRequestsQueries";
+import { useLeadsQuery } from "@/features/leads/leadsQueries";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
 
 type SortDirection = "asc" | "desc";
 interface SortState {

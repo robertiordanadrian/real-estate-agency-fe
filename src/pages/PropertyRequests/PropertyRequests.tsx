@@ -1,4 +1,4 @@
-import PropertyRequestsList from "../../components/PropertyRequestsList/PropertyRequestsList";
+import PropertyRequestsList from "@/components/PropertyRequestsList/PropertyRequestsList";
 
 const PropertyRequests = () => {
   return <PropertyRequestsList />;

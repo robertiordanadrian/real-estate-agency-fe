@@ -1,4 +1,4 @@
-import { EStatus } from "../../common/enums/general-details.enums";
+import { EStatus } from "@/common/enums/property/general-details.enums";
 
 export const getCustomChipStyle = (status: string) => {
   switch (status) {

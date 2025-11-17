@@ -15,13 +15,13 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
-import ArchivedLeadRequestsList from "../../components/ArchivedLeadRequestsList/ArchivedLeadRequestsList";
-import ArchivedPropertyRequestsList from "../../components/ArchivedPropertyRequestsList/ArchivedPropertyRequestsList";
-import LeadRequestsList from "../../components/LeadRequestsList/LeadRequestsList";
-import PropertyRequestsList from "../../components/PropertyRequestsList/PropertyRequestsList";
-import { usePendingLeadRequestsQuery } from "../../features/leadRequests/leadRequestsQueries";
-import { usePendingRequestsQuery } from "../../features/propertyRequests/propertyRequestsQueries";
-import { useUserQuery } from "../../features/users/usersQueries";
+import ArchivedLeadRequestsList from "@/components/ArchivedLeadRequestsList/ArchivedLeadRequestsList";
+import ArchivedPropertyRequestsList from "@/components/ArchivedPropertyRequestsList/ArchivedPropertyRequestsList";
+import LeadRequestsList from "@/components/LeadRequestsList/LeadRequestsList";
+import PropertyRequestsList from "@/components/PropertyRequestsList/PropertyRequestsList";
+import { usePendingLeadRequestsQuery } from "@/features/leadRequests/leadRequestsQueries";
+import { usePendingRequestsQuery } from "@/features/propertyRequests/propertyRequestsQueries";
+import { useUserQuery } from "@/features/users/usersQueries";
 
 const Requests = () => {
   const theme = useTheme();
