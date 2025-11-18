@@ -191,11 +191,6 @@ const AddProperty = () => {
   const descriptionStepRef = useRef<PriceStepRef>(null);
 
   const [formData, setFormData] = useState<IProperty>({
-    _id: "",
-    sku: "",
-    statusStartDate: null,
-    nextStatusDate: null,
-    isPool: false,
     generalDetails: defaultGeneralDetails,
     characteristics: defaultCharacteristics,
     utilities: defaultUtilities,

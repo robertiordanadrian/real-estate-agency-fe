@@ -5,8 +5,8 @@ import type { IModificationLogEntry } from "@/common/interfaces/property/modific
 import type { IPrice } from "@/common/interfaces/property/price.interface";
 import type { IUtilities } from "@/common/interfaces/property/utilities.interface";
 export interface IProperty {
-  _id: string;
-  sku: string;
+  _id?: string;
+  sku?: string;
   generalDetails: IGeneralDetails;
   characteristics: ICharacteristics;
   utilities: IUtilities;
@@ -14,7 +14,7 @@ export interface IProperty {
   description: IDescription;
   images: string[];
   modificationLogs: IModificationLogEntry[];
-  statusStartDate: Date | null;
-  nextStatusDate: Date | null;
-  isPool: boolean;
+  statusStartDate?: Date | null;
+  nextStatusDate?: Date | null;
+  isPool?: boolean;
 }
