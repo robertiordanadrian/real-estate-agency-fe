@@ -1,32 +1,29 @@
-import {
-  EContactType,
-  ESignedContract,
-} from "@/common/enums/property/price.enums";
+import { EContractType, ESignedContract } from "@/common/enums/property/price.enums";
 
 export interface IPrice {
   priceDetails: IPriceDetails;
   commissions: ICommissions;
-  contact: IContact;
+  contact: IContract;
 }
 
 interface IPriceDetails {
-  price: string | null;
-  tva: boolean | null;
-  pricePerMp: string | null;
-  garagePrice: string | null;
-  parkingPrice: string | null;
+  price: string;
+  tva: boolean;
+  pricePerMp: string;
+  garagePrice: string;
+  parkingPrice: string;
 }
 
 interface ICommissions {
-  buyerCommission: string | null;
-  buyerCommissionValue: string | null;
-  ownerCommission: string | null;
-  ownerCommissionValue: string | null;
+  buyerCommission: string;
+  buyerCommissionValue: string;
+  ownerCommission: string;
+  ownerCommissionValue: string;
 }
-interface IContact {
-  type: EContactType | null;
+interface IContract {
+  type: EContractType | null;
   signedContract: ESignedContract | null;
-  contractNumber: string | null;
+  contractNumber: string;
   signDate: Date | null;
   expirationDate: Date | null;
   contractFile: string | File | null;

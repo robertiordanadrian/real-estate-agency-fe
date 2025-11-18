@@ -10,7 +10,7 @@ export enum EPaymentMethod {
   FIRST_HOUSE = "Prima casa",
   DEVELOPER_CREDIT = "Credit dezvoltator",
 }
-export enum EContactType {
+export enum EContractType {
   BROKERAGE = "Intermediere",
   EXCLUSIVE = "Exclusivitate",
 }

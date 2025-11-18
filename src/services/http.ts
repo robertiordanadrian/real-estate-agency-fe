@@ -95,12 +95,12 @@ http.interceptors.response.use(
       const state = store.getState();
       const auth = selectAuth(state);
 
-      if (!auth.user?.id || !auth.refreshToken) {
+      if (!auth.user?._id || !auth.refreshToken) {
         throw new Error("No user ID or refresh token available");
       }
 
       const refreshRes = await axios.post<RefreshTokenResponse>(`${baseURL}/auth/refresh`, {
-        userId: auth.user.id,
+        userId: auth.user._id,
         refreshToken: auth.refreshToken,
       } as RefreshTokenRequest);
 

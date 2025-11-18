@@ -4,18 +4,17 @@ import type { IGeneralDetails } from "@/common/interfaces/property/general-detai
 import type { IModificationLogEntry } from "@/common/interfaces/property/modification-log.interface";
 import type { IPrice } from "@/common/interfaces/property/price.interface";
 import type { IUtilities } from "@/common/interfaces/property/utilities.interface";
-
 export interface IProperty {
-  _id?: string | null;
-  sku?: string | null;
+  _id: string;
+  sku: string;
   generalDetails: IGeneralDetails;
   characteristics: ICharacteristics;
   utilities: IUtilities;
   price: IPrice;
   description: IDescription;
-  images: string[] | null;
+  images: string[];
   modificationLogs: IModificationLogEntry[];
-  statusStartDate?: Date | null;
-  nextStatusDate?: Date | null;
-  isPool?: boolean | null;
+  statusStartDate: Date | null;
+  nextStatusDate: Date | null;
+  isPool: boolean;
 }

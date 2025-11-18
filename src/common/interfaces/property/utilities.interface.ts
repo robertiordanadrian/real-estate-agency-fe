@@ -28,40 +28,40 @@ import {
 } from "@/common/enums/property/utilities.enums";
 
 export interface IUtilities {
-  amenities_general: EAmenityGeneral[] | null;
-  amenities_heating: EAmenityHeating[] | null;
-  amenities_conditioning: EAmenityConditioning[] | null;
-  amenities_internet: EAmenityInternet[] | null;
+  amenities_general: EAmenityGeneral[];
+  amenities_heating: EAmenityHeating[];
+  amenities_conditioning: EAmenityConditioning[];
+  amenities_internet: EAmenityInternet[];
 
-  amenities_double_pane_windows: EAmenityDoublePaneWindows[] | null;
-  amenities_interior_condition: EAmenityInteriorCondition[] | null;
-  amenities_interior_doors: EAmenityInteriorDoors[] | null;
-  amenities_entrance_door: EAmenityEntranceDoor[] | null;
+  amenities_double_pane_windows: EAmenityDoublePaneWindows[];
+  amenities_interior_condition: EAmenityInteriorCondition[];
+  amenities_interior_doors: EAmenityInteriorDoors[];
+  amenities_entrance_door: EAmenityEntranceDoor[];
 
-  amenities_shutters: EAmenityShutters[] | null;
-  amenities_blind: EAmenityBlind[] | null;
-  amenities_thermal_insulation: EAmenityThermalInsulation[] | null;
-  amenities_flooring: EAmenityFlooring[] | null;
-  amenities_walls: EAmenityWalls[] | null;
+  amenities_shutters: EAmenityShutters[];
+  amenities_blind: EAmenityBlind[];
+  amenities_thermal_insulation: EAmenityThermalInsulation[];
+  amenities_flooring: EAmenityFlooring[];
+  amenities_walls: EAmenityWalls[];
 
-  amenities_utility_spaces: EAmenityUtilitySpaces[] | null;
+  amenities_utility_spaces: EAmenityUtilitySpaces[];
 
-  amenities_kitchen: EAmenityKitchen[] | null;
-  amenities_furnished: EAmenityFurnished[] | null;
-  amenities_appliances: EAmenityAppliances[] | null;
-  amenities_meters: EAmenityMeters[] | null;
-  amenities_miscellaneous: EAmenityMiscellaneous[] | null;
+  amenities_kitchen: EAmenityKitchen[];
+  amenities_furnished: EAmenityFurnished[];
+  amenities_appliances: EAmenityAppliances[];
+  amenities_meters: EAmenityMeters[];
+  amenities_miscellaneous: EAmenityMiscellaneous[];
 
-  amenities_real_estate_facilities: EAmenityRealEstateFacilities[] | null;
+  amenities_real_estate_facilities: EAmenityRealEstateFacilities[];
 
-  amenities_real_estate_services: EAmenityRealEstateServices[] | null;
-  amenities_hotel_services: EAmenityHotelServices[] | null;
+  amenities_real_estate_services: EAmenityRealEstateServices[];
+  amenities_hotel_services: EAmenityHotelServices[];
 
-  amenities_street_development: EAmenityStreetDevelopment[] | null;
+  amenities_street_development: EAmenityStreetDevelopment[];
 
-  amenities_features: EAmenityFeatures[] | null;
+  amenities_features: EAmenityFeatures[];
 
-  amenities_access: EAmenityAccess[] | null;
+  amenities_access: EAmenityAccess[];
 
-  amenities_other_characteristics: EAmenityOtherCharacteristics[] | null;
+  amenities_other_characteristics: EAmenityOtherCharacteristics[];
 }

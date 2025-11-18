@@ -40,15 +40,18 @@ import { useOwnersQuery } from "@/features/owners/ownersQueries";
 import { getEnumOptions } from "@/common/utils/utilities-step.util";
 
 const defaultOwnerForm: IOwner = {
-  agentId: null,
+  _id: "",
+  createdAt: "",
+  updatedAt: "",
+  agentId: "",
   type: null,
-  surname: null,
-  lastname: null,
-  companyName: null,
-  cui: null,
-  phone: null,
-  representative: null,
-  email: null,
+  surname: "",
+  lastname: "",
+  companyName: "",
+  cui: "",
+  phone: "",
+  representative: "",
+  email: "",
 };
 
 const locationFields: {

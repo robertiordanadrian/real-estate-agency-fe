@@ -10,7 +10,7 @@ type LoginResponse = {
   access_token: string;
   refresh_token: string;
   user: {
-    id: string;
+    _id: string;
     email: string;
     name: string;
     role: ERole;
@@ -42,7 +42,7 @@ export const useLogin = () => {
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
           user: {
-            id: data.user.id,
+            _id: data.user._id,
             email: data.user.email,
             name: data.user.name,
             role: data.user.role as ERole,

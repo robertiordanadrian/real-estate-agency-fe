@@ -14,22 +14,22 @@ export const GeneralDetailsLabels = {
 };
 
 export interface IGeneralDetails {
-  agentId: string | null;
-  status: EStatus;
+  agentId: string;
+  status: EStatus | null;
   transactionType: EType | null;
   category: ECategory | null;
   location: ILocation;
-  ownerID: string | null;
+  ownerID: string;
 }
 export interface ILocation {
-  city: string | null;
-  street: string | null;
-  number: string | null;
+  city: string;
+  street: string;
+  number: string;
   latitude: number | null;
   longitude: number | null;
-  zone: string | null;
-  building: string | null;
-  stairwell: string | null;
-  apartment: string | null;
+  zone: string;
+  building: string;
+  stairwell: string;
+  apartment: string;
   surroundings: ESurroundings[];
 }

@@ -3,10 +3,9 @@ export interface IModifiedField {
   oldValue: unknown;
   newValue: unknown;
 }
-
 export interface IModificationLogEntry {
-  _id: string | null;
-  date: string | null;
-  agentId: string | null;
-  modifiedFields: IModifiedField[] | null;
+  _id: string;
+  date: string;
+  agentId: string;
+  modifiedFields: IModifiedField[];
 }

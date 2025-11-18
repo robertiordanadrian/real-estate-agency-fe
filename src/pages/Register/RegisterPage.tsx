@@ -116,9 +116,9 @@ const RegisterPage = () => {
           role: form.role,
         });
 
-        if (form.profileImage && newUser?.user?.id) {
+        if (form.profileImage && newUser?.user?._id) {
           await uploadAvatarForUser({
-            userId: newUser.user.id,
+            userId: newUser.user._id,
             file: form.profileImage,
           });
         }

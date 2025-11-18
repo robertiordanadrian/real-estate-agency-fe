@@ -1,7 +1,7 @@
 export interface IDescription {
-  title: string | null;
-  description: string | null;
-  disponibility: string | null;
-  videoYoutubeLink: string | null;
-  virtualTour: string | null;
+  title: string;
+  description: string;
+  disponibility: string;
+  videoYoutubeLink: string;
+  virtualTour: string;
 }

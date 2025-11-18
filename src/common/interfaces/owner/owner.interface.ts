@@ -3,17 +3,16 @@ export enum EOwnerType {
   PJ = "pj",
 }
 export interface IOwner {
-  _id?: string;
-  id?: string;
-  agentId: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  _id: string;
+  agentId: string;
+  createdAt: string;
+  updatedAt: string;
   type: EOwnerType | null;
-  surname: string | null;
-  lastname: string | null;
-  companyName: string | null;
-  cui: string | null;
-  phone: string | null;
-  representative: string | null;
-  email: string | null;
+  surname: string;
+  lastname: string;
+  companyName: string;
+  cui: string;
+  phone: string;
+  representative: string;
+  email: string;
 }

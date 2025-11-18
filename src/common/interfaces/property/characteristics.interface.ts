@@ -12,49 +12,47 @@ export interface ICharacteristics {
   building: IBuilding;
   energyPerformance: IEnergyPerformance;
 }
-
 export interface IDetails {
-  rooms: string | null;
-  bedrooms: string | null;
-  kitchens: string | null;
-  bathrooms: string | null;
-  balconies: string | null;
-  terraces: string | null;
-  floor: string | null;
-  yearOfConstruction: string | null;
-  yearOfRenovation: string | null;
-  parkingLots: string | null;
-  garages: string | null;
-  bathroomWindow: boolean | null;
-  openKitchen: boolean | null;
-  petFriendly: boolean | null;
-  keyInAgency: boolean | null;
+  rooms: string;
+  bedrooms: string;
+  kitchens: string;
+  bathrooms: string;
+  balconies: string;
+  terraces: string;
+  floor: string;
+  yearOfConstruction: string;
+  yearOfRenovation: string;
+  parkingLots: string;
+  garages: string;
+  bathroomWindow: boolean;
+  openKitchen: boolean;
+  petFriendly: boolean;
+  keyInAgency: boolean;
 }
 
 export interface IAreas {
-  usableArea: string | null;
-  builtupArea: string | null;
-  totalUsableArea: string | null;
-  balconyArea: string | null;
-  terraceArea: string | null;
-  gardenArea: string | null;
+  usableArea: string;
+  builtupArea: string;
+  totalUsableArea: string;
+  balconyArea: string;
+  terraceArea: string;
+  gardenArea: string;
 }
 export interface IBuilding {
   constructionStage: EConstructionStage | null;
   type: EBuildingType | null;
   structure: EBuildingStructure | null;
   seismicRisk: EBuildingSeismicRisk | null;
-  basement?: boolean | null;
-  demiBasement?: boolean | null;
-  groundFloor?: boolean | null;
-  floors?: number | null;
-  attic?: boolean | null;
-  pod?: boolean | null;
+  basement: boolean;
+  demiBasement: boolean;
+  groundFloor: boolean;
+  floors: number | null;
+  attic: boolean;
+  pod: boolean;
 }
-
-interface IEnergyPerformance {
+export interface IEnergyPerformance {
   energyClass: EEnergyCertificationClass | null;
-  specificAnnualConsumption: string | null;
-  co2EquivalentEmissionIndex: string | null;
-  specificConsumptionFromRenewableSources: string | null;
+  specificAnnualConsumption: string;
+  co2EquivalentEmissionIndex: string;
+  specificConsumptionFromRenewableSources: string;
 }

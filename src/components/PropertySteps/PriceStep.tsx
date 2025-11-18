@@ -18,14 +18,9 @@ import {
   useTheme,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
-import {
-  EContactType,
-  ECurrency,
-  EPaymentMethod,
-  ESignedContract,
-} from "@/common/enums/property/price.enums";
+import { EContractType, ESignedContract } from "@/common/enums/property/price.enums";
 import { IPrice } from "@/common/interfaces/property/price.interface";
 
 interface PriceStepProps {
@@ -152,7 +147,7 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
                           const mp = usableArea ?? 0;
 
                           const pricePerMp =
-                            numericPrice > 0 && mp > 0 ? (numericPrice / mp).toFixed(2) : null;
+                            numericPrice > 0 && mp > 0 ? (numericPrice / mp).toFixed(2) : "";
 
                           return {
                             ...prev,
@@ -386,7 +381,7 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
                         }));
                       }}
                     >
-                      {Object.values(EContactType).map((val) => (
+                      {Object.values(EContractType).map((val) => (
                         <MenuItem key={val} value={val}>
                           {val}
                         </MenuItem>
