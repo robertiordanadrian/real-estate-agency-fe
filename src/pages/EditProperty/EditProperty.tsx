@@ -129,9 +129,7 @@ const EditProperty = () => {
 
     setIsSubmitting(true);
     try {
-      const { images, ...propertyPayload } = formData;
-
-      await http.put(`/properties/${id}`, propertyPayload);
+      await http.put(`/properties/${id}`, formData);
 
       if (imageFiles.length > 0) {
         await PropertiesApi.uploadImages(id, imageFiles);

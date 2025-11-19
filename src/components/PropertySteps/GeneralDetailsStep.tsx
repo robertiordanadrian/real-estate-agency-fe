@@ -103,6 +103,7 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
     const [createOwnerErrors, setCreateOwnerErrors] = useState<CreateOwnerError>({});
     const [ownerForm, setOwnerForm] = useState<IOwner>(defaultOwnerForm);
     const [ownerTouched, setOwnerTouched] = useState(false);
+    const [displayAddress, setDisplayAddress] = useState("");
     const [snackbar, setSnackbar] = useState({
       open: false,
       message: "",
@@ -168,6 +169,12 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
       }),
       [validateGeneralDetails],
     );
+
+    useEffect(() => {
+      if (data.location.street || data.location.number) {
+        setDisplayAddress(`${data.location.street ?? ""} ${data.location.number ?? ""}`.trim());
+      }
+    }, [data.location.street, data.location.number]);
 
     useEffect(() => {
       validateCreateOwner();
@@ -389,17 +396,17 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                     required
                   >
                     <GoogleAddressAutocomplete
-                      value={data.location.street ?? ""}
+                      value={displayAddress}
                       required
                       error={generalDetailsTouched && !!generalDetailsErrors.street}
                       onChange={(v) => {
-                        clearError("street");
-                        onChange((prev) => ({
-                          ...prev,
-                          location: { ...prev.location, street: v },
-                        }));
+                        setDisplayAddress(v);
                       }}
-                      onSelect={(addr) =>
+                      onSelect={(addr) => {
+                        clearError("street");
+
+                        setDisplayAddress(`${addr.street} ${addr.number}`.trim());
+
                         onChange((prev) => ({
                           ...prev,
                           location: {
@@ -410,8 +417,8 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                             latitude: addr.latitude,
                             longitude: addr.longitude,
                           },
-                        }))
-                      }
+                        }));
+                      }}
                     />
                   </FormControl>
                 </Grid>

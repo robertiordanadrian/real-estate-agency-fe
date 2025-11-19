@@ -76,7 +76,7 @@ export const GoogleAddressAutocomplete = ({
       const latitude = place.geometry?.location?.lat() ?? null;
       const longitude = place.geometry?.location?.lng() ?? null;
 
-      onChange(place.formatted_address ?? "");
+      onChange(`${street} ${number}`.trim());
 
       onSelect({
         street,

@@ -11,8 +11,11 @@ import {
   Person,
   Phone,
   Wifi,
-  ZoomIn,
+  PhotoLibrary,
+  ChevronLeft,
+  ChevronRight,
 } from "@mui/icons-material";
+
 import {
   Alert,
   Avatar,
@@ -23,9 +26,6 @@ import {
   Divider,
   Grid,
   IconButton,
-  ImageList,
-  ImageListItem,
-  ImageListItemBar,
   InputAdornment,
   Modal,
   Paper,
@@ -50,6 +50,18 @@ import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 import * as React from "react";
 import { formatBuildingLevels } from "@/common/utils/format-building-levels.util";
 import { UtilitiesLabels } from "@/common/enums/property/utilities.enums";
+import { CharacteristicsEnumLabels } from "@/common/enums/property/characteristics.enums";
+
+export const mapCharacteristicLabel = (
+  group: keyof typeof CharacteristicsEnumLabels,
+  value: string | null | undefined,
+): string => {
+  if (!value) return "N/A";
+
+  const groupMap = CharacteristicsEnumLabels[group] as Record<string, string>;
+
+  return groupMap[value] ?? value;
+};
 
 export type AmenityLabelGroups =
   | "EAmenityGeneral"
@@ -79,18 +91,52 @@ export type AmenityLabelGroups =
   | "EAmenityAccess"
   | "EAmenityOtherCharacteristics";
 
-const ImageModal = ({
+const GalleryModal = ({
   open,
   onClose,
-  image,
+  images,
+  startIndex = 0,
   title,
 }: {
   open: boolean;
   onClose: () => void;
-  image: string;
+  images: string[];
+  startIndex?: number;
   title: string;
 }) => {
   const theme = useTheme();
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [isLoadingImage, setIsLoadingImage] = useState(true);
+  const [loadedSrc, setLoadedSrc] = useState("");
+
+  useEffect(() => {
+    const src = images[currentIndex];
+    setIsLoadingImage(true);
+
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      setLoadedSrc(src);
+      setIsLoadingImage(false);
+    };
+  }, [currentIndex, images]);
+
+  useEffect(() => {
+    if (open) {
+      setCurrentIndex(startIndex);
+    }
+  }, [open, startIndex]);
+
+  if (!images || images.length === 0) return null;
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <Modal
       open={open}
@@ -112,6 +158,9 @@ const ImageModal = ({
           borderRadius: 2,
           overflow: "hidden",
           boxShadow: 24,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <IconButton
@@ -122,26 +171,91 @@ const ImageModal = ({
             right: 8,
             bgcolor: "rgba(0,0,0,0.5)",
             color: "#fff",
-            zIndex: 1,
+            zIndex: 2,
             "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
           }}
         >
           <Close />
         </IconButton>
-        <img
-          src={image}
-          alt={title}
-          style={{
-            width: "100%",
-            height: "auto",
-            maxHeight: "90vh",
-            display: "block",
+
+        <IconButton
+          onClick={handlePrev}
+          sx={{
+            position: "absolute",
+            left: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            bgcolor: "rgba(0,0,0,0.4)",
+            color: "#fff",
+            "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+            zIndex: 2,
           }}
-        />
+        >
+          <ChevronLeft />
+        </IconButton>
+
+        <IconButton
+          onClick={handleNext}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            bgcolor: "rgba(0,0,0,0.4)",
+            color: "#fff",
+            "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+            zIndex: 2,
+          }}
+        >
+          <ChevronRight />
+        </IconButton>
+
+        <Box
+          sx={{
+            width: "100%",
+            height: "100%",
+            maxHeight: "90vh",
+            maxWidth: "90vw",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <img
+            key={currentIndex}
+            src={loadedSrc}
+            alt={`${title}-${currentIndex + 1}`}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              opacity: isLoadingImage ? 0 : 1,
+              transition: "opacity 0.25s ease-in-out",
+            }}
+          />
+        </Box>
+
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 8,
+            left: "50%",
+            transform: "translateX(-50%)",
+            bgcolor: "rgba(0,0,0,0.6)",
+            color: "#fff",
+            px: 2,
+            py: 0.5,
+            borderRadius: 999,
+            fontSize: 12,
+          }}
+        >
+          {currentIndex + 1} / {images.length}
+        </Box>
       </Box>
     </Modal>
   );
 };
+
 const DetailSection = ({
   title,
   children,
@@ -213,7 +327,8 @@ const PropertyDetail = () => {
   const { sku } = useParams<{ sku: string }>();
 
   const [propertyId, setPropertyId] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [errorToastOpen, setErrorToastOpen] = useState(false);
 
   const {
@@ -236,6 +351,15 @@ const PropertyDetail = () => {
       month: "2-digit",
       year: "numeric",
     });
+  };
+
+  const formatPrice = (value?: number | string) => {
+    if (value === null || value === undefined) return "-";
+
+    const numeric = String(value).replace(/\D/g, "");
+    if (!numeric) return "-";
+
+    return new Intl.NumberFormat("ro-RO").format(Number(numeric));
   };
 
   useEffect(() => {
@@ -461,7 +585,7 @@ const PropertyDetail = () => {
 
             <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
               <Chip
-                label={`${price?.priceDetails?.price?.toLocaleString() + "€" || "N/A"}`}
+                label={`${formatPrice(price?.priceDetails?.price) + " €" || "N/A"}`}
                 color="primary"
                 variant="filled"
                 sx={{
@@ -488,51 +612,24 @@ const PropertyDetail = () => {
                   {images?.length ? (
                     <>
                       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {images.length} fotografii • click pentru a mari
+                        {images.length} fotografii disponibile
                       </Typography>
 
-                      <ImageList variant="masonry" cols={3} gap={12}>
-                        {images.map((img, index) => (
-                          <ImageListItem
-                            key={index}
-                            sx={{
-                              cursor: "pointer",
-                              borderRadius: 2,
-                              overflow: "hidden",
-                              boxShadow: isDark ? 3 : 2,
-                              "&:hover": {
-                                transform: "scale(1.02)",
-                                boxShadow: isDark ? 8 : 6,
-                              },
-                              transition: "all 0.15s ease",
-                            }}
-                            onClick={() => setSelectedImage(img)}
-                          >
-                            <img src={img} alt={`${description?.title}-${index}`} loading="lazy" />
-                            <ImageListItemBar
-                              title={`Imagine ${index + 1}`}
-                              actionIcon={
-                                <IconButton
-                                  sx={{ color: "#fff" }}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedImage(img);
-                                  }}
-                                >
-                                  <ZoomIn />
-                                </IconButton>
-                              }
-                            />
-                          </ImageListItem>
-                        ))}
-                      </ImageList>
-
-                      <ImageModal
-                        open={!!selectedImage}
-                        onClose={() => setSelectedImage(null)}
-                        image={selectedImage || ""}
-                        title={description?.title || ""}
-                      />
+                      <Button
+                        variant="outlined"
+                        startIcon={<PhotoLibrary />}
+                        onClick={() => {
+                          setCurrentImageIndex(0);
+                          setGalleryOpen(true);
+                        }}
+                        sx={{
+                          textTransform: "none",
+                          fontWeight: 600,
+                          borderRadius: 2,
+                        }}
+                      >
+                        Deschide galeria
+                      </Button>
                     </>
                   ) : (
                     <Typography variant="body2" color="text.secondary">
@@ -846,7 +943,10 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Etapa Constructie"
-                        value={characteristics.building.constructionStage || "N/A"}
+                        value={mapCharacteristicLabel(
+                          "EConstructionStage",
+                          characteristics.building.constructionStage,
+                        )}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -864,7 +964,10 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Structura"
-                        value={characteristics.building.structure || "N/A"}
+                        value={mapCharacteristicLabel(
+                          "EBuildingStructure",
+                          characteristics.building.structure,
+                        )}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -898,7 +1001,10 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Clasa Energetica"
-                        value={characteristics.energyPerformance.energyClass || "N/A"}
+                        value={mapCharacteristicLabel(
+                          "EEnergyCertificationClass",
+                          characteristics.energyPerformance.energyClass,
+                        )}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -981,20 +1087,6 @@ const PropertyDetail = () => {
                       <Typography variant="subtitle1" gutterBottom>
                         Detalii Pret
                       </Typography>
-                    </Grid>
-                    <Grid size={{ xs: 6, md: 4 }}>
-                      <TextField
-                        label="Pret"
-                        value={price.priceDetails.price || "N/A"}
-                        fullWidth
-                        size="small"
-                        slotProps={{
-                          input: {
-                            readOnly: true,
-                            endAdornment: <InputAdornment position="end">€</InputAdornment>,
-                          },
-                        }}
-                      />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
@@ -1410,6 +1502,15 @@ const PropertyDetail = () => {
               </Stack>
             </Grid>
           </Grid>
+          {images?.length ? (
+            <GalleryModal
+              open={galleryOpen}
+              onClose={() => setGalleryOpen(false)}
+              images={images}
+              startIndex={currentImageIndex}
+              title={description?.title || "Galerie proprietate"}
+            />
+          ) : null}
         </Paper>
       </Container>
     </Box>

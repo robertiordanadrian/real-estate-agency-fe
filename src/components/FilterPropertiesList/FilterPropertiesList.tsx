@@ -45,6 +45,15 @@ interface SortState {
   direction: SortDirection;
 }
 
+const formatPrice = (value?: number | string) => {
+  if (value === null || value === undefined) return "-";
+
+  const numeric = String(value).replace(/\D/g, "");
+  if (!numeric) return "-";
+
+  return new Intl.NumberFormat("ro-RO").format(Number(numeric));
+};
+
 const getFullAddress = (p: IProperty) => {
   const loc = p.generalDetails?.location;
   if (!loc) return "-";
@@ -101,7 +110,7 @@ function DesktopFilteredTable({
     { label: "SKU", key: "sku" },
     { label: "Tranzactie", key: "transactionType" },
     { label: "Tip", key: "category" },
-    { label: "Pret (€)", key: "price" },
+    { label: "Pret", key: "price" },
     { label: "Camere", key: "bedrooms" },
     { label: "Suprafata (mp)", key: "usableArea" },
     { label: "Adresa", key: "address" },
@@ -234,7 +243,7 @@ function DesktopFilteredTable({
                   <TableCell>{property.sku ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.transactionType ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.category ?? "-"}</TableCell>
-                  <TableCell>{price?.priceDetails?.price ?? "-"}</TableCell>
+                  <TableCell>{formatPrice(price?.priceDetails?.price)} €</TableCell>
                   <TableCell>{characteristics?.details?.bedrooms ?? "-"}</TableCell>
                   <TableCell>{characteristics?.areas?.totalUsableArea ?? "-"}</TableCell>
                   <TableCell>{getFullAddress(property)}</TableCell>

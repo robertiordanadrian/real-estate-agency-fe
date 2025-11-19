@@ -18,7 +18,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 import { EContractType, ESignedContract } from "@/common/enums/property/price.enums";
 import { IPrice } from "@/common/interfaces/property/price.interface";
@@ -51,10 +51,22 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
     const isDark = theme.palette.mode === "dark";
 
     const [selectedContractName, setSelectedContractName] = useState<string>("");
-    const [pricePerMp, setPricePerMp] = useState<string>("");
+    const [displayPrice, setDisplayPrice] = useState("");
+
     const [priceErrors, setPriceErrors] = useState<PriceErrors>({
       priceDetails: {},
     });
+
+    const formatNumber = (value: string) => {
+      const numeric = value.replace(/\D/g, "");
+      if (!numeric) return "";
+
+      return new Intl.NumberFormat("ro-RO").format(Number(numeric));
+    };
+
+    const unformatNumber = (value: string) => {
+      return value.replace(/\D/g, "");
+    };
 
     const validatePrice = () => {
       const newErrors: PriceErrors = { priceDetails: {} };
@@ -86,20 +98,6 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
       [validatePrice],
     );
 
-    const handlePriceChange = (key: keyof IPrice["priceDetails"], value: any) => {
-      onChange({
-        ...data,
-        priceDetails: { ...data.priceDetails, [key]: value },
-      });
-    };
-
-    const handleCommissionsChange = (key: keyof IPrice["commissions"], value: any) => {
-      onChange({
-        ...data,
-        commissions: { ...data.commissions, [key]: value },
-      });
-    };
-
     const handleContactChange = (
       key: keyof IPrice["contact"],
       value: IPrice["contact"][typeof key],
@@ -112,6 +110,12 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
         },
       }));
     };
+
+    useEffect(() => {
+      if (data.priceDetails.price) {
+        setDisplayPrice(formatNumber(String(data.priceDetails.price)));
+      }
+    }, [data.priceDetails.price]);
 
     return (
       <Paper
@@ -136,14 +140,20 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
                       label="Pret"
                       required
                       error={priceTouched && !!priceErrors.priceDetails.price}
-                      value={data.priceDetails.price ?? ""}
+                      value={displayPrice}
                       onChange={(e) => {
-                        const newPrice = e.target.value;
+                        const rawValue = e.target.value;
 
                         clearError({ section: "priceDetails", field: "price" });
 
+                        const numeric = unformatNumber(rawValue);
+
+                        const formatted = formatNumber(numeric);
+
+                        setDisplayPrice(formatted);
+
                         onChange((prev) => {
-                          const numericPrice = Number(newPrice);
+                          const numericPrice = Number(numeric);
                           const mp = usableArea ?? 0;
 
                           const pricePerMp =
@@ -153,7 +163,7 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
                             ...prev,
                             priceDetails: {
                               ...prev.priceDetails,
-                              price: newPrice,
+                              price: numeric,
                               pricePerMp,
                             },
                           };

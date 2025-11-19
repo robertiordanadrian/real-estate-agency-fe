@@ -11,7 +11,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 interface ImagesStepProps {
@@ -25,6 +25,36 @@ const ImagesStep = ({ data, files, onChange, onFilesChange }: ImagesStepProps) =
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  const handleReorder = (from: number, to: number) => {
+    if (from === to || from === null) return;
+
+    // 1️⃣ Reordonezi array-ul complet de imagini
+    const reordered = [...data];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+    onChange(reordered);
+
+    // 2️⃣ Recaclulezi FILES corect
+    const existingImages = reordered.filter((src) => isExistingImage(src));
+    const newImages = reordered.filter((src) => !isExistingImage(src));
+
+    // reconstruiești files în ordinea NOULUI array
+    const newFilesOrdered: File[] = [];
+
+    newImages.forEach((newImgUrl) => {
+      const indexInOld = data.indexOf(newImgUrl);
+      const fileIndex = indexInOld - existingImages.length;
+
+      if (fileIndex >= 0 && fileIndex < files.length) {
+        newFilesOrdered.push(files[fileIndex]);
+      }
+    });
+
+    onFilesChange(newFilesOrdered);
+  };
+
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const newPreviews = acceptedFiles.map((file) => URL.createObjectURL(file));
@@ -33,25 +63,34 @@ const ImagesStep = ({ data, files, onChange, onFilesChange }: ImagesStepProps) =
     },
     [data, files, onChange, onFilesChange],
   );
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "image/*": [".jpeg", ".jpg", ".png", ".webp"] },
     maxFiles: 20,
     maxSize: 10 * 1024 * 1024,
   });
+
   const handleRemove = (index: number) => {
     const newData = [...data];
     newData.splice(index, 1);
 
+    const existingCount = data.length - files.length;
+    const fileIndex = index - existingCount;
+
     const newFiles = [...files];
-    newFiles.splice(index - (data.length - files.length), 1);
+    if (fileIndex >= 0 && fileIndex < newFiles.length) {
+      newFiles.splice(fileIndex, 1);
+    }
 
     onChange(newData);
     onFilesChange(newFiles);
   };
+
   const isExistingImage = (src: string) => {
     return src.startsWith("http") || src.startsWith("/");
   };
+
   const openImage = (src: string) => {
     return window.open(src, "_blank");
   };
@@ -109,11 +148,31 @@ const ImagesStep = ({ data, files, onChange, onFilesChange }: ImagesStepProps) =
               {data.map((img, index) => (
                 <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
                   <Box
+                    draggable
+                    onDragStart={(e) => {
+                      setDragIndex(index);
+                      e.dataTransfer.effectAllowed = "move";
+                      e.dataTransfer.setData("text/plain", index.toString());
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (dragIndex !== null) {
+                        handleReorder(dragIndex, index);
+                      }
+                      setDragIndex(null);
+                    }}
                     sx={{
                       position: "relative",
                       borderRadius: 2,
                       overflow: "hidden",
                       boxShadow: 3,
+                      cursor: "grab",
+                      opacity: dragIndex === index ? 0.4 : 1,
+                      transition: "opacity 0.2s ease",
                       "&:hover img": { transform: "scale(1.05)" },
                       "&:hover .actions": { opacity: 1 },
                     }}
@@ -128,6 +187,7 @@ const ImagesStep = ({ data, files, onChange, onFilesChange }: ImagesStepProps) =
                         borderRadius: "8px",
                         transition: "transform 0.2s ease-in-out",
                       }}
+                      onClick={() => openImage(img)}
                     />
 
                     <Box
@@ -150,7 +210,10 @@ const ImagesStep = ({ data, files, onChange, onFilesChange }: ImagesStepProps) =
                             color: "#fff",
                             "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
                           }}
-                          onClick={() => openImage(img)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openImage(img);
+                          }}
                         >
                           <ZoomIn fontSize="small" />
                         </IconButton>
@@ -164,7 +227,10 @@ const ImagesStep = ({ data, files, onChange, onFilesChange }: ImagesStepProps) =
                             color: "#fff",
                             "&:hover": { bgcolor: "rgba(0,0,0,0.8)" },
                           }}
-                          onClick={() => handleRemove(index)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemove(index);
+                          }}
                         >
                           <Delete fontSize="small" />
                         </IconButton>
