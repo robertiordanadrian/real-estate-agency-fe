@@ -1,60 +1,55 @@
+import { ERole } from "@/common/enums/role/role.enums";
+import { IUpdateMeUserPayload } from "@/common/interfaces/payloads/update-me-user-payload.interface";
+import { IUpdateUserByIdPayload } from "@/common/interfaces/payloads/update-user-by-id-payload.interface";
+import { IUser } from "@/common/interfaces/user/user.interface";
 import { http } from "@/services/http";
 
 export const UsersApi = {
-  getMe: async () => {
-    const { data } = await http.get("/users/me");
+  getMe: async (): Promise<IUser> => {
+    const { data } = await http.get<IUser>("/users/me");
     return data;
   },
 
-  getAll: async () => {
-    const { data } = await http.get("/users");
+  getAll: async (): Promise<IUser[]> => {
+    const { data } = await http.get<IUser[]>("/users");
     return data;
   },
 
-  getById: async (userId: string) => {
-    const { data } = await http.get(`/users/${userId}`);
+  getById: async (userId: string): Promise<IUser> => {
+    const { data } = await http.get<IUser>(`/users/${userId}`);
     return data;
   },
 
-  updateUserById: async (
-    userId: string,
-    payload: { name?: string; email?: string; phone?: string; role?: string },
-  ) => {
-    const { data } = await http.patch(`/users/${userId}`, payload);
+  updateUserById: async (userId: string, payload: IUpdateUserByIdPayload): Promise<IUser> => {
+    const { data } = await http.patch<IUser>(`/users/${userId}`, payload);
     return data;
   },
 
-  updateMe: async (payload: {
-    name?: string;
-    email?: string;
-    role?: string;
-    password?: string;
-    confirmPassword?: string;
-  }) => {
-    const { data } = await http.patch("/users/me", payload);
+  updateMe: async (payload: IUpdateMeUserPayload): Promise<IUser> => {
+    const { data } = await http.patch<IUser>("/users/me", payload);
     return data;
   },
 
-  uploadProfilePicture: async (file: File) => {
+  uploadProfilePicture: async (file: File): Promise<IUser> => {
     const formData = new FormData();
     formData.append("avatar", file);
-    const { data } = await http.post("/users/me/profile-picture", formData, {
+    const { data } = await http.post<IUser>("/users/me/profile-picture", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return data;
   },
 
-  uploadProfilePictureForUser: async (userId: string, file: File) => {
+  uploadProfilePictureForUser: async (userId: string, file: File): Promise<IUser> => {
     const formData = new FormData();
     formData.append("avatar", file);
-    const { data } = await http.post(`/users/${userId}/profile-picture`, formData, {
+    const { data } = await http.post<IUser>(`/users/${userId}/profile-picture`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return data;
   },
 
-  updateRole: async (userId: string, role: "CEO" | "MANAGER" | "TEAM_LEAD" | "AGENT") => {
-    const { data } = await http.patch(`/users/${userId}/role`, { role });
+  updateRole: async (userId: string, role: ERole): Promise<IUser> => {
+    const { data } = await http.patch<IUser>(`/users/${userId}/role`, { role });
     return data;
   },
 };

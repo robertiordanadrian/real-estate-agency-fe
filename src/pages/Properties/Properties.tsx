@@ -26,6 +26,8 @@ import type { IUser } from "@/common/interfaces/user/user.interface";
 import FilterPropertiesList from "@/components/FilterPropertiesList/FilterPropertiesList";
 import { useFilterPropertiesQuery } from "@/features/filterProperties/filterPropertiesQueries";
 import { useAllUsersQuery, useUserQuery } from "@/features/users/usersQueries";
+import { useToast } from "@/context/ToastContext";
+import { AxiosError } from "axios";
 
 type ContractFilter = "CONTRACT" | "NO_CONTRACT";
 
@@ -35,14 +37,15 @@ const Properties = () => {
   const accent = theme.palette.primary.main;
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
+  const toast = useToast();
 
   const contractFilterOptions: { key: ContractFilter; label: string }[] = [
     { key: "CONTRACT", label: "Contract" },
     { key: "NO_CONTRACT", label: "Fără contract" },
   ];
 
-  const { data: currentUser } = useUserQuery();
-  const { data: allUsers, isLoading: _LOADING_USERS } = useAllUsersQuery();
+  const { data: currentUser, error: currentUserError } = useUserQuery();
+  const { data: allUsers, isLoading: _LOADING_USERS, error: usersError } = useAllUsersQuery();
 
   const isAgentReadonly = currentUser?.role === "AGENT";
 
@@ -59,8 +62,13 @@ const Properties = () => {
   const {
     data: allProperties,
     isLoading,
-    error,
-  } = useFilterPropertiesQuery(selectedCategory, selectedAgentId);
+    error: propertiesError,
+  } = useFilterPropertiesQuery({
+    category: selectedCategory,
+    agentId: selectedAgentId as string,
+    status: selectedStatus,
+    contract: selectedContract,
+  });
 
   const agentOptions = useMemo((): {
     id: string;
@@ -165,6 +173,27 @@ const Properties = () => {
     }
   }, [currentUser]);
 
+  useEffect(() => {
+    if (currentUserError) {
+      const axiosErr = currentUserError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorului", "error");
+    }
+  }, [currentUserError, toast]);
+
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [usersError, toast]);
+
+  useEffect(() => {
+    if (propertiesError) {
+      const axiosErr = propertiesError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
+    }
+  }, [propertiesError, toast]);
+
   return (
     <Box
       sx={{
@@ -265,14 +294,10 @@ const Properties = () => {
             >
               <CircularProgress color="primary" />
             </Box>
-          ) : error ? (
-            <Typography color="error" textAlign="center">
-              Eroare la incarcare.
-            </Typography>
           ) : (
             <FilterPropertiesList
               selectedCategory={selectedCategory}
-              selectedAgentId={selectedAgentId}
+              selectedAgentId={selectedAgentId as string}
               selectedStatus={selectedStatus}
               selectedContract={selectedContract}
             />

@@ -1,6 +1,5 @@
 import { ArrowBack } from "@mui/icons-material";
 import {
-  Alert,
   Avatar,
   Box,
   Button,
@@ -12,7 +11,6 @@ import {
   InputAdornment,
   MenuItem,
   Paper,
-  Snackbar,
   TextField,
   Tooltip,
   Typography,
@@ -32,14 +30,16 @@ import {
   useUploadProfilePicture,
   useUserQuery,
 } from "@/features/users/usersQueries";
+import { useToast } from "@/context/ToastContext";
+import { AxiosError } from "axios";
 
 const Settings = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  const { data: user } = useUserQuery();
+  const toast = useToast();
+  const { data: user, error: userError } = useUserQuery();
   const qc = useQueryClient();
   const updateUser = useUpdateUser();
   const uploadAvatar = useUploadProfilePicture();
@@ -54,15 +54,6 @@ const Settings = () => {
 
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [toast, setToast] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
   const updateForm = <K extends keyof ISettingsForm>(key: K, value: ISettingsForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -83,6 +74,13 @@ const Settings = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (userError) {
+      const axiosErr = userError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
+    }
+  }, [userError, toast]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setAvatar(file);
@@ -96,16 +94,11 @@ const Settings = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setToast({ open: false, message: "", severity: "success" });
 
     try {
       if (form.password || form.confirmPassword) {
         if (form.password !== form.confirmPassword) {
-          setToast({
-            open: true,
-            message: "Parolele nu coincid!",
-            severity: "error",
-          });
+          toast("Parolele nu coincid!", "error");
           return;
         }
       }
@@ -128,18 +121,9 @@ const Settings = () => {
       }
 
       qc.invalidateQueries({ queryKey: ["me"] });
-
-      setToast({
-        open: true,
-        message: "Datele au fost salvate cu succes!",
-        severity: "success",
-      });
+      toast("Datele au fost salvate cu success!", "success");
     } catch (error: any) {
-      setToast({
-        open: true,
-        message: error?.response?.data?.message || "A aparut o eroare.",
-        severity: "error",
-      });
+      toast(error?.response?.data?.message || "A aparut o eroare.", "error");
     }
   };
 
@@ -379,25 +363,6 @@ const Settings = () => {
             </Button>
           </Box>
         </Paper>
-
-        <Snackbar
-          open={toast.open}
-          autoHideDuration={3000}
-          onClose={() => setToast({ ...toast, open: false })}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          <Alert
-            onClose={() => setToast({ ...toast, open: false })}
-            severity={toast.severity}
-            sx={{
-              width: "100%",
-              fontWeight: 600,
-              borderRadius: 2,
-            }}
-          >
-            {toast.message}
-          </Alert>
-        </Snackbar>
       </Container>
     </Box>
   );

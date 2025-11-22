@@ -4,6 +4,7 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import {
   Box,
   Button,
+  capitalize,
   Chip,
   CircularProgress,
   Dialog,
@@ -24,7 +25,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { ILead } from "@/common/interfaces/lead/lead.interface";
@@ -32,18 +33,17 @@ import { IUser } from "@/common/interfaces/user/user.interface";
 import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import { useDeleteLead, useLeadsQuery } from "@/features/leads/leadsQueries";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
-
-type SortDirection = "asc" | "desc";
-interface SortState {
-  field: string;
-  direction: SortDirection;
-}
+import { ISortState, TSortDirection } from "@/common/interfaces/sorting/sort.interface";
+import { useToast } from "@/context/ToastContext";
+import { AxiosError } from "axios";
 
 const LeadsList = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const navigate = useNavigate();
+  const toast = useToast();
+
   const rowsPerPage = 10;
 
   const headers = [
@@ -60,16 +60,16 @@ const LeadsList = () => {
     { label: "Actiuni", key: null },
   ];
 
-  const { data: users } = useAllUsersQuery();
-  const { data: leads, isLoading, error } = useLeadsQuery();
+  const { data: users, error: usersError } = useAllUsersQuery();
+  const { data: leads, isLoading, error: leadsError } = useLeadsQuery();
+
   const deleteLead = useDeleteLead();
 
   const [page, setPage] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<ILead | null>(null);
 
-  // DEFAULT SORT: createdAt DESC
-  const [sort, setSort] = useState<SortState>({
+  const [sort, setSort] = useState<ISortState>({
     field: "createdAt",
     direction: "desc",
   });
@@ -89,8 +89,6 @@ const LeadsList = () => {
     await deleteLead.mutateAsync(selectedLead._id);
     handleCloseConfirm();
   };
-
-  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   const getAgentName = (agentId?: string) => {
     if (!agentId || !users) return "-";
@@ -113,7 +111,7 @@ const LeadsList = () => {
 
     const dataCopy = [...leads];
 
-    const compare = (aVal: any, bVal: any, direction: SortDirection) => {
+    const compare = (aVal: any, bVal: any, direction: TSortDirection) => {
       if (aVal == null && bVal == null) return 0;
       if (aVal == null) return 1;
       if (bVal == null) return -1;
@@ -179,18 +177,25 @@ const LeadsList = () => {
     return dataCopy;
   }, [leads, sort, users]);
 
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [usersError, toast]);
+
+  useEffect(() => {
+    if (leadsError) {
+      const axiosErr = leadsError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea cererilor", "error");
+    }
+  }, [leadsError, toast]);
+
   if (isLoading)
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100%">
         <CircularProgress />
       </Box>
-    );
-
-  if (error)
-    return (
-      <Typography color="error" textAlign="center" mt={4}>
-        Eroare la incarcarea lead-urilor.
-      </Typography>
     );
 
   if (!sortedData || sortedData.length === 0)

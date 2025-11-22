@@ -1,11 +1,9 @@
 import {
-  Alert,
   Box,
   Button,
   Container,
   Divider,
   Paper,
-  Snackbar,
   Step,
   StepLabel,
   Stepper,
@@ -33,10 +31,16 @@ import ImagesStep from "@/components/PropertySteps/ImagesStep";
 import PriceStep, { PriceStepRef } from "@/components/PropertySteps/PriceStep";
 import UtilityStep from "@/components/PropertySteps/UtilityStep";
 import { PropertiesApi } from "@/features/properties/propertiesApi";
-import { propertiesKeys } from "@/features/properties/propertiesQueries";
+import {
+  propertiesKeys,
+  useCreateProperty,
+  useUploadPropertyContract,
+  useUploadPropertyImages,
+} from "@/features/properties/propertiesQueries";
 import { queryClient } from "@/services/queryClient";
 import { useAppSelector } from "@/app/hook";
 import { selectUser } from "@/features/auth/authSelectors";
+import { useToast } from "@/context/ToastContext";
 
 const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
@@ -174,6 +178,7 @@ const AddProperty = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const user = useAppSelector(selectUser);
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -202,50 +207,46 @@ const AddProperty = () => {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [contractFile, setContractFile] = useState<File | null>(null);
 
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success" as "success" | "error",
-  });
+  const createProperty = useCreateProperty();
+  const uploadImages = useUploadPropertyImages();
+  const uploadContract = useUploadPropertyContract();
 
-  const showSnackbar = (message: string, severity: "success" | "error") => {
-    setSnackbar({ open: true, message, severity });
-  };
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
   const handleSubmit = async () => {
     setIsSubmitting(true);
+
     try {
-      const propertyPayload = { ...formData, images: [] };
-      const newProperty = await PropertiesApi.create(propertyPayload);
+      const payload = { ...formData, images: [] };
+
+      const newProperty = await createProperty.mutateAsync(payload);
       const propertyId = newProperty._id;
 
-      if (!propertyId) throw new Error("Lipseste _id proprietatii.");
+      if (!propertyId) throw new Error("Lipsește _id-ul proprietății.");
 
-      if (imageFiles.length) await PropertiesApi.uploadImages(propertyId, imageFiles);
+      if (imageFiles.length) {
+        await uploadImages.mutateAsync({ id: propertyId, files: imageFiles });
+      }
 
-      if (contractFile) await PropertiesApi.uploadContract(propertyId, contractFile);
+      if (contractFile) {
+        await uploadContract.mutateAsync({ id: propertyId, file: contractFile });
+      }
 
-      await queryClient.invalidateQueries({ queryKey: propertiesKeys.all });
+      toast("Proprietatea a fost creată cu succes!", "success");
 
-      showSnackbar("Proprietate a fost creata cu succes!", "success");
-
-      setTimeout(() => {
-        navigate("/properties");
-      }, 1500);
-    } catch {
-      showSnackbar("A aparut o eroare la crearea proprietatii. Incearca din nou.", "error");
+      setTimeout(() => navigate("/properties"), 1500);
+    } catch (err) {
+      console.error("❌ Eroare la crearea proprietății:", err);
+      toast("A apărut o eroare. Încearcă din nou.", "error");
     } finally {
       setIsSubmitting(false);
     }
   };
+
   const handleNext = () => {
     if (activeStep === 0) {
       setGeneralDetailsTouched(true);
       const isValid = generalDetailsStepRef.current?.validate();
       if (!isValid) {
-        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        toast("Completeaza toate campurile obligatorii.", "error");
         return;
       }
     }
@@ -253,7 +254,7 @@ const AddProperty = () => {
       setCharacteristicsTouched(true);
       const isValid = characteristicsStepRef.current?.validate();
       if (!isValid) {
-        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        toast("Completeaza toate campurile obligatorii.", "error");
         return;
       }
     }
@@ -261,7 +262,7 @@ const AddProperty = () => {
       setPriceTouched(true);
       const isValid = priceStepRef.current?.validate();
       if (!isValid) {
-        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        toast("Completeaza toate campurile obligatorii.", "error");
         return;
       }
     }
@@ -269,7 +270,7 @@ const AddProperty = () => {
       setDescriptionTouched(true);
       const isValid = descriptionStepRef.current?.validate();
       if (!isValid) {
-        showSnackbar("Completeaza toate campurile obligatorii.", "error");
+        toast("Completeaza toate campurile obligatorii.", "error");
         return;
       }
     }
@@ -489,17 +490,6 @@ const AddProperty = () => {
           </Box>
         </Paper>
       </Container>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled">
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

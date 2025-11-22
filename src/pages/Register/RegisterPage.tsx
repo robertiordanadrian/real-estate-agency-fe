@@ -38,8 +38,8 @@ import {
   useUploadProfilePictureForUser,
   useUserByIdQuery,
 } from "@/features/users/usersQueries";
-
-const ROLES = ["MANAGER", "TEAM_LEAD", "AGENT"];
+import { AxiosError } from "axios";
+import { useToast } from "@/context/ToastContext";
 
 const RegisterPage = () => {
   const theme = useTheme();
@@ -49,10 +49,17 @@ const RegisterPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
+
+  const ROLES = Object.values(ERole).filter((r) => r !== ERole.CEO);
 
   const editId = new URLSearchParams(location.search).get("editId");
 
-  const { data: userToEdit, isLoading: isFetchingUser } = useUserByIdQuery(editId || undefined);
+  const {
+    data: userToEdit,
+    isLoading: isFetchingUser,
+    error: userError,
+  } = useUserByIdQuery(editId || "");
 
   const { mutateAsync: register, isPending: isRegistering } = useRegister();
   const { mutateAsync: updateUserById, isPending: isUpdating } = useUpdateUserById();
@@ -166,6 +173,13 @@ const RegisterPage = () => {
       return () => clearTimeout(timer);
     }
   }, [success, navigate]);
+
+  useEffect(() => {
+    if (userError) {
+      const axiosErr = userError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
+    }
+  }, [userError, toast]);
 
   if (!currentUser || currentUser.role !== "CEO" || isFetchingUser) {
     return (

@@ -17,7 +17,6 @@ import {
 } from "@mui/icons-material";
 
 import {
-  Alert,
   Avatar,
   Box,
   Button,
@@ -29,7 +28,6 @@ import {
   InputAdornment,
   Modal,
   Paper,
-  Snackbar,
   Stack,
   TextField,
   Typography,
@@ -51,6 +49,12 @@ import * as React from "react";
 import { formatBuildingLevels } from "@/common/utils/format-building-levels.util";
 import { UtilitiesLabels } from "@/common/enums/property/utilities.enums";
 import { CharacteristicsEnumLabels } from "@/common/enums/property/characteristics.enums";
+import { useToast } from "@/context/ToastContext";
+import { AxiosError } from "axios";
+import { formatPrice } from "@/common/utils/format-price.util";
+import { formatDateTime } from "@/common/utils/format-date-time.util";
+import { IBuilding } from "@/common/interfaces/property/characteristics.interface";
+import { EGeneralDetailsEnumLabels, EStatus } from "@/common/enums/property/general-details.enums";
 
 export const mapCharacteristicLabel = (
   group: keyof typeof CharacteristicsEnumLabels,
@@ -59,6 +63,17 @@ export const mapCharacteristicLabel = (
   if (!value) return "N/A";
 
   const groupMap = CharacteristicsEnumLabels[group] as Record<string, string>;
+
+  return groupMap[value] ?? value;
+};
+
+export const mapGeneralDetailsLabel = (
+  group: keyof typeof EGeneralDetailsEnumLabels,
+  value: string | null | undefined,
+): string => {
+  if (!value) return "N/A";
+
+  const groupMap = EGeneralDetailsEnumLabels[group] as Record<string, string>;
 
   return groupMap[value] ?? value;
 };
@@ -293,6 +308,7 @@ const DetailSection = ({
     </Paper>
   );
 };
+
 const EnumChipList = ({ items }: { items: string[] }) => {
   const theme = useTheme();
   return (
@@ -324,6 +340,8 @@ const PropertyDetail = () => {
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const navigate = useNavigate();
+  const toast = useToast();
+
   const { sku } = useParams<{ sku: string }>();
 
   const [propertyId, setPropertyId] = useState<string | null>(null);
@@ -331,36 +349,11 @@ const PropertyDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [errorToastOpen, setErrorToastOpen] = useState(false);
 
-  const {
-    data: property,
-    isLoading,
-    isError,
-  } = usePropertyQuery(propertyId || "", {
-    enabled: !!propertyId,
-  });
+  const { data: property, isLoading, error: propertyError } = usePropertyQuery(propertyId || "");
   const agentIdOfProperty = property?.generalDetails?.agentId;
-  const { data: agent } = useUserByIdQuery(agentIdOfProperty ?? "");
+  const { data: agent, error: agentError } = useUserByIdQuery(agentIdOfProperty ?? "");
   const ownerId = property?.generalDetails?.ownerID;
-  const { data: owner } = useOwnerByIdQuery(ownerId ?? "");
-
-  const formatDateTime = (iso: string | null) => {
-    if (!iso) return "N/A";
-    const date = new Date(iso);
-    return date.toLocaleString("ro-RO", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
-  const formatPrice = (value?: number | string) => {
-    if (value === null || value === undefined) return "-";
-
-    const numeric = String(value).replace(/\D/g, "");
-    if (!numeric) return "-";
-
-    return new Intl.NumberFormat("ro-RO").format(Number(numeric));
-  };
+  const { data: owner, error: ownerError } = useOwnerByIdQuery(ownerId ?? "");
 
   useEffect(() => {
     if (!sku || sku === "undefined" || sku === "null") {
@@ -387,30 +380,6 @@ const PropertyDetail = () => {
     fetchIdBySku();
   }, [sku, navigate]);
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
-        <Typography variant="h6">Se incarca...</Typography>
-      </Box>
-    );
-
-  if (isError || !property) {
-    return (
-      <>
-        <Snackbar
-          open={errorToastOpen}
-          autoHideDuration={2000}
-          onClose={() => setErrorToastOpen(false)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          <Alert severity="error" variant="filled">
-            Proprietatea nu a fost gasita sau SKU-ul este invalid.
-          </Alert>
-        </Snackbar>
-      </>
-    );
-  }
-
   const { generalDetails, characteristics, utilities, price, description, images } = property ?? {};
 
   const locationLabels: Record<string, string> = {
@@ -424,42 +393,42 @@ const PropertyDetail = () => {
   };
 
   const utilitiesSections = [
-    { label: "Utilitati generale", data: utilities.amenities_general },
-    { label: "Sisteme incalzire", data: utilities.amenities_heating },
-    { label: "Climatizare", data: utilities.amenities_conditioning },
-    { label: "Internet", data: utilities.amenities_internet },
+    { label: "Utilitati generale", data: utilities?.amenities_general },
+    { label: "Sisteme incalzire", data: utilities?.amenities_heating },
+    { label: "Climatizare", data: utilities?.amenities_conditioning },
+    { label: "Internet", data: utilities?.amenities_internet },
 
-    { label: "Geamuri / Termopan", data: utilities.amenities_double_pane_windows },
-    { label: "Stare interior", data: utilities.amenities_interior_condition },
-    { label: "Usi interioare", data: utilities.amenities_interior_doors },
-    { label: "Usa intrare", data: utilities.amenities_entrance_door },
+    { label: "Geamuri / Termopan", data: utilities?.amenities_double_pane_windows },
+    { label: "Stare interior", data: utilities?.amenities_interior_condition },
+    { label: "Usi interioare", data: utilities?.amenities_interior_doors },
+    { label: "Usa intrare", data: utilities?.amenities_entrance_door },
 
-    { label: "Obloane", data: utilities.amenities_shutters },
-    { label: "Jaluzele", data: utilities.amenities_blind },
-    { label: "Izolatii", data: utilities.amenities_thermal_insulation },
-    { label: "Pardoseli", data: utilities.amenities_flooring },
-    { label: "Pereti", data: utilities.amenities_walls },
+    { label: "Obloane", data: utilities?.amenities_shutters },
+    { label: "Jaluzele", data: utilities?.amenities_blind },
+    { label: "Izolatii", data: utilities?.amenities_thermal_insulation },
+    { label: "Pardoseli", data: utilities?.amenities_flooring },
+    { label: "Pereti", data: utilities?.amenities_walls },
 
-    { label: "Spatii utilitare", data: utilities.amenities_utility_spaces },
+    { label: "Spatii utilitare", data: utilities?.amenities_utility_spaces },
 
-    { label: "Bucatarie", data: utilities.amenities_kitchen },
-    { label: "Mobila", data: utilities.amenities_furnished },
-    { label: "Electrocasnice", data: utilities.amenities_appliances },
-    { label: "Contorizare", data: utilities.amenities_meters },
-    { label: "Diverse / Securitate", data: utilities.amenities_miscellaneous },
+    { label: "Bucatarie", data: utilities?.amenities_kitchen },
+    { label: "Mobila", data: utilities?.amenities_furnished },
+    { label: "Electrocasnice", data: utilities?.amenities_appliances },
+    { label: "Contorizare", data: utilities?.amenities_meters },
+    { label: "Diverse / Securitate", data: utilities?.amenities_miscellaneous },
 
-    { label: "Facilitati imobiliare", data: utilities.amenities_real_estate_facilities },
+    { label: "Facilitati imobiliare", data: utilities?.amenities_real_estate_facilities },
 
-    { label: "Servicii imobiliare", data: utilities.amenities_real_estate_services },
-    { label: "Servicii hotel", data: utilities.amenities_hotel_services },
+    { label: "Servicii imobiliare", data: utilities?.amenities_real_estate_services },
+    { label: "Servicii hotel", data: utilities?.amenities_hotel_services },
 
-    { label: "Dezvoltare stradala", data: utilities.amenities_street_development },
+    { label: "Dezvoltare stradala", data: utilities?.amenities_street_development },
 
-    { label: "Dotari speciale", data: utilities.amenities_features },
+    { label: "Dotari speciale", data: utilities?.amenities_features },
 
-    { label: "Acces", data: utilities.amenities_access },
+    { label: "Acces", data: utilities?.amenities_access },
 
-    { label: "Caracteristici speciale", data: utilities.amenities_other_characteristics },
+    { label: "Caracteristici speciale", data: utilities?.amenities_other_characteristics },
   ];
 
   const utilitiesLabelMap: Record<string, AmenityLabelGroups> = {
@@ -490,6 +459,34 @@ const PropertyDetail = () => {
     Acces: "EAmenityAccess",
     "Caracteristici speciale": "EAmenityOtherCharacteristics",
   };
+
+  useEffect(() => {
+    if (agentError) {
+      const axiosErr = agentError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea agentului", "error");
+    }
+  }, [agentError, toast]);
+
+  useEffect(() => {
+    if (propertyError) {
+      const axiosErr = propertyError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatii", "error");
+    }
+  }, [propertyError, toast]);
+
+  useEffect(() => {
+    if (ownerError) {
+      const axiosErr = ownerError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietarului", "error");
+    }
+  }, [ownerError, toast]);
+
+  if (isLoading)
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+        <Typography variant="h6">Se incarca...</Typography>
+      </Box>
+    );
 
   return (
     <Box
@@ -578,9 +575,9 @@ const PropertyDetail = () => {
               sx={{ display: "flex", alignItems: "center" }}
             >
               <LocationOn sx={{ mr: 1 }} />
-              {generalDetails.location.zone}, {generalDetails.location.city}
-              {generalDetails.location.street && `, ${generalDetails.location.street}`}
-              {generalDetails.location.number && ` ${generalDetails.location.number}`}
+              {generalDetails?.location.zone}, {generalDetails?.location.city}
+              {generalDetails?.location.street && `, ${generalDetails.location.street}`}
+              {generalDetails?.location.number && ` ${generalDetails.location.number}`}
             </Typography>
 
             <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
@@ -596,9 +593,9 @@ const PropertyDetail = () => {
                 }}
               />
               <Chip
-                label={generalDetails.status}
+                label={generalDetails?.status}
                 sx={{
-                  ...getCustomChipStyle(generalDetails.status),
+                  ...getCustomChipStyle(generalDetails?.status as EStatus),
                 }}
                 variant="filled"
               />
@@ -643,7 +640,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Status"
-                        value={generalDetails.status || "N/A"}
+                        value={generalDetails?.status || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -653,17 +650,16 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Tip tranzactie"
-                        value={generalDetails.transactionType || "N/A"}
+                        value={generalDetails?.transactionType || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
-
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Categorie"
-                        value={generalDetails.category || "N/A"}
+                        value={mapGeneralDetailsLabel("ECategory", generalDetails?.category)}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -674,7 +670,7 @@ const PropertyDetail = () => {
 
                 <DetailSection title="Locatie" icon={<LocationOn />}>
                   <Grid container spacing={2}>
-                    {Object.entries(generalDetails.location)
+                    {Object.entries(generalDetails?.location ?? {})
                       .filter(
                         ([key]) =>
                           ![
@@ -710,7 +706,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Camere"
-                        value={characteristics.details.rooms || "N/A"}
+                        value={characteristics?.details.rooms || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -719,7 +715,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Dormitoare"
-                        value={characteristics.details.bedrooms || "N/A"}
+                        value={characteristics?.details.bedrooms || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -728,7 +724,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Bai"
-                        value={characteristics.details.bathrooms || "N/A"}
+                        value={characteristics?.details.bathrooms || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -737,7 +733,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Bucatarii"
-                        value={characteristics.details.kitchens || "N/A"}
+                        value={characteristics?.details.kitchens || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -746,7 +742,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Balcoane"
-                        value={characteristics.details.balconies || "N/A"}
+                        value={characteristics?.details.balconies || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -755,7 +751,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Terase"
-                        value={characteristics.details.terraces || "N/A"}
+                        value={characteristics?.details.terraces || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -764,7 +760,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Etaj"
-                        value={characteristics.details.floor || "N/A"}
+                        value={characteristics?.details.floor || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -773,7 +769,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="An Constructie"
-                        value={characteristics.details.yearOfConstruction || "N/A"}
+                        value={characteristics?.details.yearOfConstruction || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -782,7 +778,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="An Renovare"
-                        value={characteristics.details.yearOfRenovation || "N/A"}
+                        value={characteristics?.details.yearOfRenovation || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -791,7 +787,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Locuri Parcare"
-                        value={characteristics.details.parkingLots || "N/A"}
+                        value={characteristics?.details.parkingLots || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -800,7 +796,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Garaje"
-                        value={characteristics.details.garages || "N/A"}
+                        value={characteristics?.details.garages || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -809,7 +805,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Bai cu Geam"
-                        value={characteristics.details.bathroomWindow ? "Da" : "Nu"}
+                        value={characteristics?.details.bathroomWindow ? "Da" : "Nu"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -818,7 +814,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Bucatarie Deschisa"
-                        value={characteristics.details.openKitchen ? "Da" : "Nu"}
+                        value={characteristics?.details.openKitchen ? "Da" : "Nu"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -827,7 +823,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Pet Friendly"
-                        value={characteristics.details.petFriendly ? "Da" : "Nu"}
+                        value={characteristics?.details.petFriendly ? "Da" : "Nu"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -836,7 +832,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Cheie la Agentie"
-                        value={characteristics.details.keyInAgency ? "Da" : "Nu"}
+                        value={characteristics?.details.keyInAgency ? "Da" : "Nu"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -852,7 +848,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Suprafata Utila"
-                        value={characteristics.areas.usableArea || "N/A"}
+                        value={characteristics?.areas.usableArea || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -866,7 +862,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Suprafata Construita"
-                        value={characteristics.areas.builtupArea || "N/A"}
+                        value={characteristics?.areas.builtupArea || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -880,7 +876,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Suprafata Totala Utila"
-                        value={characteristics.areas.totalUsableArea || "N/A"}
+                        value={characteristics?.areas.totalUsableArea || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -894,7 +890,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Suprafata Balcon"
-                        value={characteristics.areas.balconyArea || "N/A"}
+                        value={characteristics?.areas.balconyArea || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -908,7 +904,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Suprafata Terasa"
-                        value={characteristics.areas.terraceArea || "N/A"}
+                        value={characteristics?.areas.terraceArea || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -922,7 +918,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Suprafata Gradina"
-                        value={characteristics.areas.gardenArea || "N/A"}
+                        value={characteristics?.areas.gardenArea || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -945,7 +941,7 @@ const PropertyDetail = () => {
                         label="Etapa Constructie"
                         value={mapCharacteristicLabel(
                           "EConstructionStage",
-                          characteristics.building.constructionStage,
+                          characteristics?.building.constructionStage,
                         )}
                         fullWidth
                         size="small"
@@ -955,7 +951,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Tip Cladire"
-                        value={characteristics.building.type || "N/A"}
+                        value={characteristics?.building.type || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -966,7 +962,7 @@ const PropertyDetail = () => {
                         label="Structura"
                         value={mapCharacteristicLabel(
                           "EBuildingStructure",
-                          characteristics.building.structure,
+                          characteristics?.building.structure,
                         )}
                         fullWidth
                         size="small"
@@ -976,7 +972,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Risc Seismic"
-                        value={characteristics.building.seismicRisk || "N/A"}
+                        value={characteristics?.building.seismicRisk || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -985,7 +981,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Regim inaltime"
-                        value={formatBuildingLevels(characteristics.building)}
+                        value={formatBuildingLevels(characteristics?.building as IBuilding)}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -1003,7 +999,7 @@ const PropertyDetail = () => {
                         label="Clasa Energetica"
                         value={mapCharacteristicLabel(
                           "EEnergyCertificationClass",
-                          characteristics.energyPerformance.energyClass,
+                          characteristics?.energyPerformance.energyClass,
                         )}
                         fullWidth
                         size="small"
@@ -1013,7 +1009,9 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Consum Anual Specific"
-                        value={characteristics.energyPerformance.specificAnnualConsumption || "N/A"}
+                        value={
+                          characteristics?.energyPerformance.specificAnnualConsumption || "N/A"
+                        }
                         fullWidth
                         size="small"
                         slotProps={{
@@ -1028,7 +1026,7 @@ const PropertyDetail = () => {
                       <TextField
                         label="Indice Emisii CO2"
                         value={
-                          characteristics.energyPerformance.co2EquivalentEmissionIndex || "N/A"
+                          characteristics?.energyPerformance.co2EquivalentEmissionIndex || "N/A"
                         }
                         fullWidth
                         size="small"
@@ -1046,7 +1044,7 @@ const PropertyDetail = () => {
                       <TextField
                         label="Consum din Surse Regenerabile"
                         value={
-                          characteristics.energyPerformance
+                          characteristics?.energyPerformance
                             .specificConsumptionFromRenewableSources || "N/A"
                         }
                         fullWidth
@@ -1091,7 +1089,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Pret"
-                        value={price.priceDetails.pricePerMp || "N/A"}
+                        value={price?.priceDetails.pricePerMp || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -1105,7 +1103,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Pret garaj"
-                        value={price.priceDetails.garagePrice || "N/A"}
+                        value={price?.priceDetails.garagePrice || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -1119,7 +1117,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Pret parcare"
-                        value={price.priceDetails.parkingPrice || "N/A"}
+                        value={price?.priceDetails.parkingPrice || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -1133,7 +1131,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="TVA inclus"
-                        value={price.priceDetails.tva ? "Da" : "Nu"}
+                        value={price?.priceDetails.tva ? "Da" : "Nu"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -1148,7 +1146,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Comision cumparator"
-                        value={price.commissions.buyerCommissionValue || "N/A"}
+                        value={price?.commissions.buyerCommissionValue || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -1162,7 +1160,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Valoare comision cumparator"
-                        value={price.commissions.buyerCommission || "N/A"}
+                        value={price?.commissions.buyerCommission || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -1171,7 +1169,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Comision proprietar"
-                        value={price.commissions.ownerCommissionValue || "N/A"}
+                        value={price?.commissions.ownerCommissionValue || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{
@@ -1185,7 +1183,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Valoare comision proprietar"
-                        value={price.commissions.ownerCommissionValue || "N/A"}
+                        value={price?.commissions.ownerCommissionValue || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -1200,7 +1198,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Tip contract"
-                        value={price.contact.type || "N/A"}
+                        value={price?.contact.type || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -1209,7 +1207,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Contract semnat"
-                        value={price.contact.signedContract || "N/A"}
+                        value={price?.contact.signedContract || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -1218,7 +1216,7 @@ const PropertyDetail = () => {
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         label="Numar contract"
-                        value={price.contact.contractNumber || "N/A"}
+                        value={price?.contact.contractNumber || "N/A"}
                         fullWidth
                         size="small"
                         slotProps={{ input: { readOnly: true } }}
@@ -1228,8 +1226,8 @@ const PropertyDetail = () => {
                       <TextField
                         label="Data semnarii"
                         value={
-                          price.contact.signDate
-                            ? new Date(price.contact.signDate).toLocaleDateString("ro-RO")
+                          price?.contact.signDate
+                            ? new Date(price?.contact.signDate).toLocaleDateString("ro-RO")
                             : "N/A"
                         }
                         fullWidth
@@ -1241,8 +1239,8 @@ const PropertyDetail = () => {
                       <TextField
                         label="Data expirarii"
                         value={
-                          price.contact.expirationDate
-                            ? new Date(price.contact.expirationDate).toLocaleDateString("ro-RO")
+                          price?.contact.expirationDate
+                            ? new Date(price?.contact.expirationDate).toLocaleDateString("ro-RO")
                             : "N/A"
                         }
                         fullWidth
@@ -1251,15 +1249,15 @@ const PropertyDetail = () => {
                       />
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
-                      {typeof price.contact.contractFile === "string" &&
-                      price.contact.contractFile ? (
+                      {typeof price?.contact.contractFile === "string" &&
+                      price?.contact.contractFile ? (
                         <Button
                           variant="outlined"
                           color="primary"
                           startIcon={<Download />}
                           fullWidth
                           onClick={() =>
-                            window.open(price.contact.contractFile as string, "_blank")
+                            window.open(price?.contact.contractFile as string, "_blank")
                           }
                           sx={{
                             height: 40,
@@ -1304,7 +1302,7 @@ const PropertyDetail = () => {
                     />
                     <TextField
                       label="Disponibilitate"
-                      value={formatDateTime(description?.disponibility)}
+                      value={formatDateTime(description?.disponibility as string)}
                       fullWidth
                       slotProps={{ input: { readOnly: true } }}
                     />
@@ -1479,8 +1477,8 @@ const PropertyDetail = () => {
 
                 <DetailSection title="Harta" icon={<LocationOn />}>
                   <PropertyMap
-                    lat={Number(generalDetails.location.latitude)}
-                    lng={Number(generalDetails.location.longitude)}
+                    lat={Number(generalDetails?.location.latitude)}
+                    lng={Number(generalDetails?.location.longitude)}
                     apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
                   />
                 </DetailSection>

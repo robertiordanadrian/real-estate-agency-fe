@@ -1,7 +1,6 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-
-import { IOwner } from "@/common/interfaces/owner/owner.interface";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { OwnersApi } from "@/features/owners/ownersApi";
+import type { ICreateOwnerPayload } from "@/common/interfaces/payloads/create-owner-payload.interface";
 
 export const ownersKeys = {
   all: ["owners", "all"] as const,
@@ -21,21 +20,28 @@ export const useOwnerByIdQuery = (id: string) =>
     enabled: !!id,
   });
 
-export const useCreateOwner = () =>
-  useMutation({
-    mutationFn: (payload: Omit<IOwner, "_id" | "createdAt" | "updatedAt">) =>
-      OwnersApi.create(payload),
-  });
-
-export const useOwnersBatchQuery = (ownerIds: string[]) =>
-  useQuery({
-    queryKey: ["owners", "batch", ownerIds],
-    queryFn: async () => {
-      const unique = [...new Set(ownerIds.filter(Boolean))];
-      const results = await Promise.all(unique.map((id) => OwnersApi.getById(id)));
-      const map: Record<string, IOwner> = {};
-      results.forEach((o) => (map[o._id as string] = o));
-      return map;
+export const useCreateOwner = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: ICreateOwnerPayload) => OwnersApi.create(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ownersKeys.all });
     },
-    enabled: ownerIds.length > 0,
+    onError: (err: any) => {
+      console.error("❌ Error creating owner:", err);
+    },
   });
+};
+
+export const useDeleteOwner = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => OwnersApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ownersKeys.all });
+    },
+    onError: (err: any) => {
+      console.error("❌ Error deleting owner:", err);
+    },
+  });
+};

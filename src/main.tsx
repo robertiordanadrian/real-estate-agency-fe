@@ -14,6 +14,7 @@ import { loadPersistedAuth, persistAuth } from "@/features/auth/authPersist";
 import { queryClient } from "@/services/queryClient";
 import ThemeWrapper from "@/theme";
 import { ImobiliareInitializer } from "@/features/imobiliare/ImobiliareInitializer";
+import { ToastProvider } from "@/context/ToastContext"; // 👈 import nou
 
 loadPersistedAuth();
 store.subscribe(persistAuth);
@@ -31,8 +32,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               onLoad={() => console.log("Google Maps API loaded")}
               onError={() => console.log("Error loading Google Maps API")}
             >
-              <ImobiliareInitializer />
-              <App />
+              <ToastProvider>
+                <ImobiliareInitializer />
+                <App />
+              </ToastProvider>
             </APIProvider>
           </LocalizationProvider>
         </ThemeWrapper>

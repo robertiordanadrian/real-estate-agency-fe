@@ -24,41 +24,22 @@ import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import { usePropertiesQuery } from "@/features/properties/propertiesQueries";
 import { useArchivePropertyRequestsQuery } from "@/features/propertyRequests/propertyRequestsQueries";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
-
-type SortDirection = "asc" | "desc";
-
-interface SortState {
-  field: string;
-  direction: SortDirection;
-}
-
-interface IdRef {
-  _id: string;
-  name?: string;
-}
-
-interface ArchivedPropertyRequestItem {
-  _id: string;
-  propertyId: string | IdRef;
-  requestedBy: string | IdRef;
-  requestedStatus: string;
-  approvalStatus: string;
-  approvedBy?: string;
-  rejectedBy?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-interface IUserLite {
-  _id: string;
-  name?: string;
-}
+import { ISortState } from "@/common/interfaces/sorting/sort.interface";
+import {
+  IArchivedPropertyRequest,
+  IdRef,
+} from "@/common/interfaces/property/archieved-property-request.interface";
+import { IUserLite } from "@/common/interfaces/user/user-lite.interface";
+import { useToast } from "@/context/ToastContext";
+import type { AxiosError } from "axios";
+import { useEffect } from "react";
 
 const ArchivedPropertyRequestsList = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
+  const toast = useToast();
 
   const headers: Array<{ label: string; key: string | null }> = [
     { label: "Proprietate (SKU)", key: "property" },
@@ -71,15 +52,17 @@ const ArchivedPropertyRequestsList = () => {
   ];
   const rowsPerPage = 10;
 
-  const [sort, setSort] = useState<SortState>({
+  const [sort, setSort] = useState<ISortState>({
     field: "updatedAt",
     direction: "desc",
   });
   const [page, setPage] = useState(0);
 
-  const { data: requests, isLoading, isError } = useArchivePropertyRequestsQuery();
-  const { data: users } = useAllUsersQuery();
-  const { data: properties } = usePropertiesQuery();
+  const { data: requests, isLoading, error: requestsError } = useArchivePropertyRequestsQuery();
+  const { data: users, error: usersError } = useAllUsersQuery();
+  const { data: properties, error: propertiesError } = usePropertiesQuery();
+
+  const list = (requests ?? []) as IArchivedPropertyRequest[];
 
   const usersMap = useMemo(() => {
     const map: Record<string, IUserLite> = {};
@@ -105,20 +88,21 @@ const ArchivedPropertyRequestsList = () => {
   const getId = (val: string | IdRef | undefined): string =>
     typeof val === "string" ? val : (val?._id ?? "");
 
-  const getUserName = (val: string | IdRef | undefined): string => {
-    const id = getId(val);
+  const getUserName = (val: string | IdRef | null | undefined): string => {
+    const id = typeof val === "string" ? val : val?._id;
     if (!id) return "-";
+
     const u = usersMap[id];
     return u?.name ?? "-";
   };
 
-  const getApproverName = (item: ArchivedPropertyRequestItem): string => {
+  const getApproverName = (item: IArchivedPropertyRequest): string => {
     if (item.approvalStatus === "APPROVED") return getUserName(item.approvedBy);
     if (item.approvalStatus === "REJECTED") return getUserName(item.rejectedBy);
     return "-";
   };
 
-  const displayPropertySKU = (item: ArchivedPropertyRequestItem): string => {
+  const displayPropertySKU = (item: IArchivedPropertyRequest): string => {
     const id = getId(item.propertyId);
     return propertiesMap[id]?.sku || id || "-";
   };
@@ -142,7 +126,7 @@ const ArchivedPropertyRequestsList = () => {
     );
   };
 
-  const getComparable = (item: ArchivedPropertyRequestItem, key: string) => {
+  const getComparable = (item: IArchivedPropertyRequest, key: string) => {
     switch (key) {
       case "property":
         return displayPropertySKU(item).toLowerCase();
@@ -164,8 +148,6 @@ const ArchivedPropertyRequestsList = () => {
     }
   };
 
-  const list = (requests ?? []) as ArchivedPropertyRequestItem[];
-
   const sortedData = useMemo(() => {
     return [...list].sort((a, b) => {
       const av = getComparable(a, sort.field);
@@ -176,6 +158,26 @@ const ArchivedPropertyRequestsList = () => {
   }, [list, sort, usersMap, propertiesMap]);
 
   const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  useEffect(() => {
+    if (requestsError) {
+      const axiosErr = requestsError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea cererilor arhivate", "error");
+    }
+  }, [requestsError, toast]);
+
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [usersError, toast]);
+
+  useEffect(() => {
+    if (propertiesError) {
+      const axiosErr = propertiesError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
+    }
+  }, [propertiesError, toast]);
 
   if (isLoading)
     return (
@@ -189,13 +191,6 @@ const ArchivedPropertyRequestsList = () => {
       >
         <CircularProgress />
       </Box>
-    );
-
-  if (isError)
-    return (
-      <Typography color="error" mt={2} textAlign="center">
-        Eroare la incarcare.
-      </Typography>
     );
 
   if (!sortedData.length)

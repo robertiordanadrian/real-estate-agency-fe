@@ -1,13 +1,15 @@
+import { IImobiliareLoginResponse } from "@/common/interfaces/responses/imobiliare-login-response.interface";
+import { IImobiliareSlotsResponse } from "@/common/interfaces/responses/imobiliare-slot-response.interface";
 import { http } from "@/services/http";
 
 export const ImobiliareApi = {
-  login: async () => {
-    const { data } = await http.post("/imobiliare/login");
+  login: async (): Promise<IImobiliareLoginResponse> => {
+    const { data } = await http.post<IImobiliareLoginResponse>("/imobiliare/login");
     return data;
   },
 
-  getSlots: async () => {
-    const { data } = await http.get("/imobiliare/slots");
-    return data as { name: string; total: number; used: number }[];
+  getSlots: async (): Promise<IImobiliareSlotsResponse> => {
+    const { data } = await http.get<IImobiliareSlotsResponse>("/imobiliare/slots");
+    return data;
   },
 };

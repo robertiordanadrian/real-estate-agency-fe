@@ -4,8 +4,12 @@ import { rehydrate } from "@/features/auth/authSlice";
 const KEY = "app.auth";
 
 export const persistAuth = () => {
-  const state = store.getState().auth;
-  localStorage.setItem(KEY, JSON.stringify(state));
+  try {
+    const state = store.getState().auth;
+    localStorage.setItem(KEY, JSON.stringify(state));
+  } catch (err) {
+    console.error("❌ Failed to persist auth state:", err);
+  }
 };
 
 export const loadPersistedAuth = () => {
@@ -14,7 +18,7 @@ export const loadPersistedAuth = () => {
   try {
     const parsed = JSON.parse(raw);
     store.dispatch(rehydrate(parsed));
-  } catch {
-    // ignore JSON parse errors
+  } catch (err) {
+    console.error("❌ Failed to load persisted auth:", err);
   }
 };

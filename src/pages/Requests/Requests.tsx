@@ -13,26 +13,28 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import ArchivedLeadRequestsList from "@/components/ArchivedLeadRequestsList/ArchivedLeadRequestsList";
 import ArchivedPropertyRequestsList from "@/components/ArchivedPropertyRequestsList/ArchivedPropertyRequestsList";
 import LeadRequestsList from "@/components/LeadRequestsList/LeadRequestsList";
 import PropertyRequestsList from "@/components/PropertyRequestsList/PropertyRequestsList";
 import { usePendingLeadRequestsQuery } from "@/features/leadRequests/leadRequestsQueries";
-import { usePendingRequestsQuery } from "@/features/propertyRequests/propertyRequestsQueries";
+import { usePendingPropertyRequestsQuery } from "@/features/propertyRequests/propertyRequestsQueries";
 import { useUserQuery } from "@/features/users/usersQueries";
+import { useToast } from "@/context/ToastContext";
+import { AxiosError } from "axios";
 
 const Requests = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
+  const toast = useToast();
   const [tab, setTab] = useState(0);
 
-  const { data: user } = useUserQuery();
+  const { data: user, error: userError } = useUserQuery();
   const role = user?.role;
 
-  const { data: propertyRequests, refetch: refetchProps } = usePendingRequestsQuery();
+  const { data: propertyRequests, refetch: refetchProps } = usePendingPropertyRequestsQuery();
   const { data: leadRequests, refetch: refetchLeads } = usePendingLeadRequestsQuery();
 
   const totalLeadRequests = leadRequests?.length ?? 0;
@@ -43,6 +45,13 @@ const Requests = () => {
     refetchProps();
     refetchLeads();
   };
+
+  useEffect(() => {
+    if (userError) {
+      const axiosErr = userError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
+    }
+  }, [userError, toast]);
 
   return (
     <Box

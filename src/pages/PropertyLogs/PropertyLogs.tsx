@@ -13,14 +13,25 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import PropertyLogs from "@/components/PropertyLogs/PropertyLogs";
 import { usePropertyQuery } from "@/features/properties/propertiesQueries";
+import { useToast } from "@/context/ToastContext";
+import { useEffect } from "react";
+import { AxiosError } from "axios";
 
 const PropertyLogsPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { id } = useParams<{ id: string }>();
+  const toast = useToast();
 
-  const { data: property, isLoading } = usePropertyQuery(id || "");
+  const { data: property, isLoading, error: propertyError } = usePropertyQuery(id || "");
+
+  useEffect(() => {
+    if (propertyError) {
+      const axiosErr = propertyError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatii", "error");
+    }
+  }, [propertyError, toast]);
 
   return (
     <Box

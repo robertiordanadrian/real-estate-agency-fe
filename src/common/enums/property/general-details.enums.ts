@@ -31,8 +31,10 @@ export enum ESurroundings {
   COFFEE_SHOPS = "Cafenele",
 }
 
-export const ECategoryLabels: Record<ECategory, string> = {
-  [ECategory.APARTMENT_BUILDING]: "Bloc / Apartament",
-  [ECategory.HOUSE_VILLA]: "Casa / Vila",
-  [ECategory.COMMERCIAL]: "Spatiu comercial",
+export const EGeneralDetailsEnumLabels = {
+  ECategory: {
+    [ECategory.APARTMENT_BUILDING]: "Bloc / Apartament",
+    [ECategory.HOUSE_VILLA]: "Casa / Vila",
+    [ECategory.COMMERCIAL]: "Spatiu comercial",
+  },
 };

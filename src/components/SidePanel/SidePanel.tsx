@@ -30,8 +30,11 @@ import { getRoleColor } from "@/common/utils/get-role-color.util";
 import { getRoleDisplayText } from "@/common/utils/get-role-display-text.util";
 import { useLogout } from "@/features/auth/authMutations";
 import { usePendingLeadRequestsQuery } from "@/features/leadRequests/leadRequestsQueries";
-import { usePendingRequestsQuery } from "@/features/propertyRequests/propertyRequestsQueries";
+import { usePendingPropertyRequestsQuery } from "@/features/propertyRequests/propertyRequestsQueries";
 import { useUserQuery } from "@/features/users/usersQueries";
+import { useToast } from "@/context/ToastContext";
+import { useEffect } from "react";
+import { AxiosError } from "axios";
 
 interface SidePanelProps {
   onNavigate?: () => void;
@@ -40,6 +43,7 @@ interface SidePanelProps {
 const SidePanel = ({ onNavigate }: SidePanelProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
+  const toast = useToast();
 
   const logoSrc = isDark ? "/white-logo.svg" : "/black-logo.svg";
 
@@ -54,10 +58,12 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
   const borderGlass = isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)";
 
   const location = useLocation();
-  const { data: user } = useUserQuery();
+  const { data: user, error: usersError } = useUserQuery();
   const { mutate: logout, isPending } = useLogout();
-  const { data: pendingRequests } = usePendingRequestsQuery();
-  const { data: pendingLeadRequests } = usePendingLeadRequestsQuery();
+  const { data: pendingRequests, error: pendingPropertyRequestsError } =
+    usePendingPropertyRequestsQuery();
+  const { data: pendingLeadRequests, error: pendingLeadRequestsError } =
+    usePendingLeadRequestsQuery();
 
   const pendingLeadCount = pendingLeadRequests?.length ?? 0;
   const pendingCount = pendingRequests?.length ?? 0;
@@ -66,6 +72,30 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
+
+  useEffect(() => {
+    if (pendingLeadRequestsError) {
+      const axiosErr = pendingLeadRequestsError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea cererilor de leads", "error");
+    }
+  }, [pendingLeadRequestsError, toast]);
+
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [usersError, toast]);
+
+  useEffect(() => {
+    if (pendingPropertyRequestsError) {
+      const axiosErr = pendingPropertyRequestsError as AxiosError<{ message?: string }>;
+      toast(
+        axiosErr.response?.data?.message || "Eroare la incarcarea cererilor de proprietate",
+        "error",
+      );
+    }
+  }, [pendingPropertyRequestsError, toast]);
 
   return (
     <Box

@@ -1,20 +1,15 @@
+import { IGetPropertiesByFilterPayload } from "@/common/interfaces/payloads/get-properties-by-filter-payload.interface";
 import { IProperty } from "@/common/interfaces/property/property.interface";
 import { http } from "@/services/http";
 
 export const FilterPropertiesApi = {
-  getByFilters: async (
-    category?: string,
-    agentId?: string,
-    status?: string,
-    contract?: string,
-  ): Promise<IProperty[]> => {
+  getByFilters: async (payload: IGetPropertiesByFilterPayload): Promise<IProperty[]> => {
     const params = new URLSearchParams();
-    if (category) params.append("category", category);
-    if (agentId) params.append("agentId", agentId);
-    if (status) params.append("status", status);
-    if (contract) params.append("contract", contract);
-
-    const { data } = await http.get(`/properties/filter?${params.toString()}`);
+    if (payload.category) params.append("category", payload.category);
+    if (payload.agentId) params.append("agentId", payload.agentId);
+    if (payload.status) params.append("status", payload.status);
+    if (payload.contract) params.append("contract", payload.contract);
+    const { data } = await http.get<IProperty[]>(`/properties/filter?${params.toString()}`);
     return data;
   },
 };

@@ -30,29 +30,30 @@ import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import { useFilterPropertiesQuery } from "@/features/filterProperties/filterPropertiesQueries";
 import { useQuery } from "@tanstack/react-query";
 import { UsersApi } from "@/features/users/usersApi";
+import { ISortState } from "@/common/interfaces/sorting/sort.interface";
+import { formatPrice } from "@/common/utils/format-price.util";
+import { useToast } from "@/context/ToastContext";
+import type { AxiosError } from "axios";
+import { useEffect } from "react";
+import { EGeneralDetailsEnumLabels } from "@/common/enums/property/general-details.enums";
+
+export const mapGeneralDetailsLabel = (
+  group: keyof typeof EGeneralDetailsEnumLabels,
+  value: string | null | undefined,
+): string => {
+  if (!value) return "N/A";
+
+  const groupMap = EGeneralDetailsEnumLabels[group] as Record<string, string>;
+
+  return groupMap[value] ?? value;
+};
 
 interface FilterPropertiesListProps {
   selectedCategory?: string;
-  selectedAgentId?: string;
+  selectedAgentId: string;
   selectedStatus?: string;
   selectedContract?: string;
 }
-
-type SortDirection = "asc" | "desc";
-
-interface SortState {
-  field: string;
-  direction: SortDirection;
-}
-
-const formatPrice = (value?: number | string) => {
-  if (value === null || value === undefined) return "-";
-
-  const numeric = String(value).replace(/\D/g, "");
-  if (!numeric) return "-";
-
-  return new Intl.NumberFormat("ro-RO").format(Number(numeric));
-};
 
 const getFullAddress = (p: IProperty) => {
   const loc = p.generalDetails?.location;
@@ -78,7 +79,7 @@ const sortableColumns: Record<string, (_p: IProperty) => any> = {
   contract: (p) => (p.price?.contact?.signedContract === ESignedContract.NO ? 0 : 1),
 };
 
-function DesktopFilteredTable({
+function FilteredTable({
   properties,
   total,
   page,
@@ -92,18 +93,20 @@ function DesktopFilteredTable({
   page: number;
   rowsPerPage: number;
   onPageChange: (_e: unknown, _newPage: number) => void;
-  sort: SortState;
+  sort: ISortState;
   onSortChange: (_field: string) => void;
 }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const navigate = useNavigate();
+  const toast = useToast();
 
-  const { data: users } = useQuery({
+  const { data: users, error } = useQuery({
     queryKey: ["users-all"],
     queryFn: UsersApi.getAll,
   });
+
   const headers = [
     { label: "Imagine", key: null },
     { label: "Status", key: "status" },
@@ -112,7 +115,7 @@ function DesktopFilteredTable({
     { label: "Tip", key: "category" },
     { label: "Pret", key: "price" },
     { label: "Camere", key: "bedrooms" },
-    { label: "Suprafata (mp)", key: "usableArea" },
+    { label: "Suprafata", key: "usableArea" },
     { label: "Adresa", key: "address" },
     { label: "Contract", key: "contract" },
     { label: "Agent", key: "agent" },
@@ -137,6 +140,13 @@ function DesktopFilteredTable({
     users.forEach((u: any) => (map[u._id] = u));
     return map;
   }, [users]);
+
+  useEffect(() => {
+    if (error) {
+      const axiosErr = error as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea userilor.", "error");
+    }
+  }, [error, toast]);
 
   return (
     <Paper
@@ -242,10 +252,12 @@ function DesktopFilteredTable({
 
                   <TableCell>{property.sku ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.transactionType ?? "-"}</TableCell>
-                  <TableCell>{generalDetails?.category ?? "-"}</TableCell>
+                  <TableCell>
+                    {mapGeneralDetailsLabel("ECategory", generalDetails?.category)}
+                  </TableCell>
                   <TableCell>{formatPrice(price?.priceDetails?.price)} €</TableCell>
                   <TableCell>{characteristics?.details?.bedrooms ?? "-"}</TableCell>
-                  <TableCell>{characteristics?.areas?.totalUsableArea ?? "-"}</TableCell>
+                  <TableCell>{characteristics?.areas?.totalUsableArea + " m²"}</TableCell>
                   <TableCell>{getFullAddress(property)}</TableCell>
                   <TableCell>
                     {property.price?.contact?.signedContract !== ESignedContract.NO ? (
@@ -321,16 +333,17 @@ const FilterPropertiesList = ({
 }: FilterPropertiesListProps) => {
   const rowsPerPage = 10;
 
-  const { data, isLoading, error } = useFilterPropertiesQuery(
-    selectedCategory,
-    selectedAgentId,
-    selectedStatus,
-    selectedContract,
-  );
+  const { data, isLoading, error } = useFilterPropertiesQuery({
+    agentId: selectedAgentId,
+    category: selectedCategory,
+    status: selectedStatus,
+    contract: selectedContract,
+  });
+  const toast = useToast();
 
   const [page, setPage] = useState(0);
 
-  const [sort, setSort] = useState<SortState>({
+  const [sort, setSort] = useState<ISortState>({
     field: "sku",
     direction: "desc",
   });
@@ -367,18 +380,21 @@ const FilterPropertiesList = ({
     });
   }, [data, sort]);
 
+  useEffect(() => {
+    if (error) {
+      const axiosErr = error as AxiosError<{ message?: string }>;
+      toast(
+        axiosErr.response?.data?.message || "Eroare la încărcarea proprietăților filtrate",
+        "error",
+      );
+    }
+  }, [error, toast]);
+
   if (isLoading)
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100%">
         <CircularProgress />
       </Box>
-    );
-
-  if (error)
-    return (
-      <Typography color="error" textAlign="center">
-        Eroare la incarcare.
-      </Typography>
     );
 
   if (!sortedData || sortedData.length === 0)
@@ -391,7 +407,7 @@ const FilterPropertiesList = ({
   const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
-    <DesktopFilteredTable
+    <FilteredTable
       properties={paginated}
       total={sortedData.length}
       page={page}

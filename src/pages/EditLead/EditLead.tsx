@@ -1,6 +1,5 @@
 import { ArrowBack, AttachFile } from "@mui/icons-material";
 import {
-  Alert,
   Box,
   Button,
   CircularProgress,
@@ -11,7 +10,6 @@ import {
   InputAdornment,
   MenuItem,
   Paper,
-  Snackbar,
   TextField,
   Tooltip,
   Typography,
@@ -28,6 +26,8 @@ import { ERole } from "@/common/enums/role/role.enums";
 import { IUser } from "@/common/interfaces/user/user.interface";
 import { useLeadQuery, useUpdateLead, useUploadContract } from "@/features/leads/leadsQueries";
 import { useAllUsersQuery, useUserQuery } from "@/features/users/usersQueries";
+import { useToast } from "@/context/ToastContext";
+import { AxiosError } from "axios";
 
 const EditLead = () => {
   const theme = useTheme();
@@ -35,13 +35,15 @@ const EditLead = () => {
   const isDark = theme.palette.mode === "dark";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
+  const toast = useToast();
+
   const { id } = useParams();
   const updateLead = useUpdateLead();
   const uploadContract = useUploadContract();
 
-  const { data: allUsers } = useAllUsersQuery();
-  const { data: me } = useUserQuery();
-  const { data: lead, isLoading } = useLeadQuery(id || "");
+  const { data: allUsers, error: usersError } = useAllUsersQuery();
+  const { data: me, error: meError } = useUserQuery();
+  const { data: lead, isLoading, error: leadError } = useLeadQuery(id || "");
 
   const [form, setForm] = useState<IEditLeadForm>({
     name: "",
@@ -55,72 +57,44 @@ const EditLead = () => {
   });
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
-  const [toast, setToast] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({ open: false, message: "", severity: "success" });
 
   const handleChange = <K extends keyof IEditLeadForm>(key: K, value: IEditLeadForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
   const handleSave = async () => {
-    try {
-      if (!id) return;
+    if (!id) return;
 
+    try {
       await updateLead.mutateAsync({ id, data: form });
 
-      setToast({
-        open: true,
-        message: "Lead-ul a fost actualizat cu succes!",
-        severity: "success",
-      });
+      toast("Lead-ul a fost actualizat cu succes!", "success");
 
       setTimeout(() => {
         navigate("/leads");
       }, 800);
     } catch (error: any) {
-      let errorMessage = "Eroare la actualizarea lead-ului.";
+      const errorMessage = error?.response?.data?.message || "Eroare la actualizarea lead-ului.";
 
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-
-      setToast({
-        open: true,
-        message: errorMessage,
-        severity: "error",
-      });
+      toast(errorMessage, "error");
 
       setTimeout(() => navigate("/leads"), 2000);
     }
   };
-  const handleUpload = async () => {
-    try {
-      if (!id || !file) return;
 
+  const handleUpload = async () => {
+    if (!id || !file) return;
+
+    try {
       await uploadContract.mutateAsync({ id, file });
 
-      setToast({
-        open: true,
-        message: "Contractul a fost incarcat cu succes!",
-        severity: "success",
-      });
+      toast("Contractul a fost incarcat cu succes!", "success");
 
       setFile(null);
       setFileName("");
     } catch (error: any) {
-      let errorMessage = "Eroare la incarcarea contractului.";
+      const errorMessage = error?.response?.data?.message || "Eroare la incarcarea contractului.";
 
-      if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
-
-      setToast({
-        open: true,
-        message: errorMessage,
-        severity: "error",
-      });
+      toast(errorMessage, "error");
     }
   };
 
@@ -147,6 +121,31 @@ const EditLead = () => {
       });
     }
   }, [lead]);
+
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [usersError, toast]);
+
+  useEffect(() => {
+    if (meError) {
+      const axiosErr = meError as AxiosError<{ message?: string }>;
+      toast(
+        axiosErr.response?.data?.message ||
+          "Eroare la incarcarea datelor despre utilizatorul curent",
+        "error",
+      );
+    }
+  }, [meError, toast]);
+
+  useEffect(() => {
+    if (leadError) {
+      const axiosErr = leadError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea lead-ului", "error");
+    }
+  }, [leadError, toast]);
 
   if (isLoading)
     return (
@@ -532,25 +531,6 @@ const EditLead = () => {
             </Button>
           </Box>
         </Paper>
-
-        <Snackbar
-          open={toast.open}
-          autoHideDuration={3000}
-          onClose={() => setToast({ ...toast, open: false })}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        >
-          <Alert
-            onClose={() => setToast({ ...toast, open: false })}
-            severity={toast.severity}
-            sx={{
-              width: "100%",
-              fontWeight: 600,
-              borderRadius: 2,
-            }}
-          >
-            {toast.message}
-          </Alert>
-        </Snackbar>
       </Container>
     </Box>
   );

@@ -1,11 +1,6 @@
 import { useEffect } from "react";
 import { useImobiliareLogin, useImobiliareSlots } from "@/features/imobiliare/imobiliareQueries";
 
-/**
- * 🔹 ImobiliareInitializer
- * Rulează automat login-ul la Imobiliare.ro și încarcă sloturile promoționale
- * la pornirea aplicației. Este global și se montează o singură dată.
- */
 export const ImobiliareInitializer = () => {
   const loginMutation = useImobiliareLogin();
   const { refetch: refetchSlots } = useImobiliareSlots();

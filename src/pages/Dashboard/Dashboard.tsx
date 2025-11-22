@@ -18,20 +18,24 @@ import {
 import { useLeadsQuery } from "@/features/leads/leadsQueries";
 import { usePropertiesQuery } from "@/features/properties/propertiesQueries";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
+import { useToast } from "@/context/ToastContext";
+import { useEffect } from "react";
+import { AxiosError } from "axios";
 
 const Dashboard = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const toast = useToast();
 
   const {
     data: properties,
     isLoading: isLoadingProperties,
-    error: errorProperties,
+    error: propertiesError,
   } = usePropertiesQuery();
-  const { data: leads, isLoading: isLoadingLeads, error: errorLeads } = useLeadsQuery();
-  const { data: users, isLoading: isLoadingUseres, error: errorsUsers } = useAllUsersQuery();
+  const { data: leads, isLoading: isLoadingLeads, error: leadsError } = useLeadsQuery();
+  const { data: users, isLoading: isLoadingUseres, error: usersError } = useAllUsersQuery();
 
   const totalProperties = properties?.length ?? 0;
   const totalLeads = leads?.length ?? 0;
@@ -40,6 +44,26 @@ const Dashboard = () => {
   const textPrimary = theme.palette.text.primary;
   const textSecondary = theme.palette.text.secondary;
 
+  useEffect(() => {
+    if (leadsError) {
+      const axiosErr = leadsError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea leads-urilor", "error");
+    }
+  }, [leadsError, toast]);
+
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [usersError, toast]);
+
+  useEffect(() => {
+    if (propertiesError) {
+      const axiosErr = propertiesError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
+    }
+  }, [propertiesError, toast]);
   return (
     <Box
       sx={{
@@ -134,8 +158,6 @@ const Dashboard = () => {
               >
                 <CircularProgress color="primary" />
               </Box>
-            ) : errorProperties || errorLeads || errorsUsers ? (
-              <Typography color="error">Eroare la incarcarea datelor</Typography>
             ) : (
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12, sm: 12, md: 12, lg: 3 }}>

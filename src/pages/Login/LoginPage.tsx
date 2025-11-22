@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   CircularProgress,
@@ -12,34 +11,73 @@ import {
 import { useState } from "react";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import type { AxiosError } from "axios";
 
 import { useLogin } from "@/features/auth/authMutations";
+import { useToast } from "@/context/ToastContext";
 
 const LoginPage = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const toast = useToast();
+
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
-  const navigate = useNavigate();
 
   const { mutateAsync, isPending } = useLogin();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+
+  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [touched, setTouched] = useState({ email: false, password: false });
+
+  const validate = (fieldEmail = email, fieldPassword = password) => {
+    const newErrors = { email: "", password: "" };
+    let ok = true;
+
+    if (!fieldEmail.trim()) {
+      newErrors.email = "Email is required";
+      ok = false;
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(fieldEmail.trim())) {
+        newErrors.email = "Invalid email format";
+        ok = false;
+      }
+    }
+
+    if (!fieldPassword.trim()) {
+      newErrors.password = "Password is required";
+      ok = false;
+    }
+
+    setErrors(newErrors);
+    return ok;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+
+    setTouched({ email: true, password: true });
+
+    if (!validate()) {
+      toast("Please fill in all required fields", "error");
+      return;
+    }
 
     try {
       await mutateAsync({ email, password });
-      setTimeout(() => navigate("/", { replace: true }), 100);
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.message || err?.message || "Autentificarea a esuat. Incearca din nou.";
-      setError(message);
+      toast("Successfully logged in", "success");
+      navigate("/", { replace: true });
+    } catch (err) {
+      const axiosErr = err as AxiosError<{ message: string }>;
+      toast(axiosErr.response?.data?.message || "Authentication error", "error");
     }
   };
+
+  const hasValidationErrors =
+    !!errors.email || !!errors.password || !email.trim() || !password.trim();
 
   return (
     <Container maxWidth="sm">
@@ -50,7 +88,6 @@ const LoginPage = () => {
           justifyContent: "center",
           alignItems: "center",
           bgcolor: theme.palette.background.default,
-          py: 3,
         }}
       >
         <Paper
@@ -60,9 +97,7 @@ const LoginPage = () => {
             width: "100%",
             borderRadius: 3,
             bgcolor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
             boxShadow: isDark ? `0 0 25px ${accent}22` : `0 0 15px ${accent}11`,
-            transition: "all 0.3s ease",
           }}
         >
           <Typography
@@ -75,49 +110,63 @@ const LoginPage = () => {
                 ? "linear-gradient(45deg, #38bdf8, #818cf8)"
                 : "linear-gradient(45deg, #0f172a, #2563eb)",
               backgroundClip: "text",
-              WebkitBackgroundClip: "text",
               color: "transparent",
             }}
           >
-            Autentificare in cont
+            Autentificare în cont
           </Typography>
 
           <Typography variant="body2" align="center" color="text.secondary" mb={3}>
             Introdu datele tale de acces pentru a continua.
           </Typography>
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
               label="Email"
-              type="email"
               fullWidth
               required
               margin="normal"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              error={touched.email && !!errors.email}
+              helperText={touched.email ? errors.email : ""}
+              onBlur={() => {
+                setTouched((t) => ({ ...t, email: true }));
+                validate();
+              }}
+              onChange={(e) => {
+                const value = e.target.value;
+                setEmail(value);
+                setTouched((t) => ({ ...t, email: true }));
+                validate(value, password);
+              }}
             />
 
             <TextField
-              label="Parolă"
+              label="Parola"
               type="password"
               fullWidth
               required
               margin="normal"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              error={touched.password && !!errors.password}
+              helperText={touched.password ? errors.password : ""}
+              onBlur={() => {
+                setTouched((t) => ({ ...t, password: true }));
+                validate(email, password);
+              }}
+              onChange={(e) => {
+                const value = e.target.value;
+                setPassword(value);
+                setTouched((t) => ({ ...t, password: true }));
+                validate(email, value);
+              }}
             />
-
-            {error && (
-              <Alert severity="error" sx={{ mt: 2, borderRadius: 2 }}>
-                {error}
-              </Alert>
-            )}
 
             <Button
               type="submit"
               variant="contained"
               fullWidth
-              disabled={isPending}
+              disabled={isPending || hasValidationErrors}
               sx={{
                 mt: 4,
                 py: 1.4,
@@ -126,9 +175,8 @@ const LoginPage = () => {
                 backgroundColor: accent,
                 color: theme.palette.getContrastText(accent),
                 borderRadius: 2,
-                "&:hover": {
-                  backgroundColor: theme.palette.primary.dark,
-                },
+                opacity: isPending || hasValidationErrors ? 0.6 : 1,
+                cursor: isPending || hasValidationErrors ? "not-allowed" : "pointer",
               }}
             >
               {isPending ? (

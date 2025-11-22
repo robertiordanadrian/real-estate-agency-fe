@@ -1,4 +1,5 @@
 import { IOwner } from "@/common/interfaces/owner/owner.interface";
+import { ICreateOwnerPayload } from "@/common/interfaces/payloads/create-owner-payload.interface";
 import { http } from "@/services/http";
 
 export const OwnersApi = {
@@ -7,13 +8,18 @@ export const OwnersApi = {
     return res.data;
   },
 
-  create: async (payload: Omit<IOwner, "_id">) => {
+  getById: async (id: string) => {
+    const res = await http.get<IOwner>(`/owners/${id}`);
+    return res.data;
+  },
+
+  create: async (payload: ICreateOwnerPayload) => {
     const res = await http.post<IOwner>("/owners", payload);
     return res.data;
   },
 
-  getById: async (id: string) => {
-    const res = await http.get<IOwner>(`/owners/${id}`);
+  delete: async (id: string) => {
+    const res = await http.delete<{ deleted: boolean }>(`/owners/${id}`);
     return res.data;
   },
 };

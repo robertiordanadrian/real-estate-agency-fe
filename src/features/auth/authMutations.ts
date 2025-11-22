@@ -18,7 +18,6 @@ type LoginResponse = {
     phone: string;
   };
 };
-
 type RegisterPayload = {
   name: string;
   email: string;
@@ -45,12 +44,15 @@ export const useLogin = () => {
             _id: data.user._id,
             email: data.user.email,
             name: data.user.name,
-            role: data.user.role as ERole,
+            role: data.user.role,
             profilePicture: data.user.profilePicture,
             phone: data.user.phone,
           },
         }),
       );
+    },
+    onError: (err: any) => {
+      console.error("❌ Login error:", err);
     },
   });
 };
@@ -62,21 +64,14 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: async () => {
       await http.post("/auth/logout");
-      return true;
     },
-    onSuccess: async () => {
+    onError: (err: any) => {
+      console.error("❌ Logout error:", err);
+    },
+    onSettled: async () => {
       dispatch(logout());
       localStorage.removeItem("app.auth");
-
-      await qc.invalidateQueries();
-      qc.removeQueries();
-    },
-    onError: async (err) => {
-      console.error("Eroare la logout:", err);
-      dispatch(logout());
-      localStorage.removeItem("app.auth");
-      await qc.invalidateQueries();
-      qc.removeQueries();
+      qc.clear();
     },
   });
 };
@@ -86,6 +81,9 @@ export const useRegister = () => {
     mutationFn: async (payload: RegisterPayload) => {
       const { data } = await http.post<RegisterResponse>("/auth/register", payload);
       return data;
+    },
+    onError: (err: any) => {
+      console.error("❌ Register error:", err);
     },
   });
 };

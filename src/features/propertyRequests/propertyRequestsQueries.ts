@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 import { PropertyRequestsApi } from "@/features/propertyRequests/propertyRequestsApi";
+import { IPropertyRequest } from "@/common/interfaces/property/property-request.interface";
+import { useToast } from "@/context/ToastContext";
+import type { AxiosError } from "axios";
 
 export const propertyRequestsKeys = {
   all: ["property-requests"] as const,
@@ -8,44 +10,49 @@ export const propertyRequestsKeys = {
   archive: () => [...propertyRequestsKeys.all, "archive"] as const,
 };
 
-export const usePendingRequestsQuery = () =>
-  useQuery({
+export const usePendingPropertyRequestsQuery = () =>
+  useQuery<IPropertyRequest[]>({
     queryKey: propertyRequestsKeys.pending(),
-    queryFn: async () => {
-      const { data } = await PropertyRequestsApi.getPending();
-      return data;
-    },
+    queryFn: PropertyRequestsApi.getPending,
   });
 
 export const useArchivePropertyRequestsQuery = () =>
-  useQuery({
+  useQuery<IPropertyRequest[]>({
     queryKey: propertyRequestsKeys.archive(),
-    queryFn: async () => {
-      const { data } = await PropertyRequestsApi.getArchive();
-      return data;
-    },
+    queryFn: PropertyRequestsApi.getArchive,
   });
 
 export const useApproveRequest = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => PropertyRequestsApi.approve(id),
+  const qc = useQueryClient();
+  const toast = useToast();
+
+  return useMutation<IPropertyRequest, AxiosError<{ message?: string }>, string>({
+    mutationFn: PropertyRequestsApi.approve,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: propertyRequestsKeys.pending(),
-      });
+      qc.invalidateQueries({ queryKey: propertyRequestsKeys.pending() });
+      qc.invalidateQueries({ queryKey: propertyRequestsKeys.archive() });
+      toast("Cererea a fost aprobată cu succes", "success");
+    },
+    onError: (error) => {
+      console.error("❌ Error approving property request:", error);
+      toast(error.response?.data?.message || "Eroare la aprobarea cererii", "error");
     },
   });
 };
 
 export const useRejectRequest = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => PropertyRequestsApi.reject(id),
+  const qc = useQueryClient();
+  const toast = useToast();
+  return useMutation<IPropertyRequest, AxiosError<{ message?: string }>, string>({
+    mutationFn: PropertyRequestsApi.reject,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: propertyRequestsKeys.pending(),
-      });
+      qc.invalidateQueries({ queryKey: propertyRequestsKeys.pending() });
+      qc.invalidateQueries({ queryKey: propertyRequestsKeys.archive() });
+      toast("Cererea a fost respinsă", "success");
+    },
+    onError: (error) => {
+      console.error("❌ Error rejecting property request:", error);
+      toast(error.response?.data?.message || "Eroare la respingerea cererii", "error");
     },
   });
 };

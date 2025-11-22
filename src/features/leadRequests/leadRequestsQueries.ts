@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 import { LeadRequestsApi } from "@/features/leadRequests/leadRequestsApi";
+import { ILeadRequest } from "@/common/interfaces/lead/lead-request.interface";
+import { useToast } from "@/context/ToastContext";
+import type { AxiosError } from "axios";
 
 export const leadRequestsKeys = {
   all: ["lead-requests"] as const,
@@ -9,43 +11,47 @@ export const leadRequestsKeys = {
 };
 
 export const usePendingLeadRequestsQuery = () =>
-  useQuery({
+  useQuery<ILeadRequest[]>({
     queryKey: leadRequestsKeys.pending(),
-    queryFn: async () => {
-      const { data } = await LeadRequestsApi.getPending();
-      return data;
-    },
+    queryFn: LeadRequestsApi.getPending,
   });
 
 export const useArchiveLeadRequestsQuery = () =>
-  useQuery({
+  useQuery<ILeadRequest[]>({
     queryKey: leadRequestsKeys.archive(),
-    queryFn: async () => {
-      const { data } = await LeadRequestsApi.getArchive();
-      return data;
-    },
+    queryFn: LeadRequestsApi.getArchive,
   });
 
 export const useApproveLeadRequest = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => LeadRequestsApi.approve(id),
+  const qc = useQueryClient();
+  const toast = useToast();
+  return useMutation<ILeadRequest, AxiosError<{ message?: string }>, string>({
+    mutationFn: LeadRequestsApi.approve,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: leadRequestsKeys.pending(),
-      });
+      qc.invalidateQueries({ queryKey: leadRequestsKeys.pending() });
+      qc.invalidateQueries({ queryKey: leadRequestsKeys.archive() });
+      toast("Cererea de lead a fost aprobată", "success");
+    },
+    onError: (error) => {
+      console.error("❌ Error approving lead request:", error);
+      toast(error.response?.data?.message || "Eroare la aprobarea cererii lead", "error");
     },
   });
 };
 
 export const useRejectLeadRequest = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => LeadRequestsApi.reject(id),
+  const qc = useQueryClient();
+  const toast = useToast();
+  return useMutation<ILeadRequest, AxiosError<{ message?: string }>, string>({
+    mutationFn: LeadRequestsApi.reject,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: leadRequestsKeys.pending(),
-      });
+      qc.invalidateQueries({ queryKey: leadRequestsKeys.pending() });
+      qc.invalidateQueries({ queryKey: leadRequestsKeys.archive() });
+      toast("Cererea de lead a fost respinsă", "success");
+    },
+    onError: (error) => {
+      console.error("❌ Error rejecting lead request:", error);
+      toast(error.response?.data?.message || "Eroare la respingerea cererii lead", "error");
     },
   });
 };

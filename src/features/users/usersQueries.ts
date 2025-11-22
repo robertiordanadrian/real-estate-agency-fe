@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { UsersApi } from "@/features/users/usersApi";
+import { IUser } from "@/common/interfaces/user/user.interface";
+import { IUpdateMeUserPayload } from "@/common/interfaces/payloads/update-me-user-payload.interface";
+import { IUpdateUserByIdPayload } from "@/common/interfaces/payloads/update-user-by-id-payload.interface";
 
 export const usersKeys = {
   me: ["me"] as const,
@@ -9,64 +12,94 @@ export const usersKeys = {
 };
 
 export const useUserQuery = () =>
-  useQuery({
+  useQuery<IUser>({
     queryKey: usersKeys.me,
     queryFn: UsersApi.getMe,
-    staleTime: 5 * 60 * 1000,
+    staleTime: Infinity,
   });
 
 export const useAllUsersQuery = () =>
   useQuery({
     queryKey: usersKeys.all,
     queryFn: UsersApi.getAll,
-    staleTime: 2 * 60 * 1000,
+    staleTime: Infinity,
   });
 
-export const useUserByIdQuery = (userId?: string) =>
+export const useUserByIdQuery = (userId: string) =>
   useQuery({
-    queryKey: usersKeys.one(userId || ""),
-    queryFn: () => UsersApi.getById(userId!),
+    queryKey: usersKeys.one(userId),
+    queryFn: () => UsersApi.getById(userId),
+    staleTime: Infinity,
     enabled: !!userId,
   });
 
 export const useUpdateUser = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: UsersApi.updateMe,
-    onSuccess: () => qc.invalidateQueries({ queryKey: usersKeys.me }),
+    mutationFn: (payload: IUpdateMeUserPayload) => UsersApi.updateMe(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: usersKeys.me });
+      const me = qc.getQueryData<IUser>(usersKeys.me);
+      if (me?._id) {
+        qc.invalidateQueries({ queryKey: usersKeys.one(me._id) });
+      }
+      qc.invalidateQueries({ queryKey: usersKeys.all });
+    },
+    onError: (error) => {
+      console.error("❌ Error updating user:", error);
+    },
   });
 };
 
 export const useUpdateUserById = () => {
   const qc = useQueryClient();
+  const { data: me } = useUserQuery();
   return useMutation({
-    mutationFn: ({
-      userId,
-      payload,
-    }: {
-      userId: string;
-      payload: {
-        name?: string;
-        email?: string;
-        phone?: string;
-        role?: string;
-      };
-    }) => UsersApi.updateUserById(userId, payload),
-    onSuccess: () => qc.invalidateQueries({ queryKey: usersKeys.all }),
+    mutationFn: ({ userId, payload }: { userId: string; payload: IUpdateUserByIdPayload }) =>
+      UsersApi.updateUserById(userId, payload),
+    onSuccess: (_, { userId }) => {
+      qc.invalidateQueries({ queryKey: usersKeys.all });
+      qc.invalidateQueries({ queryKey: usersKeys.one(userId) });
+      if (me?._id === userId) {
+        qc.invalidateQueries({ queryKey: usersKeys.me });
+      }
+    },
+    onError: (error) => {
+      console.error("❌ Error updating user:", error);
+    },
   });
 };
 
 export const useUploadProfilePicture = () => {
   const qc = useQueryClient();
+  const { data: me } = useUserQuery();
   return useMutation({
-    mutationFn: UsersApi.uploadProfilePicture,
-    onSuccess: () => qc.invalidateQueries({ queryKey: usersKeys.me }),
+    mutationFn: (file: File) => UsersApi.uploadProfilePicture(file),
+    onSuccess: () => {
+      const userId = me?._id;
+      if (!userId) return;
+      qc.invalidateQueries({ queryKey: usersKeys.me });
+      qc.invalidateQueries({ queryKey: usersKeys.all });
+      qc.invalidateQueries({ queryKey: usersKeys.one(userId) });
+    },
+    onError: (error) => {
+      console.error("❌ Error uploading profile picture:", error);
+    },
   });
 };
 
 export const useUploadProfilePictureForUser = () => {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ userId, file }: { userId: string; file: File }) =>
       UsersApi.uploadProfilePictureForUser(userId, file),
+    onSuccess: (_data, variables) => {
+      const userId = variables.userId;
+      qc.invalidateQueries({ queryKey: usersKeys.one(userId) });
+      qc.invalidateQueries({ queryKey: usersKeys.all });
+    },
+    onError: (error) => {
+      console.error("❌ Error uploading profile picture for user:", error);
+    },
   });
 };

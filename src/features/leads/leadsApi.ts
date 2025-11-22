@@ -1,4 +1,5 @@
 import type { ILead } from "@/common/interfaces/lead/lead.interface";
+import { IDeleteLeadResponse } from "@/common/interfaces/responses/delete-lead-response.interface";
 import { http } from "@/services/http";
 
 export const LeadsApi = {
@@ -26,7 +27,8 @@ export const LeadsApi = {
     return data;
   },
 
-  async deleteLead(id: string): Promise<void> {
-    await http.delete(`/leads/${id}`);
+  async deleteLead(id: string): Promise<IDeleteLeadResponse> {
+    const { data } = await http.delete<IDeleteLeadResponse>(`/leads/${id}`);
+    return data;
   },
 };

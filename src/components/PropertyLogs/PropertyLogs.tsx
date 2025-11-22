@@ -7,19 +7,22 @@ import {
   TimelineSeparator,
 } from "@mui/lab";
 import { Box, Paper, Typography } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 
 import type { IModificationLogEntry } from "@/common/interfaces/property/modification-log.interface";
 import { IUser } from "@/common/interfaces/user/user.interface";
 import { getReadableFieldLabel } from "@/common/utils/logFieldMap";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
+import { useToast } from "@/context/ToastContext";
+import { AxiosError } from "axios";
 
 interface PropertyLogsProps {
   logs: IModificationLogEntry[];
 }
 
 export default function PropertyLogs({ logs }: PropertyLogsProps) {
-  const { data: allUsers = [] } = useAllUsersQuery();
+  const toast = useToast();
+  const { data: allUsers = [], error } = useAllUsersQuery();
 
   const usersById = React.useMemo(() => {
     const map: Record<string, string> = {};
@@ -32,6 +35,13 @@ export default function PropertyLogs({ logs }: PropertyLogsProps) {
 
     return map;
   }, [allUsers]);
+
+  useEffect(() => {
+    if (error) {
+      const axiosErr = error as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [error, toast]);
 
   if (!logs || logs.length === 0) {
     return (

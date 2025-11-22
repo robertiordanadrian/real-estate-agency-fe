@@ -24,35 +24,22 @@ import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import { useArchiveLeadRequestsQuery } from "@/features/leadRequests/leadRequestsQueries";
 import { useLeadsQuery } from "@/features/leads/leadsQueries";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
-
-type SortDirection = "asc" | "desc";
-interface SortState {
-  field: string;
-  direction: SortDirection;
-}
-
-interface IdRef {
-  _id: string;
-  name?: string;
-}
-
-interface ArchivedLeadRequestItem {
-  _id: string;
-  leadId: string | IdRef;
-  requestedBy: string | IdRef;
-  requestedStatus: string;
-  approvalStatus: string;
-  approvedBy?: string;
-  rejectedBy?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { ISortState } from "@/common/interfaces/sorting/sort.interface";
+import {
+  IArchivedLeadRequest,
+  IIdRef,
+} from "@/common/interfaces/lead/archieved-lead-request.interface";
+import { useToast } from "@/context/ToastContext";
+import type { AxiosError } from "axios";
+import { useEffect } from "react";
 
 const ArchivedLeadRequestsList = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
   const navigate = useNavigate();
+  const toast = useToast();
+
   const headers = [
     { label: "Lead", key: "lead" },
     { label: "Solicitat de", key: "requestedBy" },
@@ -64,14 +51,15 @@ const ArchivedLeadRequestsList = () => {
   ];
   const rowsPerPage = 10;
 
-  const [sort, setSort] = useState<SortState>({
+  const [sort, setSort] = useState<ISortState>({
     field: "updatedAt",
     direction: "desc",
   });
+  const [page, setPage] = useState(0);
 
-  const { data: archiveData, isLoading, isError } = useArchiveLeadRequestsQuery();
-  const { data: users } = useAllUsersQuery();
-  const { data: leads } = useLeadsQuery();
+  const { data: archiveData, isLoading, error: archieveDataError } = useArchiveLeadRequestsQuery();
+  const { data: users, error: usersError } = useAllUsersQuery();
+  const { data: leads, error: leadsError } = useLeadsQuery();
 
   const leadMap = useMemo(() => {
     if (!leads) return {};
@@ -82,27 +70,26 @@ const ArchivedLeadRequestsList = () => {
     return map;
   }, [leads]);
 
-  const getId = (val: string | IdRef | undefined) =>
+  const getId = (val: string | IIdRef | undefined) =>
     typeof val === "string" ? val : val?._id || "";
 
-  const getUserName = (val: any) => {
+  const getUserName = (val: string | IIdRef | null | undefined) => {
     if (!val || !users) return "-";
     const id = typeof val === "string" ? val : val._id;
     const u = users.find((x: IUser) => x._id === id);
     return u?.name ?? "-";
   };
 
-  const displayLeadName = (item: ArchivedLeadRequestItem) => {
+  const displayLeadName = (item: IArchivedLeadRequest) => {
     const id = getId(item.leadId);
     return leadMap[id]?.name || id;
   };
 
-  const getApproverName = (item: ArchivedLeadRequestItem) => {
-    if (item.approvalStatus === "APPROVED") return getUserName(item.approvedBy);
-    if (item.approvalStatus === "REJECTED") return getUserName(item.rejectedBy);
+  const getApproverName = (item: IArchivedLeadRequest) => {
+    if (item.approvalStatus === "APPROVED") return getUserName(item.approvedBy as string);
+    if (item.approvalStatus === "REJECTED") return getUserName(item.rejectedBy as string);
     return "-";
   };
-  const [page, setPage] = useState(0);
 
   const toggleSort = (field: string) => {
     setSort((prev) =>
@@ -125,12 +112,12 @@ const ArchivedLeadRequestsList = () => {
     );
   };
 
-  const getComparable = (item: ArchivedLeadRequestItem, key: string) => {
+  const getComparable = (item: IArchivedLeadRequest, key: string) => {
     switch (key) {
       case "lead":
         return displayLeadName(item).toLowerCase();
       case "requestedBy":
-        return getUserName(item.requestedBy).toLowerCase();
+        return getUserName(item.requestedBy as string).toLowerCase();
       case "requestedStatus":
         return item.requestedStatus.toLowerCase();
       case "approvalStatus":
@@ -157,6 +144,27 @@ const ArchivedLeadRequestsList = () => {
 
   const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+  useEffect(() => {
+    if (archieveDataError) {
+      const axiosErr = archieveDataError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea cererilor arhivate", "error");
+    }
+  }, [archieveDataError, toast]);
+
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [usersError, toast]);
+
+  useEffect(() => {
+    if (leadsError) {
+      const axiosErr = leadsError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea leadurilor", "error");
+    }
+  }, [leadsError, toast]);
+
   if (isLoading)
     return (
       <Box
@@ -169,13 +177,6 @@ const ArchivedLeadRequestsList = () => {
       >
         <CircularProgress />
       </Box>
-    );
-
-  if (isError)
-    return (
-      <Typography color="error" mt={2} textAlign="center">
-        Eroare la incarcare.
-      </Typography>
     );
 
   if (!sortedData.length)

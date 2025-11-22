@@ -72,6 +72,13 @@ http.interceptors.response.use(
   async (error: AxiosError) => {
     const originalConfig = error.config as ExtendedAxiosRequestConfig;
 
+    if (
+      originalConfig?.url?.includes("/auth/login") ||
+      originalConfig?.url?.includes("/auth/register")
+    ) {
+      return Promise.reject(error);
+    }
+
     if (!originalConfig || error.response?.status !== 401) {
       return Promise.reject(error);
     }

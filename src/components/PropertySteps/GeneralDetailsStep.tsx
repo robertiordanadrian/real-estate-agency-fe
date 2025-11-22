@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   Card,
@@ -16,7 +15,6 @@ import {
   OutlinedInput,
   Paper,
   Select,
-  Snackbar,
   TextField,
   Typography,
   useTheme,
@@ -25,19 +23,19 @@ import React, { forwardRef, useEffect, useImperativeHandle, useState } from "rea
 
 import {
   ECategory,
-  ECategoryLabels,
+  EGeneralDetailsEnumLabels,
   ESurroundings,
   EType,
 } from "@/common/enums/property/general-details.enums";
 import type { IGeneralDetails } from "@/common/interfaces/property/general-details.interface";
-import { OwnersApi } from "@/features/owners/ownersApi";
-import { queryClient } from "../../services/queryClient";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
 import { IUser } from "@/common/interfaces/user/user.interface";
 import { EOwnerType, IOwner } from "@/common/interfaces/owner/owner.interface";
 import { GoogleAddressAutocomplete } from "@/components/GoogleAddressAutocomplete/GoogleAddressAutocomplete";
-import { useOwnersQuery } from "@/features/owners/ownersQueries";
+import { useCreateOwner, useOwnersQuery } from "@/features/owners/ownersQueries";
 import { getEnumOptions } from "@/common/utils/utilities-step.util";
+import { AxiosError } from "axios";
+import { useToast } from "@/context/ToastContext";
 
 const defaultOwnerForm: IOwner = {
   _id: "",
@@ -96,8 +94,11 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
   ({ data, onChange, generalDetailsTouched }, ref) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
+    const toast = useToast();
 
-    const { data: allUsers } = useAllUsersQuery();
+    const { data: allUsers, error: usersError } = useAllUsersQuery();
+    const { data: owners = [], error: ownersError } = useOwnersQuery();
+    const createOwnerMutation = useCreateOwner();
 
     const [generalDetailsErrors, setGeneralDetailsErrors] = useState<GeneralDetailsErrors>({});
     const [createOwnerErrors, setCreateOwnerErrors] = useState<CreateOwnerError>({});
@@ -110,7 +111,6 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
       severity: "success" as "success" | "error",
     });
     const [openOwnerDialog, setOpenOwnerDialog] = useState(false);
-    const { data: owners = [] } = useOwnersQuery();
 
     const validateGeneralDetails = () => {
       const newErrors: GeneralDetailsErrors = {};
@@ -155,13 +155,6 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
       });
     };
 
-    const showSnackbar = (message: string, severity: "success" | "error") => {
-      setSnackbar({ open: true, message, severity });
-    };
-    const handleCloseSnackbar = () => {
-      setSnackbar((prev) => ({ ...prev, open: false }));
-    };
-
     useImperativeHandle(
       ref,
       () => ({
@@ -179,6 +172,20 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
     useEffect(() => {
       validateCreateOwner();
     }, [ownerForm]);
+
+    useEffect(() => {
+      if (usersError) {
+        const axiosErr = usersError as AxiosError<{ message?: string }>;
+        toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+      }
+    }, [usersError, toast]);
+
+    useEffect(() => {
+      if (ownersError) {
+        const axiosErr = ownersError as AxiosError<{ message?: string }>;
+        toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietarilor", "error");
+      }
+    }, [ownersError, toast]);
 
     const handleLocationChange = (key: keyof IGeneralDetails["location"], value: string) => {
       onChange((prev) => ({
@@ -218,31 +225,33 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
         payload.representative = ownerForm.representative?.trim() || "";
       }
 
-      try {
-        const created = await OwnersApi.create(payload);
+      createOwnerMutation.mutate(payload, {
+        onSuccess: (created) => {
+          onChange((prev) => ({
+            ...prev,
+            ownerID: created._id ?? "",
+          }));
 
-        await queryClient.invalidateQueries({ queryKey: ["owners", "all"] });
+          toast("Proprietarul a fost creat cu succes!", "success");
 
-        onChange((prev) => ({
-          ...prev,
-          ownerID: created._id ?? "",
-        }));
+          setCreateOwnerErrors({
+            type: false,
+            surname: false,
+            lastname: false,
+            phone: false,
+            companyName: false,
+            cui: false,
+            representative: false,
+          });
 
-        showSnackbar("Proprietarul a fost creat cu succes!", "success");
-        setCreateOwnerErrors((prev) => ({
-          ...prev,
-          type: false,
-          surname: false,
-          lastname: false,
-          phone: false,
-          companyName: false,
-          cui: false,
-          representative: false,
-        }));
-        setOpenOwnerDialog(false);
-      } catch (error) {
-        showSnackbar("Eroare la crearea proprietarului. Încearcă din nou.", "error");
-      }
+          setOpenOwnerDialog(false);
+        },
+
+        onError: (err: any) => {
+          console.error(err);
+          toast("Eroare la crearea proprietarului. Încearcă din nou.", "error");
+        },
+      });
     };
 
     const updateOwnerForm = <K extends keyof IOwner>(key: K, value: IOwner[K]) => {
@@ -370,7 +379,7 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                         onChange((prev) => ({ ...prev, category: e.target.value as ECategory }));
                       }}
                     >
-                      {getEnumOptions(ECategory, ECategoryLabels).map((opt) => (
+                      {getEnumOptions(ECategory, EGeneralDetailsEnumLabels.ECategory).map((opt) => (
                         <MenuItem key={opt.value} value={opt.value}>
                           {opt.label}
                         </MenuItem>
@@ -643,16 +652,6 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
               </Button>
             </DialogActions>
           </Dialog>
-          <Snackbar
-            open={snackbar.open}
-            autoHideDuration={6000}
-            onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          >
-            <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled">
-              {snackbar.message}
-            </Alert>
-          </Snackbar>
         </Box>
       </Paper>
     );

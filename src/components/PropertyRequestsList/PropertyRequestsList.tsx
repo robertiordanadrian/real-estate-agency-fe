@@ -20,22 +20,23 @@ import {
   useTheme,
 } from "@mui/material";
 import { useQueries } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getChipColor } from "@/common/utils/get-chip-color.util";
 import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import {
   useApproveRequest,
-  usePendingRequestsQuery,
+  usePendingPropertyRequestsQuery,
   useRejectRequest,
 } from "@/features/propertyRequests/propertyRequestsQueries";
 import { http } from "@/services/http";
-
-interface IdRef {
-  _id: string;
-  name?: string;
-}
+import { IdRef } from "@/common/interfaces/property/archieved-property-request.interface";
+import { ISortState } from "@/common/interfaces/sorting/sort.interface";
+import { useToast } from "@/context/ToastContext";
+import { usePropertiesQuery } from "@/features/properties/propertiesQueries";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
+import { AxiosError } from "axios";
 
 interface PropertyReqItem {
   _id: string;
@@ -45,89 +46,48 @@ interface PropertyReqItem {
   createdAt?: string;
 }
 
-type SortDirection = "asc" | "desc";
-
-interface SortState {
-  field: string;
-  direction: SortDirection;
-}
-
 const PropertyRequestsList = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
   const navigate = useNavigate();
+  const toast = useToast();
 
   const rowsPerPage = 10;
 
-  const [sort, setSort] = useState<SortState>({
+  const [sort, setSort] = useState<ISortState>({
     field: "createdAt",
     direction: "desc",
   });
 
   const [page, setPage] = useState(0);
 
-  const { data, isLoading, isError } = usePendingRequestsQuery();
+  const {
+    data: pendingReuqests,
+    isLoading,
+    error: pendingRequestsError,
+  } = usePendingPropertyRequestsQuery();
+  const { data: allProperties, error: propertiesError } = usePropertiesQuery();
+  const { data: allUsers, error: usersError } = useAllUsersQuery();
+
   const approveMutation = useApproveRequest();
   const rejectMutation = useRejectRequest();
 
-  const userIds = useMemo<string[]>(
-    () =>
-      Array.from(
-        new Set(
-          (data ?? []).map((r: any) =>
-            typeof r.requestedBy === "string" ? r.requestedBy : r.requestedBy._id,
-          ),
-        ),
-      ),
-    [data],
-  );
-
-  const propertyIds = useMemo<string[]>(
-    () =>
-      Array.from(
-        new Set(
-          (data ?? []).map((r: any) =>
-            typeof r.propertyId === "string" ? r.propertyId : r.propertyId._id,
-          ),
-        ),
-      ),
-    [data],
-  );
-
-  const propertyQueries = useQueries({
-    queries: propertyIds.map((id) => ({
-      queryKey: ["property", id],
-      queryFn: () => http.get(`/properties/${id}`).then((r) => r.data),
-      staleTime: 60000,
-      enabled: !!id,
-    })),
-  });
-
-  const userQueries = useQueries({
-    queries: userIds.map((id) => ({
-      queryKey: ["user", id],
-      queryFn: () => http.get(`/users/${id}`).then((r) => r.data),
-      staleTime: 60000,
-      enabled: !!id,
-    })),
-  });
-
   const propMap = useMemo(() => {
     const map: Record<string, any> = {};
-    propertyQueries.forEach((q, i) => {
-      if (q.data) map[propertyIds[i]] = q.data;
+
+    allProperties?.forEach((p) => {
+      if (p._id) map[p._id] = p;
     });
+
     return map;
-  }, [propertyQueries, propertyIds]);
+  }, [allProperties]);
 
   const userMap = useMemo(() => {
     const map: Record<string, any> = {};
-    userQueries.forEach((q, i) => {
-      if (q.data) map[userIds[i]] = q.data;
-    });
+    allUsers?.forEach((u) => (map[u._id] = u));
     return map;
-  }, [userQueries, userIds]);
+  }, [allUsers]);
 
   const toggleSort = (field: string) => {
     setSort((prev) =>
@@ -138,8 +98,10 @@ const PropertyRequestsList = () => {
     setPage(0);
   };
 
-  const getId = (val: string | IdRef | undefined) =>
-    typeof val === "string" ? val : val?._id || "";
+  const getId = (val: string | IdRef | undefined): string => {
+    if (!val) return "";
+    return typeof val === "string" ? val : (val._id ?? "");
+  };
 
   const displayUser = (val: string | IdRef | undefined) => userMap[getId(val)]?.name ?? "-";
 
@@ -166,15 +128,36 @@ const PropertyRequestsList = () => {
   };
 
   const sortedData = useMemo(() => {
-    if (!data) return [];
-    return [...data].sort((a, b) => {
+    if (!pendingReuqests) return [];
+    return [...pendingReuqests].sort((a, b) => {
       const av = getComparable(a, sort.field);
       const bv = getComparable(b, sort.field);
       return sort.direction === "asc" ? (av < bv ? -1 : 1) : av > bv ? -1 : 1;
     });
-  }, [data, sort, propMap, userMap]);
+  }, [pendingReuqests, sort, propMap, userMap]);
 
   const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [usersError, toast]);
+
+  useEffect(() => {
+    if (propertiesError) {
+      const axiosErr = propertiesError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
+    }
+  }, [propertiesError, toast]);
+
+  useEffect(() => {
+    if (pendingRequestsError) {
+      const axiosErr = pendingRequestsError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea cererilor", "error");
+    }
+  }, [pendingRequestsError, toast]);
 
   if (isLoading)
     return (
@@ -188,13 +171,6 @@ const PropertyRequestsList = () => {
       >
         <CircularProgress />
       </Box>
-    );
-
-  if (isError)
-    return (
-      <Typography textAlign="center" color="error" mt={2}>
-        Eroare la incarcare.
-      </Typography>
     );
 
   if (!sortedData.length)

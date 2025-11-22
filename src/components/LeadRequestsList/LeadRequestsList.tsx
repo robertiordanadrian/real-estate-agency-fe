@@ -4,6 +4,7 @@ import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import {
   Box,
+  capitalize,
   Chip,
   CircularProgress,
   IconButton,
@@ -19,7 +20,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { ILead } from "@/common/interfaces/lead/lead.interface";
@@ -31,45 +32,31 @@ import {
 } from "@/features/leadRequests/leadRequestsQueries";
 import { useLeadsQuery } from "@/features/leads/leadsQueries";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
-
-type SortDirection = "asc" | "desc";
-interface SortState {
-  field: string;
-  direction: SortDirection;
-}
-interface IdRef {
-  _id: string;
-  name?: string;
-}
-interface LeadRequestItem {
-  _id: string;
-  leadId: string | IdRef;
-  requestedBy: string | IdRef;
-  requestedStatus: string;
-  createdAt?: string;
-}
-interface IUserLite {
-  _id: string;
-  name?: string;
-}
+import { ISortState } from "@/common/interfaces/sorting/sort.interface";
+import { IUserLite } from "@/common/interfaces/user/user-lite.interface";
+import { IdRef } from "@/common/interfaces/property/archieved-property-request.interface";
+import { ILeadRequest } from "@/common/interfaces/lead/lead-request.interface";
+import { useToast } from "@/context/ToastContext";
+import { AxiosError } from "axios";
 
 const LeadRequestsList = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
+  const toast = useToast();
 
   const rowsPerPage = 10;
 
-  const [sort, setSort] = useState<SortState>({
+  const [sort, setSort] = useState<ISortState>({
     field: "createdAt",
     direction: "desc",
   });
   const [page, setPage] = useState(0);
 
-  const { data: requests, isLoading, isError } = usePendingLeadRequestsQuery();
-  const { data: leads } = useLeadsQuery();
-  const { data: users } = useAllUsersQuery();
+  const { data: requests, isLoading, error: requestsError } = usePendingLeadRequestsQuery();
+  const { data: leads, error: leadsError } = useLeadsQuery();
+  const { data: users, error: usersError } = useAllUsersQuery();
 
   const approveMutation = useApproveLeadRequest();
   const rejectMutation = useRejectLeadRequest();
@@ -97,12 +84,10 @@ const LeadRequestsList = () => {
     return u?.name ?? "-";
   };
 
-  const getLeadName = (item: LeadRequestItem): string => {
+  const getLeadName = (item: ILeadRequest): string => {
     const id = getId(item.leadId);
     return leadsMap[id]?.name || "-";
   };
-
-  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 
   const toggleSort = (field: string) => {
     setSort((prev) =>
@@ -131,7 +116,7 @@ const LeadRequestsList = () => {
     );
   };
 
-  const getComparable = (item: LeadRequestItem, key: string) => {
+  const getComparable = (item: ILeadRequest, key: string) => {
     switch (key) {
       case "lead":
         return getLeadName(item).toLowerCase();
@@ -147,7 +132,7 @@ const LeadRequestsList = () => {
   };
 
   const sortedData = useMemo(() => {
-    const list = (requests ?? []) as LeadRequestItem[];
+    const list = (requests ?? []) as ILeadRequest[];
     return [...list].sort((a, b) => {
       const av = getComparable(a, sort.field);
       const bv = getComparable(b, sort.field);
@@ -157,6 +142,27 @@ const LeadRequestsList = () => {
   }, [requests, sort, usersMap, leadsMap]);
 
   const paginated = sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  useEffect(() => {
+    if (requestsError) {
+      const axiosErr = requestsError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea cererilor arhivate", "error");
+    }
+  }, [requestsError, toast]);
+
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+    }
+  }, [usersError, toast]);
+
+  useEffect(() => {
+    if (leadsError) {
+      const axiosErr = leadsError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea cererilor", "error");
+    }
+  }, [leadsError, toast]);
 
   if (isLoading)
     return (
@@ -170,13 +176,6 @@ const LeadRequestsList = () => {
       >
         <CircularProgress />
       </Box>
-    );
-
-  if (isError)
-    return (
-      <Typography color="error" mt={2} textAlign="center">
-        Eroare la incarcare.
-      </Typography>
     );
 
   if (!sortedData.length)

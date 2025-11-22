@@ -2,15 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { IProperty } from "@/common/interfaces/property/property.interface";
 import { FilterPropertiesApi } from "@/features/filterProperties/filterPropertiesApi";
+import { IGetPropertiesByFilterPayload } from "@/common/interfaces/payloads/get-properties-by-filter-payload.interface";
 
-export const useFilterPropertiesQuery = (
-  category?: string,
-  agentId?: string,
-  status?: string,
-  contract?: string,
-) =>
+export const useFilterPropertiesQuery = (filters: IGetPropertiesByFilterPayload) =>
   useQuery<IProperty[]>({
-    queryKey: ["filterProperties", category, agentId, status, contract],
-    queryFn: () => FilterPropertiesApi.getByFilters(category, agentId, status, contract),
-    enabled: !!agentId,
+    queryKey: ["filterProperties", filters],
+    queryFn: () => FilterPropertiesApi.getByFilters(filters),
+    enabled: !!filters.agentId,
   });
