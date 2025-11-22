@@ -284,6 +284,7 @@ const AddProperty = () => {
       case 0:
         return (
           <GeneralDetailsStep
+            isEdit={false}
             ref={generalDetailsStepRef}
             data={formData.generalDetails}
             onChange={(updater) =>

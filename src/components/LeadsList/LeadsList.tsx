@@ -36,6 +36,19 @@ import { useAllUsersQuery } from "@/features/users/usersQueries";
 import { ISortState, TSortDirection } from "@/common/interfaces/sorting/sort.interface";
 import { useToast } from "@/context/ToastContext";
 import { AxiosError } from "axios";
+import { formatPrice } from "@/common/utils/format-price.util";
+import { EGeneralDetailsEnumLabels } from "@/common/enums/property/general-details.enums";
+
+export const mapGeneralDetailsLabel = (
+  group: keyof typeof EGeneralDetailsEnumLabels,
+  value: string | null | undefined,
+): string => {
+  if (!value) return "N/A";
+
+  const groupMap = EGeneralDetailsEnumLabels[group] as Record<string, string>;
+
+  return groupMap[value] ?? value;
+};
 
 const LeadsList = () => {
   const theme = useTheme();
@@ -93,7 +106,7 @@ const LeadsList = () => {
   const getAgentName = (agentId?: string) => {
     if (!agentId || !users) return "-";
     const agent = users.find((u: IUser) => u._id === agentId);
-    return agent ? agent.name : "-";
+    return agent ? agent.name + " " + `(${agent.role})` : "-";
   };
 
   const toggleSort = (field: string) => {
@@ -318,9 +331,9 @@ const LeadsList = () => {
                       "-"
                     )}
                   </TableCell>
-                  <TableCell>{lead.propertyType || "-"}</TableCell>
+                  <TableCell>{mapGeneralDetailsLabel("ECategory", lead.propertyType)}</TableCell>
                   <TableCell>{lead.zona || "-"}</TableCell>
-                  <TableCell>{lead.budget ? `€ ${lead.budget}` : "-"}</TableCell>
+                  <TableCell>{formatPrice(lead.budget) + " €"}</TableCell>
 
                   <TableCell>{lead.transactionType || "-"}</TableCell>
                   <TableCell>

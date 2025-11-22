@@ -37,6 +37,8 @@ import {
 
 import type { AxiosError } from "axios";
 import { useToast } from "@/context/ToastContext";
+import { normalizeStatus } from "@/common/utils/normalize-status.util";
+import { EStatus } from "@/common/enums/property/general-details.enums";
 
 const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
@@ -81,9 +83,22 @@ const EditProperty = () => {
 
   useEffect(() => {
     if (property) {
-      setFormData(property);
+      setFormData({
+        ...property,
+        generalDetails: {
+          ...property.generalDetails,
+          status: normalizeStatus(property.generalDetails.status),
+        },
+      });
     }
   }, [property]);
+
+  const statusKeyToValue = (key: EStatus | null) => {
+    if (!key) return null;
+
+    const entry = Object.entries(EStatus).find(([k]) => k === key);
+    return entry ? entry[1] : null;
+  };
 
   const handleNext = () => {
     if (!formData) return;
@@ -131,7 +146,16 @@ const EditProperty = () => {
     try {
       setIsSubmitting(true);
 
-      await updateProperty.mutateAsync({ id, data: formData });
+      await updateProperty.mutateAsync({
+        id,
+        data: {
+          ...formData,
+          generalDetails: {
+            ...formData.generalDetails,
+            status: statusKeyToValue(formData.generalDetails.status),
+          },
+        },
+      });
 
       if (imageFiles.length > 0) {
         await uploadImages.mutateAsync({ id, files: imageFiles });
@@ -145,7 +169,13 @@ const EditProperty = () => {
       setTimeout(() => navigate("/properties"), 800);
     } catch (err: any) {
       const axiosErr = err as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la actualizarea proprietatii", "error");
+      const msg = axiosErr.response?.data?.message || "Eroare la actualizarea proprietatii";
+
+      toast(msg, "error");
+
+      if (msg.includes("necesară aprobare")) {
+        setTimeout(() => navigate("/properties"), 1200);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -158,6 +188,7 @@ const EditProperty = () => {
       case 0:
         return (
           <GeneralDetailsStep
+            isEdit={true}
             ref={generalDetailsRef}
             generalDetailsTouched={generalDetailsTouched}
             data={formData.generalDetails}

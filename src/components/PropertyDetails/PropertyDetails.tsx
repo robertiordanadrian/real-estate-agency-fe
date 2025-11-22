@@ -41,7 +41,7 @@ import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import { getRoleColor } from "@/common/utils/get-role-color.util";
 import { useOwnerByIdQuery } from "@/features/owners/ownersQueries";
 import { PropertiesApi } from "@/features/properties/propertiesApi";
-import { usePropertyQuery } from "@/features/properties/propertiesQueries";
+import { usePropertyBySkuQuery, usePropertyQuery } from "@/features/properties/propertiesQueries";
 import { useUserByIdQuery } from "@/features/users/usersQueries";
 import PropertyMap from "@/components/PropertyMap/PropertyMap";
 import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -55,6 +55,7 @@ import { formatPrice } from "@/common/utils/format-price.util";
 import { formatDateTime } from "@/common/utils/format-date-time.util";
 import { IBuilding } from "@/common/interfaces/property/characteristics.interface";
 import { EGeneralDetailsEnumLabels, EStatus } from "@/common/enums/property/general-details.enums";
+import { IProperty } from "@/common/interfaces/property/property.interface";
 
 export const mapCharacteristicLabel = (
   group: keyof typeof CharacteristicsEnumLabels,
@@ -339,48 +340,84 @@ const PropertyDetail = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const accent = theme.palette.primary.main;
+
   const navigate = useNavigate();
   const toast = useToast();
 
+  // 1. preluăm SKU din ruta
   const { sku } = useParams<{ sku: string }>();
 
-  const [propertyId, setPropertyId] = useState<string | null>(null);
-  const [galleryOpen, setGalleryOpen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [errorToastOpen, setErrorToastOpen] = useState(false);
+  // 2. Query principal: proprietatea după SKU (public)
+  const {
+    data: propertyBySku,
+    isLoading: isSkuLoading,
+    error: skuError,
+  } = usePropertyBySkuQuery(sku ?? "");
 
-  const { data: property, isLoading, error: propertyError } = usePropertyQuery(propertyId || "");
-  const agentIdOfProperty = property?.generalDetails?.agentId;
-  const { data: agent, error: agentError } = useUserByIdQuery(agentIdOfProperty ?? "");
+  // 3. extragem ID-ul real al proprietății
+  const propertyId = propertyBySku?._id;
+
+  // 4. Query complet: proprietatea după ID (cu acces controlat)
+  const {
+    data: property,
+    isLoading: isIdLoading,
+    error: propertyError,
+  } = usePropertyQuery(propertyId ?? "");
+
+  // 5. Query pentru agent
+  const agentId = property?.generalDetails?.agentId;
+  const { data: agent, error: agentError } = useUserByIdQuery(agentId ?? "");
+
+  // 6. Query pentru owner
   const ownerId = property?.generalDetails?.ownerID;
   const { data: owner, error: ownerError } = useOwnerByIdQuery(ownerId ?? "");
 
+  // 7. colectăm erorile
   useEffect(() => {
-    if (!sku || sku === "undefined" || sku === "null") {
-      setErrorToastOpen(true);
-      setTimeout(() => navigate("/properties"), 2000);
-      return;
+    if (skuError) {
+      toast("Proprietatea nu a fost găsită după SKU", "error");
+      navigate("/properties");
     }
+  }, [skuError]);
 
-    const fetchIdBySku = async () => {
-      try {
-        const property = await PropertiesApi.getBySku(sku);
-        if (property?._id) {
-          setPropertyId(property._id);
-        } else {
-          setErrorToastOpen(true);
-          setTimeout(() => navigate("/properties"), 2000);
-        }
-      } catch {
-        setErrorToastOpen(true);
-        setTimeout(() => navigate("/properties"), 2000);
-      }
-    };
+  useEffect(() => {
+    if (propertyError) {
+      const axiosErr = propertyError as AxiosError<{ message?: string }>;
+      const msg = axiosErr.response?.data?.message || "Eroare la încărcarea proprietății";
+      toast(msg, "error");
+      navigate("/properties");
+    }
+  }, [propertyError]);
 
-    fetchIdBySku();
-  }, [sku, navigate]);
+  useEffect(() => {
+    if (agentError) {
+      const axiosErr = agentError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la încărcarea agentului", "error");
+    }
+  }, [agentError]);
 
+  useEffect(() => {
+    if (ownerError) {
+      const axiosErr = ownerError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la încărcarea proprietarului", "error");
+    }
+  }, [ownerError]);
+
+  // 8. loading states
+  const isLoading = isSkuLoading || (propertyId && isIdLoading);
+
+  // 9. dacă nu există proprietate → redirect
+  if (!isLoading && !property) {
+    navigate("/properties");
+    return null;
+  }
+
+  // 10. destructurări utile
   const { generalDetails, characteristics, utilities, price, description, images } = property ?? {};
+
+  // 11. restul logicii (gallery, mappers etc.)
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const locationLabels: Record<string, string> = {
     city: "Oras",
@@ -397,37 +434,27 @@ const PropertyDetail = () => {
     { label: "Sisteme incalzire", data: utilities?.amenities_heating },
     { label: "Climatizare", data: utilities?.amenities_conditioning },
     { label: "Internet", data: utilities?.amenities_internet },
-
     { label: "Geamuri / Termopan", data: utilities?.amenities_double_pane_windows },
     { label: "Stare interior", data: utilities?.amenities_interior_condition },
     { label: "Usi interioare", data: utilities?.amenities_interior_doors },
     { label: "Usa intrare", data: utilities?.amenities_entrance_door },
-
     { label: "Obloane", data: utilities?.amenities_shutters },
     { label: "Jaluzele", data: utilities?.amenities_blind },
     { label: "Izolatii", data: utilities?.amenities_thermal_insulation },
     { label: "Pardoseli", data: utilities?.amenities_flooring },
     { label: "Pereti", data: utilities?.amenities_walls },
-
     { label: "Spatii utilitare", data: utilities?.amenities_utility_spaces },
-
     { label: "Bucatarie", data: utilities?.amenities_kitchen },
     { label: "Mobila", data: utilities?.amenities_furnished },
     { label: "Electrocasnice", data: utilities?.amenities_appliances },
     { label: "Contorizare", data: utilities?.amenities_meters },
     { label: "Diverse / Securitate", data: utilities?.amenities_miscellaneous },
-
     { label: "Facilitati imobiliare", data: utilities?.amenities_real_estate_facilities },
-
     { label: "Servicii imobiliare", data: utilities?.amenities_real_estate_services },
     { label: "Servicii hotel", data: utilities?.amenities_hotel_services },
-
     { label: "Dezvoltare stradala", data: utilities?.amenities_street_development },
-
     { label: "Dotari speciale", data: utilities?.amenities_features },
-
     { label: "Acces", data: utilities?.amenities_access },
-
     { label: "Caracteristici speciale", data: utilities?.amenities_other_characteristics },
   ];
 
@@ -459,34 +486,6 @@ const PropertyDetail = () => {
     Acces: "EAmenityAccess",
     "Caracteristici speciale": "EAmenityOtherCharacteristics",
   };
-
-  useEffect(() => {
-    if (agentError) {
-      const axiosErr = agentError as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la incarcarea agentului", "error");
-    }
-  }, [agentError, toast]);
-
-  useEffect(() => {
-    if (propertyError) {
-      const axiosErr = propertyError as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatii", "error");
-    }
-  }, [propertyError, toast]);
-
-  useEffect(() => {
-    if (ownerError) {
-      const axiosErr = ownerError as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietarului", "error");
-    }
-  }, [ownerError, toast]);
-
-  if (isLoading)
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
-        <Typography variant="h6">Se incarca...</Typography>
-      </Box>
-    );
 
   return (
     <Box

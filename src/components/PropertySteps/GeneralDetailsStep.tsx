@@ -24,6 +24,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useState } from "rea
 import {
   ECategory,
   EGeneralDetailsEnumLabels,
+  EStatus,
   ESurroundings,
   EType,
 } from "@/common/enums/property/general-details.enums";
@@ -65,6 +66,7 @@ interface GeneralDetailsStepProps {
   data: IGeneralDetails;
   onChange: (updated: IGeneralDetails | ((prev: IGeneralDetails) => IGeneralDetails)) => void;
   generalDetailsTouched: boolean;
+  isEdit: boolean;
 }
 
 export interface GeneralDetailsStepRef {
@@ -91,7 +93,7 @@ type CreateOwnerError = {
 };
 
 const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepProps>(
-  ({ data, onChange, generalDetailsTouched }, ref) => {
+  ({ data, onChange, generalDetailsTouched, isEdit }, ref) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
     const toast = useToast();
@@ -386,6 +388,31 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                       ))}
                     </Select>
                   </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  {isEdit && (
+                    <FormControl fullWidth>
+                      <InputLabel id="status-label">Status</InputLabel>
+
+                      <Select
+                        labelId="status-label"
+                        label="Status"
+                        value={data.status ?? ""}
+                        onChange={(e) =>
+                          onChange((prev) => ({
+                            ...prev,
+                            status: e.target.value as EStatus,
+                          }))
+                        }
+                      >
+                        {Object.entries(EStatus).map(([key, label]) => (
+                          <MenuItem key={key} value={key}>
+                            {label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
                 </Grid>
               </Grid>
             </CardContent>
