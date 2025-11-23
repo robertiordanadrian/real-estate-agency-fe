@@ -19,9 +19,16 @@ interface ImagesStepProps {
   files: File[];
   onChange: (_images: string[]) => void;
   onFilesChange: (_files: File[]) => void;
+  onRemoveExistingImage?: (url: string) => void;
 }
 
-const ImagesStep = ({ data, files, onChange, onFilesChange }: ImagesStepProps) => {
+const ImagesStep = ({
+  data,
+  files,
+  onChange,
+  onFilesChange,
+  onRemoveExistingImage,
+}: ImagesStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -72,23 +79,31 @@ const ImagesStep = ({ data, files, onChange, onFilesChange }: ImagesStepProps) =
   });
 
   const handleRemove = (index: number) => {
-    const newData = [...data];
-    newData.splice(index, 1);
-
-    const existingCount = data.length - files.length;
-    const fileIndex = index - existingCount;
-
-    const newFiles = [...files];
-    if (fileIndex >= 0 && fileIndex < newFiles.length) {
-      newFiles.splice(fileIndex, 1);
+    const url = data[index];
+    if (isExistingImage(url)) {
+      onRemoveExistingImage && onRemoveExistingImage(url);
     }
-
+    const newData = data.filter((_, i) => i !== index);
+    const newFiles: File[] = [];
+    newData.forEach((img) => {
+      if (!isExistingImage(img)) {
+        const fileIndex = data.indexOf(img) - data.filter(isExistingImage).length;
+        if (fileIndex >= 0 && fileIndex < files.length) {
+          newFiles.push(files[fileIndex]);
+        }
+      }
+    });
+    if (newData.length === 0) {
+      onChange([]);
+      onFilesChange([]);
+      return;
+    }
     onChange(newData);
     onFilesChange(newFiles);
   };
 
   const isExistingImage = (src: string) => {
-    return src.startsWith("http") || src.startsWith("/");
+    return src.startsWith("http") && !src.startsWith("blob:");
   };
 
   const openImage = (src: string) => {

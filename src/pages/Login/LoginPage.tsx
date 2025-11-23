@@ -16,6 +16,9 @@ import type { AxiosError } from "axios";
 import { useLogin } from "@/features/auth/authMutations";
 import { useToast } from "@/context/ToastContext";
 
+// =========
+// ✅ READY
+// =========
 const LoginPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -58,14 +61,11 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setTouched({ email: true, password: true });
-
     if (!validate()) {
       toast("Please fill in all required fields", "error");
       return;
     }
-
     try {
       await mutateAsync({ email, password });
       toast("Successfully logged in", "success");

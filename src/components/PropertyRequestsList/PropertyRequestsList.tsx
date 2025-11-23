@@ -19,7 +19,6 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useQueries } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -30,13 +29,12 @@ import {
   usePendingPropertyRequestsQuery,
   useRejectRequest,
 } from "@/features/propertyRequests/propertyRequestsQueries";
-import { http } from "@/services/http";
 import { IdRef } from "@/common/interfaces/property/archieved-property-request.interface";
 import { ISortState } from "@/common/interfaces/sorting/sort.interface";
 import { useToast } from "@/context/ToastContext";
-import { usePropertiesQuery } from "@/features/properties/propertiesQueries";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
 import { AxiosError } from "axios";
+import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
 
 interface PropertyReqItem {
   _id: string;
@@ -67,7 +65,9 @@ const PropertyRequestsList = () => {
     isLoading,
     error: pendingRequestsError,
   } = usePendingPropertyRequestsQuery();
-  const { data: allProperties, error: propertiesError } = usePropertiesQuery();
+  const { data: allProperties, error: propertiesError } = useFilterPropertiesQuery({
+    agentId: "ALL",
+  });
   const { data: allUsers, error: usersError } = useAllUsersQuery();
 
   const approveMutation = useApproveRequest();

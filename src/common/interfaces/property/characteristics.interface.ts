@@ -1,7 +1,6 @@
 import {
   EBuildingSeismicRisk,
   EBuildingStructure,
-  EBuildingType,
   EConstructionStage,
   EEnergyCertificationClass,
 } from "@/common/enums/property/characteristics.enums";
@@ -40,7 +39,6 @@ export interface IAreas {
 }
 export interface IBuilding {
   constructionStage: EConstructionStage | null;
-  type: EBuildingType | null;
   structure: EBuildingStructure | null;
   seismicRisk: EBuildingSeismicRisk | null;
   basement: boolean;

@@ -11,9 +11,11 @@ import {
   useTheme,
 } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
-
 import LeadsList from "@/components/LeadsList/LeadsList";
 
+// =========
+// ✅ READY
+// =========
 const Leads = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";

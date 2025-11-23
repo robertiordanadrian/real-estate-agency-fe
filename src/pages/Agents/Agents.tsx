@@ -32,6 +32,9 @@ import { useAllUsersQuery } from "@/features/users/usersQueries";
 import { useToast } from "@/context/ToastContext";
 import { AxiosError } from "axios";
 
+// =========
+// ✅ READY
+// =========
 const Agents = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";

@@ -24,11 +24,15 @@ interface DescriptionStepProps {
 
 export interface DescriptionStepRef {
   validate: () => boolean;
+  hasDiacriticsError?: () => boolean;
 }
 
 type DescriptionErrors = {
   title?: boolean;
+  titleHasDiacritics?: boolean;
   description?: boolean;
+  descriptionTooShort?: boolean;
+  descriptionHasDiacritics?: boolean;
 };
 
 const DescriptionStep = forwardRef<DescriptionStepRef, DescriptionStepProps>(
@@ -37,12 +41,29 @@ const DescriptionStep = forwardRef<DescriptionStepRef, DescriptionStepProps>(
     const isDark = theme.palette.mode === "dark";
     const [descriptionErrors, setDescriptionErrors] = useState<DescriptionErrors>({});
 
+    const removeDiacritics = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
     const validateDescription = () => {
       const newErrors: DescriptionErrors = {};
-      if (!data.title) newErrors.title = true;
-      if (!data.description) newErrors.description = true;
+
+      // TITLE
+      if (!data.title) {
+        newErrors.title = true;
+      } else if (/[ăâîșțĂÂÎȘȚ]/.test(data.title)) {
+        newErrors.titleHasDiacritics = true;
+      }
+
+      // DESCRIPTION
+      if (!data.description) {
+        newErrors.description = true;
+      } else if (data.description.length < 250) {
+        newErrors.descriptionTooShort = true;
+      } else if (/[ăâîșțĂÂÎȘȚ]/.test(data.description)) {
+        newErrors.descriptionHasDiacritics = true;
+      }
 
       setDescriptionErrors(newErrors);
+
       return Object.keys(newErrors).length === 0;
     };
 
@@ -69,8 +90,10 @@ const DescriptionStep = forwardRef<DescriptionStepRef, DescriptionStepProps>(
       ref,
       () => ({
         validate: validateDescription,
+        hasDiacriticsError: () =>
+          !!descriptionErrors.titleHasDiacritics || !!descriptionErrors.descriptionHasDiacritics,
       }),
-      [validateDescription],
+      [validateDescription, descriptionErrors],
     );
 
     return (
@@ -97,10 +120,21 @@ const DescriptionStep = forwardRef<DescriptionStepRef, DescriptionStepProps>(
                       value={data.title}
                       onChange={(e) => {
                         clearError("title");
+                        clearError("titleHasDiacritics");
                         onChange((prev) => ({ ...prev, title: e.target.value }));
                       }}
                       fullWidth
-                      error={descriptionTouched && !!descriptionErrors.title}
+                      error={
+                        descriptionTouched &&
+                        (descriptionErrors.title || descriptionErrors.titleHasDiacritics)
+                      }
+                      helperText={
+                        descriptionTouched && descriptionErrors.title
+                          ? "Titlul este obligatoriu."
+                          : descriptionTouched && descriptionErrors.titleHasDiacritics
+                            ? "Titlul nu trebuie sa contina diacritice."
+                            : ""
+                      }
                       required
                     />
                   </FormControl>
@@ -113,13 +147,29 @@ const DescriptionStep = forwardRef<DescriptionStepRef, DescriptionStepProps>(
                       value={data.description}
                       onChange={(e) => {
                         clearError("description");
+                        clearError("descriptionTooShort");
+                        clearError("descriptionHasDiacritics");
                         onChange((prev) => ({ ...prev, description: e.target.value }));
                       }}
                       fullWidth
                       multiline
                       minRows={6}
-                      error={descriptionTouched && !!descriptionErrors.title}
                       required
+                      error={
+                        descriptionTouched &&
+                        (descriptionErrors.description ||
+                          descriptionErrors.descriptionTooShort ||
+                          descriptionErrors.descriptionHasDiacritics)
+                      }
+                      helperText={
+                        descriptionTouched && descriptionErrors.description
+                          ? "Descrierea este obligatorie."
+                          : descriptionTouched && descriptionErrors.descriptionTooShort
+                            ? "Descrierea trebuie sa aiba minim 250 de caractere."
+                            : descriptionTouched && descriptionErrors.descriptionHasDiacritics
+                              ? "Descrierea nu trebuie sa contina diacritice."
+                              : ""
+                      }
                     />
                   </FormControl>
                 </Grid>

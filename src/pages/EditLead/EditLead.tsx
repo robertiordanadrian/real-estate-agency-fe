@@ -28,7 +28,24 @@ import { useLeadQuery, useUpdateLead, useUploadContract } from "@/features/leads
 import { useAllUsersQuery, useUserQuery } from "@/features/users/usersQueries";
 import { useToast } from "@/context/ToastContext";
 import { AxiosError } from "axios";
+import { EGeneralDetailsEnumLabels, EStatus } from "@/common/enums/property/general-details.enums";
+import { useAppSelector } from "@/app/hook";
+import { selectUser } from "@/features/auth/authSelectors";
 
+export const mapGeneralDetailsLabel = (
+  group: keyof typeof EGeneralDetailsEnumLabels,
+  value: string | null | undefined,
+): string => {
+  if (!value) return "N/A";
+
+  const groupMap = EGeneralDetailsEnumLabels[group] as Record<string, string>;
+
+  return groupMap[value] ?? value;
+};
+
+// =========
+// ✅ READY
+// =========
 const EditLead = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;
@@ -44,6 +61,21 @@ const EditLead = () => {
   const { data: allUsers, error: usersError } = useAllUsersQuery();
   const { data: me, error: meError } = useUserQuery();
   const { data: lead, isLoading, error: leadError } = useLeadQuery(id || "");
+  const currentUser = useAppSelector(selectUser);
+
+  const RESTRICTED_ROLES = ["AGENT", "TEAM_LEAD"];
+  const FULL_ACCESS_ROLES = ["MANAGER", "CEO"];
+
+  let allowedStatuses: EStatus[] = [];
+
+  if (currentUser) {
+    if (RESTRICTED_ROLES.includes(currentUser.role)) {
+      allowedStatuses = [EStatus.WHITE];
+    }
+    if (FULL_ACCESS_ROLES.includes(currentUser.role)) {
+      allowedStatuses = Object.values(EStatus);
+    }
+  }
 
   const [form, setForm] = useState<IEditLeadForm>({
     name: "",
@@ -272,15 +304,17 @@ const EditLead = () => {
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Tip proprietate"
-                  value={form.propertyType}
+                  value={mapGeneralDetailsLabel("ECategory", form.propertyType)}
                   onChange={(e) => handleChange("propertyType", e.target.value)}
                   fullWidth
+                  slotProps={{ input: { readOnly: true } }}
+                  disabled
                 />
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
-                  label="Zonă"
+                  label="Zona"
                   value={form.zona}
                   onChange={(e) => handleChange("zona", e.target.value)}
                   fullWidth
@@ -315,9 +349,9 @@ const EditLead = () => {
                   onChange={(e) => handleChange("status", e.target.value as ELeadStatus)}
                   fullWidth
                 >
-                  {Object.values(ELeadStatus).map((s) => (
-                    <MenuItem key={s} value={s}>
-                      {s}
+                  {allowedStatuses.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
                     </MenuItem>
                   ))}
                 </TextField>

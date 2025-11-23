@@ -20,17 +20,34 @@ import {
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import { ECategory, EStatus } from "@/common/enums/property/general-details.enums";
+import {
+  ECategory,
+  EGeneralDetailsEnumLabels,
+  EStatus,
+} from "@/common/enums/property/general-details.enums";
 import type { IUser } from "@/common/interfaces/user/user.interface";
 import FilterPropertiesList from "@/components/FilterPropertiesList/FilterPropertiesList";
-import { useFilterPropertiesQuery } from "@/features/filterProperties/filterPropertiesQueries";
 import { useAllUsersQuery, useUserQuery } from "@/features/users/usersQueries";
 import { useToast } from "@/context/ToastContext";
 import { AxiosError } from "axios";
+import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
 
 type ContractFilter = "CONTRACT" | "NO_CONTRACT";
 
+export const mapGeneralDetailsLabel = (
+  group: keyof typeof EGeneralDetailsEnumLabels,
+  value: string | null | undefined,
+): string => {
+  if (!value) return "N/A";
+
+  const groupMap = EGeneralDetailsEnumLabels[group] as Record<string, string>;
+
+  return groupMap[value] ?? value;
+};
+
+// =========
+// ✅ READY
+// =========
 const Properties = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -45,9 +62,7 @@ const Properties = () => {
   ];
 
   const { data: currentUser, error: currentUserError } = useUserQuery();
-  const { data: allUsers, isLoading: _LOADING_USERS, error: usersError } = useAllUsersQuery();
-
-  const isAgentReadonly = currentUser?.role === "AGENT";
+  const { data: allUsers, error: usersError } = useAllUsersQuery();
 
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
   const [selectedAgentId, setSelectedAgentId] = useState<string | undefined>();
@@ -70,53 +85,14 @@ const Properties = () => {
     contract: selectedContract,
   });
 
-  const agentOptions = useMemo((): {
-    id: string;
-    name: string;
-    role: string;
-  }[] => {
-    if (!currentUser || !allUsers) return [];
-
-    const me = {
-      id: currentUser._id,
-      name: currentUser.name,
-      role: currentUser.role,
-    };
-
-    if (currentUser.role === "CEO") {
-      return allUsers.map((u: IUser) => ({
-        id: u._id,
-        name: u.name,
-        role: u.role,
-      }));
-    }
-
-    if (currentUser.role === "MANAGER") {
-      return allUsers
-        .filter((u: IUser) => ["MANAGER", "TEAM_LEAD", "AGENT"].includes(u.role))
-        .map((u: IUser) => ({
-          id: u._id,
-          name: u.name,
-          role: u.role,
-        }));
-    }
-
-    if (currentUser.role === "TEAM_LEAD") {
-      return allUsers
-        .filter((u: IUser) => ["TEAM_LEAD", "AGENT"].includes(u.role))
-        .map((u: IUser) => ({
-          id: u._id,
-          name: u.name,
-          role: u.role,
-        }));
-    }
-
-    if (currentUser.role === "AGENT") {
-      return [me];
-    }
-
-    return [me];
-  }, [currentUser, allUsers]);
+  const agentOptions = useMemo(() => {
+    if (!allUsers) return [];
+    return allUsers.map((u: IUser) => ({
+      id: u._id,
+      name: u.name,
+      role: u.role,
+    }));
+  }, [allUsers]);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = {};
@@ -176,14 +152,14 @@ const Properties = () => {
   useEffect(() => {
     if (currentUserError) {
       const axiosErr = currentUserError as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorului", "error");
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea userului", "error");
     }
   }, [currentUserError, toast]);
 
   useEffect(() => {
     if (usersError) {
       const axiosErr = usersError as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la incarcarea utilizatorilor", "error");
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea userilor", "error");
     }
   }, [usersError, toast]);
 
@@ -254,8 +230,8 @@ const Properties = () => {
               </Typography>
             </Box>
 
-            <Tooltip title="Adauga proprietate" arrow>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Tooltip title="Adauga proprietate" arrow>
                 <Fab
                   color="success"
                   onClick={() => navigate("/properties/add")}
@@ -263,7 +239,9 @@ const Properties = () => {
                 >
                   <Add sx={{ color: "white", fontSize: isMobile ? 24 : 28 }} />
                 </Fab>
+              </Tooltip>
 
+              <Tooltip title="Filtreaza" arrow>
                 <Fab
                   color="info"
                   onClick={() => setFilterOpen(true)}
@@ -271,8 +249,8 @@ const Properties = () => {
                 >
                   <FilterList sx={{ color: "white", fontSize: isMobile ? 24 : 28 }} />
                 </Fab>
-              </Box>
-            </Tooltip>
+              </Tooltip>
+            </Box>
           </Box>
 
           <Divider
@@ -317,7 +295,6 @@ const Properties = () => {
             },
           }}
         >
-          {/* HEADER */}
           <Box sx={{ p: 3, pb: 2 }}>
             <Typography variant="h6" fontWeight={700}>
               Filtre Proprietati
@@ -335,14 +312,18 @@ const Properties = () => {
             }}
           >
             <FormControl fullWidth sx={{ mb: 3 }}>
-              <InputLabel id="agent-filter-label">Agent</InputLabel>
+              <InputLabel id="agent-filter-label">User</InputLabel>
               <Select
                 labelId="agent-filter-label"
                 value={tempAgentId ?? ""}
-                label="Agent"
+                label="User"
                 onChange={(e) => setTempAgentId(e.target.value)}
-                disabled={isAgentReadonly}
               >
+                <MenuItem value="ALL">
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography>Toti useri</Typography>
+                  </Box>
+                </MenuItem>
                 {agentOptions.map((agent) => (
                   <MenuItem key={agent.id} value={agent.id}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -367,7 +348,7 @@ const Properties = () => {
               {Object.values(ECategory).map((cat) => (
                 <Chip
                   key={cat}
-                  label={`${cat} - ${counts[cat] ?? 0}`}
+                  label={`${mapGeneralDetailsLabel("ECategory", cat)} - ${counts[cat] ?? 0}`}
                   color={tempCategory === cat ? "primary" : "default"}
                   onClick={() => setTempCategory((prev) => (prev === cat ? undefined : cat))}
                 />

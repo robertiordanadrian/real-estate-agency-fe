@@ -37,6 +37,8 @@ import { useCreateOwner, useOwnersQuery } from "@/features/owners/ownersQueries"
 import { getEnumOptions } from "@/common/utils/utilities-step.util";
 import { AxiosError } from "axios";
 import { useToast } from "@/context/ToastContext";
+import { useAppSelector } from "@/app/hook";
+import { selectUser } from "@/features/auth/authSelectors";
 
 const defaultOwnerForm: IOwner = {
   _id: "",
@@ -80,6 +82,7 @@ type GeneralDetailsErrors = {
   street?: boolean;
   number?: boolean;
   ownerID?: boolean;
+  cadastralNumber?: boolean;
 };
 
 type CreateOwnerError = {
@@ -97,6 +100,21 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
     const toast = useToast();
+    const currentUser = useAppSelector(selectUser);
+
+    const RESTRICTED_ROLES = ["AGENT", "TEAM_LEAD"];
+    const FULL_ACCESS_ROLES = ["MANAGER", "CEO"];
+
+    let allowedStatuses: EStatus[] = [];
+
+    if (currentUser) {
+      if (RESTRICTED_ROLES.includes(currentUser.role)) {
+        allowedStatuses = [EStatus.WHITE, EStatus.BLUE, EStatus.RESERVED, EStatus.RED];
+      }
+      if (FULL_ACCESS_ROLES.includes(currentUser.role)) {
+        allowedStatuses = Object.values(EStatus);
+      }
+    }
 
     const { data: allUsers, error: usersError } = useAllUsersQuery();
     const { data: owners = [], error: ownersError } = useOwnersQuery();
@@ -107,17 +125,28 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
     const [ownerForm, setOwnerForm] = useState<IOwner>(defaultOwnerForm);
     const [ownerTouched, setOwnerTouched] = useState(false);
     const [displayAddress, setDisplayAddress] = useState("");
-    const [snackbar, setSnackbar] = useState({
-      open: false,
-      message: "",
-      severity: "success" as "success" | "error",
-    });
     const [openOwnerDialog, setOpenOwnerDialog] = useState(false);
+    const [ownerSearch, setOwnerSearch] = useState("");
 
+    const filteredOwners = owners.filter((o) => {
+      const fullName = `${o.surname ?? ""} ${o.lastname ?? ""}`.toLowerCase();
+      const company = o.companyName?.toLowerCase() ?? "";
+      const email = o.email?.toLowerCase() ?? "";
+      const phone = o.phone?.toLowerCase() ?? "";
+      const query = ownerSearch.toLowerCase();
+
+      return (
+        fullName.includes(query) ||
+        company.includes(query) ||
+        email.includes(query) ||
+        phone.includes(query)
+      );
+    });
     const validateGeneralDetails = () => {
       const newErrors: GeneralDetailsErrors = {};
       if (!data.transactionType) newErrors.transactionType = true;
       if (!data.category) newErrors.category = true;
+      if (!data.cadastralNumber) newErrors.cadastralNumber = true;
       if (!data.location.latitude || !data.location.longitude) {
         newErrors.street = true;
       }
@@ -365,6 +394,19 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                     </Select>
                   </FormControl>
                 </Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <TextField
+                    label={"Numar Cadastral"}
+                    value={data.cadastralNumber ?? ""}
+                    onChange={(e) => {
+                      clearError("cadastralNumber");
+                      onChange((prev) => ({ ...prev, cadastralNumber: e.target.value }));
+                    }}
+                    fullWidth
+                    error={generalDetailsTouched && !!generalDetailsErrors.cadastralNumber}
+                    required
+                  />
+                </Grid>
 
                 <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <FormControl
@@ -390,10 +432,9 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                   </FormControl>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  {isEdit && (
+                  {isEdit && currentUser && (
                     <FormControl fullWidth>
                       <InputLabel id="status-label">Status</InputLabel>
-
                       <Select
                         labelId="status-label"
                         label="Status"
@@ -405,9 +446,9 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                           }))
                         }
                       >
-                        {Object.entries(EStatus).map(([key, label]) => (
-                          <MenuItem key={key} value={key}>
-                            {label}
+                        {allowedStatuses.map((status) => (
+                          <MenuItem key={status} value={status}>
+                            {status}
                           </MenuItem>
                         ))}
                       </Select>
@@ -523,15 +564,77 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
 
                       onChange((prev) => ({ ...prev, ownerID: v }));
                     }}
+                    renderValue={(value) => {
+                      if (!value)
+                        return (
+                          <Typography sx={{ color: "text.disabled" }}>
+                            Selecteaza proprietar
+                          </Typography>
+                        );
+
+                      if (value === "__add_new_owner__") return "+ Adauga proprietar";
+
+                      const o = owners.find((x) => x._id === value);
+                      if (!o) return "Selecteaza proprietar";
+
+                      return o.surname
+                        ? `${o.surname} ${o.lastname} - PF`
+                        : `${o.companyName} - PJ`;
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          maxHeight: 400,
+                        },
+                      },
+                    }}
                   >
-                    {owners.map((o) => (
+                    {/* Searchbar */}
+                    <MenuItem disableRipple disableTouchRipple>
+                      <TextField
+                        placeholder="Cauta dupa nume, email, telefon..."
+                        size="small"
+                        fullWidth
+                        value={ownerSearch}
+                        onChange={(e) => setOwnerSearch(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                          e.stopPropagation(); // nu lasa Select-ul să “captureze” taste
+                        }}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                        inputProps={{ autoComplete: "off" }}
+                      />
+                    </MenuItem>
+
+                    {/* Prima optiune */}
+                    <MenuItem
+                      value="__add_new_owner__"
+                      sx={{ fontWeight: 600, color: "primary.main" }}
+                    >
+                      + Adauga proprietar
+                    </MenuItem>
+
+                    {/* Daca nu exista rezultate */}
+                    {filteredOwners.length === 0 && (
+                      <MenuItem disabled>
+                        <Typography sx={{ color: "text.disabled" }}>
+                          Niciun proprietar gasit
+                        </Typography>
+                      </MenuItem>
+                    )}
+
+                    {/* Rezultate filtrate */}
+                    {filteredOwners.map((o) => (
                       <MenuItem key={o._id} value={o._id}>
                         {o.surname && o.lastname
-                          ? o.surname + " " + o.lastname + " " + "- PF"
-                          : o.companyName + " " + "- PJ"}
+                          ? `${o.surname} ${o.lastname} - PF`
+                          : `${o.companyName} - PJ`}{" "}
+                        <Typography variant="body2" sx={{ opacity: 0.6, ml: 1 }}>
+                          {o.phone} | {o.email}
+                        </Typography>
                       </MenuItem>
                     ))}
-                    <MenuItem value="__add_new_owner__">+ Adauga proprietar</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>

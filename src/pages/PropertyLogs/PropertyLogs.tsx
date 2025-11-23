@@ -10,13 +10,15 @@ import {
   useTheme,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-
 import PropertyLogs from "@/components/PropertyLogs/PropertyLogs";
 import { usePropertyQuery } from "@/features/properties/propertiesQueries";
 import { useToast } from "@/context/ToastContext";
 import { useEffect } from "react";
 import { AxiosError } from "axios";
 
+// =========
+// ✅ READY
+// =========
 const PropertyLogsPage = () => {
   const theme = useTheme();
   const navigate = useNavigate();

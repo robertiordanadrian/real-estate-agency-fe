@@ -21,7 +21,6 @@ import {
   CharacteristicsEnumLabels,
   EBuildingSeismicRisk,
   EBuildingStructure,
-  EBuildingType,
   EConstructionStage,
   EEnergyCertificationClass,
 } from "@/common/enums/property/characteristics.enums";
@@ -31,11 +30,12 @@ import type {
 } from "@/common/interfaces/property/characteristics.interface";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { getEnumOptions } from "@/common/utils/utilities-step.util";
+import { ECategory } from "@/common/enums/property/general-details.enums";
 
 const generateNumberRange = (start: number, end: number) =>
   Array.from({ length: end - start + 1 }, (_, i) => start + i);
 
-const YEARS = generateNumberRange(1850, new Date().getFullYear());
+const YEARS = generateNumberRange(1850, new Date().getFullYear()).reverse();
 const ROOMS_1_20 = generateNumberRange(1, 20);
 const KITCHENS_1_5 = generateNumberRange(1, 5);
 const FLOORS = ["Parter", ...generateNumberRange(1, 40).map((n) => n.toString())];
@@ -49,14 +49,24 @@ const areaFields = [
   { label: "Suprafata teren", key: "gardenArea" as keyof IAreas },
 ];
 
-const isAreaErrorKey = (key: keyof IAreas): key is keyof CharacteristicsErrors["areas"] => {
-  return ["usableArea", "builtupArea", "gardenArea"].includes(key);
+const isAreaErrorKey = (
+  key: keyof IAreas,
+  category?: ECategory,
+): key is keyof CharacteristicsErrors["areas"] => {
+  const alwaysRequired = ["usableArea", "builtupArea"];
+
+  if (key === "gardenArea") {
+    return category === ECategory.HOUSE_VILLA;
+  }
+
+  return alwaysRequired.includes(key);
 };
 
 interface CharacteristicsStepProps {
   data: ICharacteristics;
   onChange: (updated: ICharacteristics | ((prev: ICharacteristics) => ICharacteristics)) => void;
   characteristicsStepTouched: boolean;
+  category: ECategory;
 }
 
 export interface CharacteristicsSteppRef {
@@ -70,7 +80,6 @@ type CharacteristicsErrors = {
     kitchens?: boolean;
     bathrooms?: boolean;
     yearOfConstruction?: boolean;
-    yearOfRenovation?: boolean;
   };
   areas: {
     usableArea?: boolean;
@@ -79,7 +88,6 @@ type CharacteristicsErrors = {
   };
   building: {
     constructionStage?: boolean;
-    type?: boolean;
     structure?: boolean;
   };
 };
@@ -90,7 +98,7 @@ type NestedKey<S extends keyof CharacteristicsErrors> = {
 };
 
 const CharacteristicsStep = forwardRef<CharacteristicsSteppRef, CharacteristicsStepProps>(
-  ({ data, onChange, characteristicsStepTouched }, ref) => {
+  ({ data, onChange, characteristicsStepTouched, category }, ref) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
 
@@ -108,14 +116,13 @@ const CharacteristicsStep = forwardRef<CharacteristicsSteppRef, CharacteristicsS
       if (!data.details.kitchens) newErrors.details.kitchens = true;
       if (!data.details.bathrooms) newErrors.details.bathrooms = true;
       if (!data.details.yearOfConstruction) newErrors.details.yearOfConstruction = true;
-      if (!data.details.yearOfRenovation) newErrors.details.yearOfRenovation = true;
 
       if (!data.areas.usableArea) newErrors.areas.usableArea = true;
       if (!data.areas.builtupArea) newErrors.areas.builtupArea = true;
-      if (!data.areas.gardenArea) newErrors.areas.gardenArea = true;
-
+      if (category === ECategory.HOUSE_VILLA && !data.areas.gardenArea) {
+        newErrors.areas.gardenArea = true;
+      }
       if (!data.building.constructionStage) newErrors.building.constructionStage = true;
-      if (!data.building.type) newErrors.building.type = true;
       if (!data.building.structure) newErrors.building.structure = true;
 
       setCharacteristicsErrors(newErrors);
@@ -415,19 +422,12 @@ const CharacteristicsStep = forwardRef<CharacteristicsSteppRef, CharacteristicsS
                 </Grid>
 
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                  <FormControl
-                    fullWidth
-                    error={
-                      characteristicsStepTouched && !!characteristicsErrors.details.yearOfRenovation
-                    }
-                    required
-                  >
+                  <FormControl fullWidth>
                     <InputLabel>An renovare</InputLabel>
                     <Select
                       value={data.details.yearOfRenovation ?? ""}
                       label="An renovare"
                       onChange={(e) => {
-                        clearError({ section: "details", field: "yearOfRenovation" });
                         onChange((prev) => ({
                           ...prev,
                           details: { ...prev.details, yearOfRenovation: e.target.value },
@@ -628,7 +628,7 @@ const CharacteristicsStep = forwardRef<CharacteristicsSteppRef, CharacteristicsS
 
               <Grid container spacing={2}>
                 {areaFields.map((field) => {
-                  const hasError = isAreaErrorKey(field.key);
+                  const hasError = isAreaErrorKey(field.key, category);
 
                   return (
                     <Grid key={field.key} size={{ xs: 12, sm: 6, md: 4 }}>
@@ -710,33 +710,6 @@ const CharacteristicsStep = forwardRef<CharacteristicsSteppRef, CharacteristicsS
                       ).map((opt) => (
                         <MenuItem key={opt.value} value={opt.value}>
                           {opt.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  <FormControl
-                    fullWidth
-                    error={characteristicsStepTouched && !!characteristicsErrors.building.type}
-                    required
-                  >
-                    <InputLabel>Tip cladire</InputLabel>
-                    <Select
-                      value={data.building.type}
-                      label="Tip cladire"
-                      onChange={(e) => {
-                        clearError({ section: "building", field: "type" });
-                        onChange((prev) => ({
-                          ...prev,
-                          building: { ...prev.building, type: e.target.value as EBuildingType },
-                        }));
-                      }}
-                    >
-                      {Object.values(EBuildingType).map((val) => (
-                        <MenuItem key={val} value={val}>
-                          {val}
                         </MenuItem>
                       ))}
                     </Select>

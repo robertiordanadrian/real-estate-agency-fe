@@ -23,11 +23,9 @@ import {
 } from "@mui/material";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { ESignedContract } from "@/common/enums/property/price.enums";
 import type { IProperty } from "@/common/interfaces/property/property.interface";
 import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
-import { useFilterPropertiesQuery } from "@/features/filterProperties/filterPropertiesQueries";
 import { useQuery } from "@tanstack/react-query";
 import { UsersApi } from "@/features/users/usersApi";
 import { ISortState } from "@/common/interfaces/sorting/sort.interface";
@@ -36,36 +34,24 @@ import { useToast } from "@/context/ToastContext";
 import type { AxiosError } from "axios";
 import { useEffect } from "react";
 import { EGeneralDetailsEnumLabels } from "@/common/enums/property/general-details.enums";
+import { useUserQuery } from "@/features/users/usersQueries";
+import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
+import { getFullAddress } from "@/common/utils/get-full-address.util";
 
 export const mapGeneralDetailsLabel = (
   group: keyof typeof EGeneralDetailsEnumLabels,
   value: string | null | undefined,
 ): string => {
   if (!value) return "N/A";
-
   const groupMap = EGeneralDetailsEnumLabels[group] as Record<string, string>;
-
   return groupMap[value] ?? value;
 };
-
 interface FilterPropertiesListProps {
   selectedCategory?: string;
   selectedAgentId: string;
   selectedStatus?: string;
   selectedContract?: string;
 }
-
-const getFullAddress = (p: IProperty) => {
-  const loc = p.generalDetails?.location;
-  if (!loc) return "-";
-
-  const street = loc.street || "";
-  const number = loc.number || "";
-  const zone = loc.zone || "";
-
-  const base = `${street} ${number}`.trim();
-  return zone ? `${base} (${zone})` : base || "-";
-};
 
 const sortableColumns: Record<string, (_p: IProperty) => any> = {
   status: (p) => p.generalDetails?.status,
@@ -102,10 +88,11 @@ function FilteredTable({
   const navigate = useNavigate();
   const toast = useToast();
 
-  const { data: users, error } = useQuery({
+  const { data: users, error: usersError } = useQuery({
     queryKey: ["users-all"],
     queryFn: UsersApi.getAll,
   });
+  const { data: user, error: userError } = useUserQuery();
 
   const headers = [
     { label: "Imagine", key: null },
@@ -116,17 +103,35 @@ function FilteredTable({
     { label: "Pret", key: "price" },
     { label: "Camere", key: "bedrooms" },
     { label: "Suprafata", key: "usableArea" },
+    { label: "Suprafata teren", key: "gardenArea" },
     { label: "Adresa", key: "address" },
     { label: "Contract", key: "contract" },
     { label: "Agent", key: "agent" },
     { label: "Actiuni", key: null },
   ];
 
+  const canSeeDetails = (propertyAgentId: string) => {
+    if (!user || !propertyAgentId) return false;
+    const myRole = user.role;
+    const agent = usersMap[propertyAgentId];
+    if (!agent) return false;
+    const agentRole = agent.role;
+    if (myRole === "CEO") return true;
+    if (myRole === "MANAGER") {
+      return agentRole !== "CEO";
+    }
+    if (myRole === "TEAM_LEAD") {
+      return propertyAgentId === user._id;
+    }
+    if (myRole === "AGENT") {
+      return propertyAgentId === user._id;
+    }
+    return false;
+  };
   const renderSortIcon = (columnKey: string | null) => {
     if (!columnKey) return null;
     if (sort.field !== columnKey)
       return <ArrowUpwardIcon sx={{ fontSize: 16, opacity: 0.3, ml: 0.5 }} />;
-
     return sort.direction === "asc" ? (
       <ArrowUpwardIcon sx={{ fontSize: 16, color: accent, ml: 0.5 }} />
     ) : (
@@ -142,11 +147,18 @@ function FilteredTable({
   }, [users]);
 
   useEffect(() => {
-    if (error) {
-      const axiosErr = error as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la incarcarea userilor.", "error");
+    if (userError) {
+      const axiosErr = userError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea userului", "error");
     }
-  }, [error, toast]);
+  }, [userError, toast]);
+
+  useEffect(() => {
+    if (usersError) {
+      const axiosErr = usersError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea userilor", "error");
+    }
+  }, [usersError, toast]);
 
   return (
     <Paper
@@ -239,7 +251,6 @@ function FilteredTable({
                       sx={{ width: 50, height: 50 }}
                     />
                   </TableCell>
-
                   <TableCell>
                     <Chip
                       label={generalDetails.status}
@@ -249,7 +260,6 @@ function FilteredTable({
                       variant="filled"
                     />
                   </TableCell>
-
                   <TableCell>{property.sku ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.transactionType ?? "-"}</TableCell>
                   <TableCell>
@@ -257,18 +267,36 @@ function FilteredTable({
                   </TableCell>
                   <TableCell>{formatPrice(price?.priceDetails?.price)} €</TableCell>
                   <TableCell>{characteristics?.details?.bedrooms ?? "-"}</TableCell>
-                  <TableCell>{characteristics?.areas?.totalUsableArea + " m²"}</TableCell>
-                  <TableCell>{getFullAddress(property)}</TableCell>
+                  <TableCell>{characteristics?.areas?.usableArea + " m²"}</TableCell>
                   <TableCell>
-                    {property.price?.contact?.signedContract !== ESignedContract.NO ? (
-                      <Tooltip title="Are contract">
-                        <CheckCircleIcon sx={{ color: "rgb(34,197,94)", fontSize: 22 }} />
-                      </Tooltip>
-                    ) : (
-                      <Tooltip title="Nu are contract">
-                        <CancelIcon sx={{ color: "rgb(239,68,68)", fontSize: 22 }} />
-                      </Tooltip>
-                    )}
+                    {characteristics?.areas?.gardenArea
+                      ? `${characteristics.areas.gardenArea} m²`
+                      : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {canSeeDetails(generalDetails.agentId)
+                      ? getFullAddress(property)
+                      : "Confidential"}
+                  </TableCell>
+                  <TableCell>
+                    {(() => {
+                      const c = property.price?.contact;
+
+                      const hasContract =
+                        c?.signedContract === ESignedContract.YES ||
+                        !!c?.contractFile ||
+                        !!c?.contractNumber;
+
+                      return hasContract ? (
+                        <Tooltip title="Are contract">
+                          <CheckCircleIcon sx={{ color: "rgb(34,197,94)", fontSize: 22 }} />
+                        </Tooltip>
+                      ) : (
+                        <Tooltip title="Nu are contract">
+                          <CancelIcon sx={{ color: "rgb(239,68,68)", fontSize: 22 }} />
+                        </Tooltip>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>
                     {(() => {
@@ -277,7 +305,6 @@ function FilteredTable({
                       return agent ? `${agent.name} (${agent.role})` : "-";
                     })()}
                   </TableCell>
-
                   <TableCell align="center">
                     <Tooltip title="Vezi detalii">
                       <IconButton
@@ -287,14 +314,16 @@ function FilteredTable({
                         <Visibility />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Editează">
-                      <IconButton
-                        color="warning"
-                        onClick={() => navigate(`/properties/edit/${property._id}`)}
-                      >
-                        <Edit />
-                      </IconButton>
-                    </Tooltip>
+                    {canSeeDetails(generalDetails.agentId) && (
+                      <Tooltip title="Editează">
+                        <IconButton
+                          color="warning"
+                          onClick={() => navigate(`/properties/edit/${property._id}`)}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </TableCell>
                 </TableRow>
               );
@@ -325,6 +354,9 @@ function FilteredTable({
   );
 }
 
+// =========
+// ✅ READY
+// =========
 const FilterPropertiesList = ({
   selectedCategory,
   selectedAgentId,
@@ -332,8 +364,11 @@ const FilterPropertiesList = ({
   selectedContract,
 }: FilterPropertiesListProps) => {
   const rowsPerPage = 10;
-
-  const { data, isLoading, error } = useFilterPropertiesQuery({
+  const {
+    data,
+    isLoading: propertiesIsLoading,
+    error: propertiesError,
+  } = useFilterPropertiesQuery({
     agentId: selectedAgentId,
     category: selectedCategory,
     status: selectedStatus,
@@ -381,16 +416,13 @@ const FilterPropertiesList = ({
   }, [data, sort]);
 
   useEffect(() => {
-    if (error) {
-      const axiosErr = error as AxiosError<{ message?: string }>;
-      toast(
-        axiosErr.response?.data?.message || "Eroare la încărcarea proprietăților filtrate",
-        "error",
-      );
+    if (propertiesError) {
+      const axiosErr = propertiesError as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
     }
-  }, [error, toast]);
+  }, [propertiesError, toast]);
 
-  if (isLoading)
+  if (propertiesIsLoading)
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100%">
         <CircularProgress />

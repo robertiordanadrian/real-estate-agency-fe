@@ -25,7 +25,6 @@ import {
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
 import { useAppSelector } from "../../app/hook";
 import { ERole } from "@/common/enums/role/role.enums";
 import { IRegisterForm } from "@/common/interfaces/forms/register-form.interface";
@@ -41,6 +40,17 @@ import {
 import { AxiosError } from "axios";
 import { useToast } from "@/context/ToastContext";
 
+type RegisterErrors = {
+  name?: boolean;
+  email?: boolean;
+  phone?: boolean;
+  role?: boolean;
+  password?: boolean;
+};
+
+// =========
+// ✅ READY
+// =========
 const RegisterPage = () => {
   const theme = useTheme();
   const currentUser = useAppSelector(selectUser);
@@ -50,6 +60,9 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
+
+  const [formErrors, setFormErrors] = useState<RegisterErrors>({});
+  const [formTouched, setFormTouched] = useState(false);
 
   const ROLES = Object.values(ERole).filter((r) => r !== ERole.CEO);
 
@@ -79,16 +92,30 @@ const RegisterPage = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const validateForm = () => {
+    const newErrors: RegisterErrors = {};
+    if (!form.name.trim()) newErrors.name = true;
+    if (!form.email.trim()) newErrors.email = true;
+    if (!form.phone.trim()) newErrors.phone = true;
+    if (!form.role) newErrors.role = true;
+    if (!editId && !(form.password ?? "").trim()) newErrors.password = true;
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormTouched(true);
     setError("");
     setSuccess("");
-
+    if (!validateForm()) {
+      toast("Completeaza toate campurile obligatorii!", "error");
+      return;
+    }
     if (!form.name || !form.email || !form.phone || !form.role) {
       setError("Toate campurile sunt obligatorii.");
       return;
     }
-
     try {
       if (editId) {
         await updateUserById({
@@ -100,21 +127,18 @@ const RegisterPage = () => {
             role: form.role,
           },
         });
-
         if (form.profileImage) {
           await uploadAvatarForUser({
             userId: editId,
             file: form.profileImage,
           });
         }
-
         setSuccess(`Agentul ${form.name} a fost actualizat cu succes!`);
       } else {
         if (!form.password) {
           setError("Parola este obligatorie pentru un agent nou.");
           return;
         }
-
         const newUser = await register({
           name: form.name,
           email: form.email,
@@ -122,22 +146,18 @@ const RegisterPage = () => {
           phone: form.phone,
           role: form.role,
         });
-
         if (form.profileImage && newUser?.user?._id) {
           await uploadAvatarForUser({
             userId: newUser.user._id,
             file: form.profileImage,
           });
         }
-
         setSuccess(`Agentul ${form.name} a fost creat cu succes!`);
       }
-
       updateForm("profileImage", null);
     } catch (err: any) {
       const message =
         err?.response?.data?.message || err?.message || "Operatiunea a esuat. Incearca din nou.";
-
       setError(message);
     }
   };
@@ -151,7 +171,6 @@ const RegisterPage = () => {
       navigate("/", { replace: true });
     }
   }, [currentUser, navigate]);
-
   useEffect(() => {
     if (userToEdit) {
       setForm((prev) => ({
@@ -166,14 +185,12 @@ const RegisterPage = () => {
       setImagePreview(userToEdit.profilePicture || null);
     }
   }, [userToEdit]);
-
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => navigate("/agents"), 2000);
       return () => clearTimeout(timer);
     }
   }, [success, navigate]);
-
   useEffect(() => {
     if (userError) {
       const axiosErr = userError as AxiosError<{ message?: string }>;
@@ -307,43 +324,63 @@ const RegisterPage = () => {
                     <TextField
                       label="Nume complet"
                       fullWidth
-                      required
                       value={form.name}
-                      onChange={(e) => updateForm("name", e.target.value)}
+                      error={formTouched && !!formErrors.name}
+                      onChange={(e) => {
+                        if (formErrors.name) setFormErrors((prev) => ({ ...prev, name: false }));
+                        updateForm("name", e.target.value);
+                      }}
+                      InputLabelProps={{ required: true }}
                     />
                     <TextField
                       label="Email"
-                      type="email"
                       fullWidth
-                      required
                       value={form.email}
-                      onChange={(e) => updateForm("email", e.target.value)}
+                      error={formTouched && !!formErrors.email}
+                      onChange={(e) => {
+                        if (formErrors.email) setFormErrors((prev) => ({ ...prev, email: false }));
+                        updateForm("email", e.target.value);
+                      }}
+                      InputLabelProps={{ required: true }}
                     />
+
                     {!editId && (
                       <TextField
                         label="Parola"
-                        type="password"
                         fullWidth
-                        required
                         value={form.password}
-                        onChange={(e) => updateForm("password", e.target.value)}
+                        error={formTouched && !!formErrors.password}
+                        onChange={(e) => {
+                          if (formErrors.password)
+                            setFormErrors((prev) => ({ ...prev, password: false }));
+                          updateForm("password", e.target.value);
+                        }}
+                        InputLabelProps={{ required: true }}
                       />
                     )}
+
                     <TextField
                       label="Numar de telefon"
                       fullWidth
-                      required
                       value={form.phone}
-                      onChange={(e) => updateForm("phone", e.target.value)}
+                      error={formTouched && !!formErrors.phone}
+                      onChange={(e) => {
+                        if (formErrors.phone) setFormErrors((prev) => ({ ...prev, phone: false }));
+                        updateForm("phone", e.target.value);
+                      }}
+                      InputLabelProps={{ required: true }}
                     />
 
-                    <FormControl fullWidth>
+                    <FormControl fullWidth error={formTouched && !!formErrors.role}>
                       <InputLabel id="role-select-label">Rol</InputLabel>
                       <Select
                         labelId="role-select-label"
                         value={form.role}
                         label="Rol"
-                        onChange={(e) => updateForm("role", e.target.value as ERole)}
+                        onChange={(e) => {
+                          if (formErrors.role) setFormErrors((prev) => ({ ...prev, role: false }));
+                          updateForm("role", e.target.value as ERole);
+                        }}
                       >
                         {ROLES.map((r) => (
                           <MenuItem key={r} value={r}>

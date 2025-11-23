@@ -28,13 +28,6 @@ export enum ECompartmentalization {
   CIRCULAR = "circular",
 }
 
-export enum EBuildingType {
-  BUILDING = "Bloc",
-  HOUSE = "Casa / vila",
-  STUDIO_APARTMENT_BUILDING = "Bloc garsoniere",
-  MIXT_BUILDING = "Bloc mixt",
-}
-
 export enum EBuildingStructure {
   CONCRETE = "concrete",
   BRICK = "brick",

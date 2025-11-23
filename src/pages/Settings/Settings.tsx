@@ -32,17 +32,23 @@ import {
 } from "@/features/users/usersQueries";
 import { useToast } from "@/context/ToastContext";
 import { AxiosError } from "axios";
+import { useLogout } from "@/features/auth/authMutations";
 
+// =========
+// ✅ READY
+// =========
 const Settings = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;
   const isDark = theme.palette.mode === "dark";
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const toast = useToast();
-  const { data: user, error: userError } = useUserQuery();
   const qc = useQueryClient();
+
+  const { data: user, error: userError } = useUserQuery();
   const updateUser = useUpdateUser();
   const uploadAvatar = useUploadProfilePicture();
+  const { mutate: logout } = useLogout();
 
   const [form, setForm] = useState<ISettingsForm>({
     name: "",
@@ -51,12 +57,59 @@ const Settings = () => {
     password: "",
     confirmPassword: "",
   });
-
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const updateForm = <K extends keyof ISettingsForm>(key: K, value: ISettingsForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setAvatar(file);
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+    } else {
+      setAvatarPreview(null);
+    }
+  };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const passwordChanged = !!form.password || !!form.confirmPassword;
+      if (passwordChanged) {
+        if (!form.password || !form.confirmPassword) {
+          toast("Completeaza ambele campuri pentru parola.", "error");
+          return;
+        }
+        if (form.password !== form.confirmPassword) {
+          toast("Parolele nu coincid!", "error");
+          return;
+        }
+      }
+      const payload: any = {};
+      if (passwordChanged) {
+        payload.password = form.password;
+        payload.confirmPassword = form.confirmPassword;
+      }
+      if (passwordChanged) {
+        await updateUser.mutateAsync(payload);
+      }
+      if (avatar) {
+        await uploadAvatar.mutateAsync(avatar);
+        setAvatar(null);
+      }
+      qc.invalidateQueries({ queryKey: ["me"] });
+      if (passwordChanged) {
+        toast("Parola a fost actualizata! Te delogam...", "success");
+
+        setTimeout(() => logout(), 1000);
+      } else {
+        toast("Datele au fost salvate cu succes!", "success");
+      }
+    } catch (error: any) {
+      toast(error?.response?.data?.message || "A aparut o eroare.", "error");
+    }
   };
 
   useEffect(() => {
@@ -77,55 +130,9 @@ const Settings = () => {
   useEffect(() => {
     if (userError) {
       const axiosErr = userError as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea userului", "error");
     }
   }, [userError, toast]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setAvatar(file);
-    if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setAvatarPreview(previewUrl);
-    } else {
-      setAvatarPreview(null);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      if (form.password || form.confirmPassword) {
-        if (form.password !== form.confirmPassword) {
-          toast("Parolele nu coincid!", "error");
-          return;
-        }
-      }
-
-      const payload: Partial<ISettingsForm> = {
-        name: form.name,
-        email: form.email,
-        role: form.role,
-      };
-
-      if (form.password) {
-        payload.password = form.password;
-      }
-
-      await updateUser.mutateAsync(payload);
-
-      if (avatar) {
-        await uploadAvatar.mutateAsync(avatar);
-        setAvatar(null);
-      }
-
-      qc.invalidateQueries({ queryKey: ["me"] });
-      toast("Datele au fost salvate cu success!", "success");
-    } catch (error: any) {
-      toast(error?.response?.data?.message || "A aparut o eroare.", "error");
-    }
-  };
 
   return (
     <Box
@@ -263,12 +270,11 @@ const Settings = () => {
                       },
                     }}
                   >
-                    Încarcă imagine de profil
+                    Incarca imagine de profil
                     <input type="file" hidden accept="image/*" onChange={handleFileChange} />
                   </Button>
                 </Grid>
               </Grid>
-
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
@@ -276,9 +282,10 @@ const Settings = () => {
                     value={form.name}
                     onChange={(e) => updateForm("name", e.target.value)}
                     fullWidth
+                    slotProps={{ input: { readOnly: true } }}
+                    disabled
                   />
                 </Grid>
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     label="Email"
@@ -286,9 +293,10 @@ const Settings = () => {
                     value={form.email}
                     onChange={(e) => updateForm("email", e.target.value)}
                     fullWidth
+                    slotProps={{ input: { readOnly: true } }}
+                    disabled
                   />
                 </Grid>
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     select
@@ -296,6 +304,8 @@ const Settings = () => {
                     value={form.role}
                     onChange={(e) => updateForm("role", e.target.value as ERole)}
                     fullWidth
+                    slotProps={{ input: { readOnly: true } }}
+                    disabled
                   >
                     {Object.values(ERole).map((r) => (
                       <MenuItem key={r} value={r}>
@@ -304,10 +314,9 @@ const Settings = () => {
                     ))}
                   </TextField>
                 </Grid>
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
-                    label="Parolă nouă"
+                    label="Parola noua"
                     type="password"
                     value={form.password}
                     onChange={(e) => updateForm("password", e.target.value)}
@@ -319,10 +328,9 @@ const Settings = () => {
                     }}
                   />
                 </Grid>
-
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
-                    label="Confirmă parola"
+                    label="Confirma parola"
                     type="password"
                     value={form.confirmPassword}
                     onChange={(e) => updateForm("confirmPassword", e.target.value)}
@@ -336,7 +344,6 @@ const Settings = () => {
                 </Grid>
               </Grid>
             </Box>
-
             <Button
               type="submit"
               variant="contained"

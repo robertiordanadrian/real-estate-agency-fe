@@ -33,12 +33,14 @@ import {
   useUpdateProperty,
   useUploadPropertyImages,
   useUploadPropertyContract,
+  useDeletePropertyImages,
+  useUpdateImagesOrder,
 } from "@/features/properties/propertiesQueries";
 
 import type { AxiosError } from "axios";
 import { useToast } from "@/context/ToastContext";
 import { normalizeStatus } from "@/common/utils/normalize-status.util";
-import { EStatus } from "@/common/enums/property/general-details.enums";
+import { ECategory, EStatus } from "@/common/enums/property/general-details.enums";
 
 const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
@@ -55,6 +57,8 @@ const EditProperty = () => {
   const updateProperty = useUpdateProperty();
   const uploadImages = useUploadPropertyImages();
   const uploadContract = useUploadPropertyContract();
+  const deleteImages = useDeletePropertyImages();
+  const updateImagesOrder = useUpdateImagesOrder();
 
   const [formData, setFormData] = useState<IProperty | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -62,6 +66,7 @@ const EditProperty = () => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [removedImages, setRemovedImages] = useState<string[]>([]);
 
   const [generalDetailsTouched, setGeneralDetailsTouched] = useState(false);
   const [characteristicsTouched, setCharacteristicsTouched] = useState(false);
@@ -83,13 +88,7 @@ const EditProperty = () => {
 
   useEffect(() => {
     if (property) {
-      setFormData({
-        ...property,
-        generalDetails: {
-          ...property.generalDetails,
-          status: normalizeStatus(property.generalDetails.status),
-        },
-      });
+      setFormData(property);
     }
   }, [property]);
 
@@ -130,7 +129,11 @@ const EditProperty = () => {
     if (activeStep === 4) {
       setDescriptionTouched(true);
       if (!descriptionRef.current?.validate()) {
-        toast("Completeaza campurile obligatorii", "error");
+        if (descriptionRef.current?.hasDiacriticsError?.()) {
+          toast("Titlul și descrierea nu trebuie să conțină diacritice.", "error");
+        } else {
+          toast("Completeaza campurile obligatorii", "error");
+        }
         return;
       }
     }
@@ -146,24 +149,51 @@ const EditProperty = () => {
     try {
       setIsSubmitting(true);
 
+      const finalStatus =
+        formData.images.length === 0 && imageFiles.length === 0
+          ? EStatus.WHITE
+          : formData.generalDetails.status;
+
       await updateProperty.mutateAsync({
         id,
         data: {
           ...formData,
           generalDetails: {
             ...formData.generalDetails,
-            status: statusKeyToValue(formData.generalDetails.status),
+            status: finalStatus,
           },
         },
       });
 
-      if (imageFiles.length > 0) {
-        await uploadImages.mutateAsync({ id, files: imageFiles });
+      if (contractFile) {
+        await uploadContract.mutateAsync({
+          id,
+          file: contractFile,
+        });
       }
 
-      if (contractFile) {
-        await uploadContract.mutateAsync({ id, file: contractFile });
+      let updatedImagesArray = [...formData.images];
+
+      if (updatedImagesArray.every((img) => img.startsWith("blob:"))) {
+        updatedImagesArray = [];
       }
+
+      if (imageFiles.length > 0) {
+        const res = await uploadImages.mutateAsync({ id, files: imageFiles });
+
+        updatedImagesArray = res.images;
+      }
+
+      if (removedImages.length > 0) {
+        const res = await deleteImages.mutateAsync({ id, urls: removedImages });
+
+        updatedImagesArray = res.images;
+      }
+
+      await updateImagesOrder.mutateAsync({
+        id,
+        images: updatedImagesArray,
+      });
 
       toast("Proprietatea a fost actualizata", "success");
       setTimeout(() => navigate("/properties"), 800);
@@ -179,6 +209,10 @@ const EditProperty = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleRemoveExistingImage = (url: string) => {
+    setRemovedImages((prev) => [...prev, url]);
   };
 
   const renderStep = () => {
@@ -208,6 +242,7 @@ const EditProperty = () => {
       case 1:
         return (
           <CharacteristicsStep
+            category={formData.generalDetails.category as ECategory}
             ref={characteristicsRef}
             characteristicsStepTouched={characteristicsTouched}
             data={formData.characteristics}
@@ -239,6 +274,7 @@ const EditProperty = () => {
             priceTouched={priceTouched}
             usableArea={Number(formData.characteristics.areas.usableArea)}
             data={formData.price}
+            setContractFile={setContractFile}
             onChange={(val) => {
               const newData = typeof val === "function" ? val(formData.price) : val;
               if (newData.contact.contractFile instanceof File) {
@@ -272,6 +308,7 @@ const EditProperty = () => {
             files={imageFiles}
             onChange={(val) => setFormData((p) => (p ? { ...p, images: val } : null))}
             onFilesChange={setImageFiles}
+            onRemoveExistingImage={handleRemoveExistingImage}
           />
         );
 

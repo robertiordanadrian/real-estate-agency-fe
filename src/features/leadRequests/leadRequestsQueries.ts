@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { LeadRequestsApi } from "@/features/leadRequests/leadRequestsApi";
 import { ILeadRequest } from "@/common/interfaces/lead/lead-request.interface";
 import { useToast } from "@/context/ToastContext";
@@ -10,10 +10,13 @@ export const leadRequestsKeys = {
   archive: () => [...leadRequestsKeys.all, "archive"] as const,
 };
 
-export const usePendingLeadRequestsQuery = () =>
+export const usePendingLeadRequestsQuery = (
+  options?: Omit<UseQueryOptions<ILeadRequest[], Error>, "queryKey" | "queryFn">,
+) =>
   useQuery<ILeadRequest[]>({
     queryKey: leadRequestsKeys.pending(),
     queryFn: LeadRequestsApi.getPending,
+    ...options,
   });
 
 export const useArchiveLeadRequestsQuery = () =>

@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { EStatus } from "@/common/enums/property/general-details.enums";
+import { ECategory, EStatus } from "@/common/enums/property/general-details.enums";
 import type { ICharacteristics } from "@/common/interfaces/property/characteristics.interface";
 import type { IDescription } from "@/common/interfaces/property/description.interface";
 import type { IGeneralDetails } from "@/common/interfaces/property/general-details.interface";
@@ -23,7 +23,7 @@ import type { IUtilities } from "@/common/interfaces/property/utilities.interfac
 import CharacteristicsStep, {
   CharacteristicsSteppRef,
 } from "@/components/PropertySteps/CharacteristicsStep";
-import DescriptionStep from "@/components/PropertySteps/DescriptionStep";
+import DescriptionStep, { DescriptionStepRef } from "@/components/PropertySteps/DescriptionStep";
 import GeneralDetailsStep, {
   GeneralDetailsStepRef,
 } from "@/components/PropertySteps/GeneralDetailsStep";
@@ -41,6 +41,7 @@ import { queryClient } from "@/services/queryClient";
 import { useAppSelector } from "@/app/hook";
 import { selectUser } from "@/features/auth/authSelectors";
 import { useToast } from "@/context/ToastContext";
+import { AxiosError } from "axios";
 
 const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
@@ -50,6 +51,7 @@ const defaultGeneralDetails: IGeneralDetails = {
   transactionType: null,
   category: null,
   ownerID: "",
+  cadastralNumber: "",
   location: {
     city: "",
     zone: "",
@@ -92,7 +94,6 @@ const defaultCharacteristics: ICharacteristics = {
   },
   building: {
     constructionStage: null,
-    type: null,
     structure: null,
     seismicRisk: null,
     basement: false,
@@ -193,7 +194,7 @@ const AddProperty = () => {
   const priceStepRef = useRef<PriceStepRef>(null);
 
   const [descriptionTouched, setDescriptionTouched] = useState(false);
-  const descriptionStepRef = useRef<PriceStepRef>(null);
+  const descriptionStepRef = useRef<DescriptionStepRef>(null);
 
   const [formData, setFormData] = useState<IProperty>({
     generalDetails: defaultGeneralDetails,
@@ -215,13 +216,21 @@ const AddProperty = () => {
     setIsSubmitting(true);
 
     try {
-      const payload = { ...formData, images: [] };
+      const finalStatus = imageFiles.length === 0 ? EStatus.WHITE : formData.generalDetails.status;
+
+      const payload = {
+        ...formData,
+        generalDetails: {
+          ...formData.generalDetails,
+          status: finalStatus,
+        },
+        images: [],
+      };
 
       const newProperty = await createProperty.mutateAsync(payload);
       const propertyId = newProperty._id;
 
       if (!propertyId) throw new Error("Lipsește _id-ul proprietății.");
-
       if (imageFiles.length) {
         await uploadImages.mutateAsync({ id: propertyId, files: imageFiles });
       }
@@ -234,8 +243,8 @@ const AddProperty = () => {
 
       setTimeout(() => navigate("/properties"), 1500);
     } catch (err) {
-      console.error("❌ Eroare la crearea proprietății:", err);
-      toast("A apărut o eroare. Încearcă din nou.", "error");
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      toast(axiosErr.response?.data?.message || "A apărut o eroare.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -270,7 +279,11 @@ const AddProperty = () => {
       setDescriptionTouched(true);
       const isValid = descriptionStepRef.current?.validate();
       if (!isValid) {
-        toast("Completeaza toate campurile obligatorii.", "error");
+        if (descriptionStepRef.current?.hasDiacriticsError?.()) {
+          toast("Titlul și descrierea nu trebuie să conțină diacritice.", "error");
+        } else {
+          toast("Completeaza toate campurile obligatorii.", "error");
+        }
         return;
       }
     }
@@ -300,6 +313,7 @@ const AddProperty = () => {
       case 1:
         return (
           <CharacteristicsStep
+            category={formData.generalDetails.category as ECategory}
             ref={characteristicsStepRef}
             data={formData.characteristics}
             onChange={(updater) =>
@@ -329,13 +343,10 @@ const AddProperty = () => {
                 ...prev,
                 price: typeof updated === "function" ? updated(prev.price) : updated,
               }));
-              const result = typeof updated === "function" ? updated(formData.price) : updated;
-              if (result.contact.contractFile instanceof File) {
-                setContractFile(result.contact.contractFile);
-              }
             }}
             priceTouched={priceTouched}
             ref={priceStepRef}
+            setContractFile={setContractFile}
           />
         );
       case 4:

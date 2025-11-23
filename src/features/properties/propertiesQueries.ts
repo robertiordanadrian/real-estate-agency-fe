@@ -2,17 +2,20 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { IProperty } from "@/common/interfaces/property/property.interface";
 import { ICreatePropertyPayload } from "@/common/interfaces/payloads/create-property-payload.interface";
 import { PropertiesApi } from "@/features/properties/propertiesApi";
+import { IGetPropertiesByFilterPayload } from "@/common/interfaces/payloads/get-properties-by-filter-payload.interface";
 
 export const propertiesKeys = {
-  all: ["properties"] as const,
-  byId: (id: string) => [...propertiesKeys.all, id] as const,
-  bySku: (sku: string) => [...propertiesKeys.all, "sku", sku] as const,
+  byId: (id: string) => ["id", id] as const,
+  bySku: (sku: string) => ["sku", sku] as const,
+  filterRoot: ["filterProperties"] as const,
+  filter: (filters: IGetPropertiesByFilterPayload) => ["filterProperties", filters] as const,
 };
 
-export const usePropertiesQuery = () =>
-  useQuery({
-    queryKey: propertiesKeys.all,
-    queryFn: PropertiesApi.getAll,
+export const useFilterPropertiesQuery = (filters: IGetPropertiesByFilterPayload) =>
+  useQuery<IProperty[]>({
+    queryKey: propertiesKeys.filter(filters),
+    queryFn: () => PropertiesApi.getByFilters(filters),
+    enabled: !!filters.agentId,
   });
 
 export const usePropertyQuery = (id: string) =>
@@ -35,7 +38,10 @@ export const useUpdateProperty = () => {
     mutationFn: ({ id, data }: { id: string; data: IProperty }) => PropertiesApi.update(id, data),
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: propertiesKeys.byId(vars.id) });
-      qc.invalidateQueries({ queryKey: propertiesKeys.all });
+      qc.invalidateQueries({
+        queryKey: propertiesKeys.filterRoot,
+        exact: false,
+      });
     },
     onError: (err) => {
       console.error("❌ Eroare update proprietate:", err);
@@ -48,7 +54,10 @@ export const useCreateProperty = () => {
   return useMutation({
     mutationFn: (payload: ICreatePropertyPayload) => PropertiesApi.create(payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: propertiesKeys.all });
+      qc.invalidateQueries({
+        queryKey: propertiesKeys.filterRoot,
+        exact: false,
+      });
     },
     onError: (err) => {
       console.error("❌ Eroare creare proprietate:", err);
@@ -63,10 +72,49 @@ export const useUploadPropertyImages = () => {
       PropertiesApi.uploadImages(id, files),
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: propertiesKeys.byId(vars.id) });
-      qc.invalidateQueries({ queryKey: propertiesKeys.all });
+      qc.invalidateQueries({
+        queryKey: propertiesKeys.filterRoot,
+        exact: false,
+      });
     },
     onError: (err) => {
       console.error("❌ Eroare upload imagini:", err);
+    },
+  });
+};
+
+export const useDeletePropertyImages = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, urls }: { id: string; urls: string[] }) =>
+      PropertiesApi.deleteImages(id, urls),
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: propertiesKeys.byId(vars.id) });
+      qc.invalidateQueries({
+        queryKey: propertiesKeys.filterRoot,
+        exact: false,
+      });
+    },
+    onError: (err) => {
+      console.error("❌ Eroare delete imagini:", err);
+    },
+  });
+};
+
+export const useUpdateImagesOrder = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, images }: { id: string; images: string[] }) =>
+      PropertiesApi.updateImagesOrder(id, images),
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: propertiesKeys.byId(vars.id) });
+      qc.invalidateQueries({
+        queryKey: propertiesKeys.filterRoot,
+        exact: false,
+      });
+    },
+    onError: (err) => {
+      console.error("❌ Eroare update order imagini:", err);
     },
   });
 };
@@ -78,7 +126,10 @@ export const useUploadPropertyContract = () => {
       PropertiesApi.uploadContract(id, file),
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: propertiesKeys.byId(vars.id) });
-      qc.invalidateQueries({ queryKey: propertiesKeys.all });
+      qc.invalidateQueries({
+        queryKey: propertiesKeys.filterRoot,
+        exact: false,
+      });
     },
     onError: (err) => {
       console.error("❌ Eroare upload contract:", err);

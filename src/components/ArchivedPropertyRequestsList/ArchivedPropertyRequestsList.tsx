@@ -21,7 +21,6 @@ import { useNavigate } from "react-router-dom";
 import type { IProperty } from "@/common/interfaces/property/property.interface";
 import { getChipColor } from "@/common/utils/get-chip-color.util";
 import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
-import { usePropertiesQuery } from "@/features/properties/propertiesQueries";
 import { useArchivePropertyRequestsQuery } from "@/features/propertyRequests/propertyRequestsQueries";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
 import { ISortState } from "@/common/interfaces/sorting/sort.interface";
@@ -33,6 +32,7 @@ import { IUserLite } from "@/common/interfaces/user/user-lite.interface";
 import { useToast } from "@/context/ToastContext";
 import type { AxiosError } from "axios";
 import { useEffect } from "react";
+import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
 
 const ArchivedPropertyRequestsList = () => {
   const theme = useTheme();
@@ -60,7 +60,9 @@ const ArchivedPropertyRequestsList = () => {
 
   const { data: requests, isLoading, error: requestsError } = useArchivePropertyRequestsQuery();
   const { data: users, error: usersError } = useAllUsersQuery();
-  const { data: properties, error: propertiesError } = usePropertiesQuery();
+  const { data: properties, error: propertiesError } = useFilterPropertiesQuery({
+    agentId: "ALL",
+  });
 
   const list = (requests ?? []) as IArchivedPropertyRequest[];
 

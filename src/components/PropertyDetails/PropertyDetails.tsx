@@ -40,9 +40,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import { getRoleColor } from "@/common/utils/get-role-color.util";
 import { useOwnerByIdQuery } from "@/features/owners/ownersQueries";
-import { PropertiesApi } from "@/features/properties/propertiesApi";
 import { usePropertyBySkuQuery, usePropertyQuery } from "@/features/properties/propertiesQueries";
-import { useUserByIdQuery } from "@/features/users/usersQueries";
+import { useUserByIdQuery, useUserQuery } from "@/features/users/usersQueries";
 import PropertyMap from "@/components/PropertyMap/PropertyMap";
 import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 import * as React from "react";
@@ -55,7 +54,8 @@ import { formatPrice } from "@/common/utils/format-price.util";
 import { formatDateTime } from "@/common/utils/format-date-time.util";
 import { IBuilding } from "@/common/interfaces/property/characteristics.interface";
 import { EGeneralDetailsEnumLabels, EStatus } from "@/common/enums/property/general-details.enums";
-import { IProperty } from "@/common/interfaces/property/property.interface";
+import { useQuery } from "@tanstack/react-query";
+import { UsersApi } from "@/features/users/usersApi";
 
 export const mapCharacteristicLabel = (
   group: keyof typeof CharacteristicsEnumLabels,
@@ -344,50 +344,42 @@ const PropertyDetail = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
-  // 1. preluăm SKU din ruta
   const { sku } = useParams<{ sku: string }>();
+  const { data: propertyBySku, error: skuError } = usePropertyBySkuQuery(sku ?? "");
 
-  // 2. Query principal: proprietatea după SKU (public)
-  const {
-    data: propertyBySku,
-    isLoading: isSkuLoading,
-    error: skuError,
-  } = usePropertyBySkuQuery(sku ?? "");
-
-  // 3. extragem ID-ul real al proprietății
-  const propertyId = propertyBySku?._id;
-
-  // 4. Query complet: proprietatea după ID (cu acces controlat)
-  const {
-    data: property,
-    isLoading: isIdLoading,
-    error: propertyError,
-  } = usePropertyQuery(propertyId ?? "");
-
-  // 5. Query pentru agent
-  const agentId = property?.generalDetails?.agentId;
+  const agentId = propertyBySku?.generalDetails?.agentId;
   const { data: agent, error: agentError } = useUserByIdQuery(agentId ?? "");
 
-  // 6. Query pentru owner
-  const ownerId = property?.generalDetails?.ownerID;
+  const ownerId = propertyBySku?.generalDetails?.ownerID;
   const { data: owner, error: ownerError } = useOwnerByIdQuery(ownerId ?? "");
 
-  // 7. colectăm erorile
+  const { data: currentUser } = useUserQuery();
+
+  const canSeeDetails = () => {
+    if (!currentUser || !agent) return false;
+    const myRole = currentUser.role;
+    const agentRole = agent.role;
+    const agentId = agent._id;
+    if (myRole === "CEO") return true;
+    if (myRole === "MANAGER") {
+      return agentRole !== "CEO";
+    }
+    if (myRole === "TEAM_LEAD") {
+      return agentId === currentUser._id;
+    }
+    if (myRole === "AGENT") {
+      return agentId === currentUser._id;
+    }
+
+    return false;
+  };
+
   useEffect(() => {
     if (skuError) {
       toast("Proprietatea nu a fost găsită după SKU", "error");
       navigate("/properties");
     }
   }, [skuError]);
-
-  useEffect(() => {
-    if (propertyError) {
-      const axiosErr = propertyError as AxiosError<{ message?: string }>;
-      const msg = axiosErr.response?.data?.message || "Eroare la încărcarea proprietății";
-      toast(msg, "error");
-      navigate("/properties");
-    }
-  }, [propertyError]);
 
   useEffect(() => {
     if (agentError) {
@@ -403,19 +395,9 @@ const PropertyDetail = () => {
     }
   }, [ownerError]);
 
-  // 8. loading states
-  const isLoading = isSkuLoading || (propertyId && isIdLoading);
+  const { generalDetails, characteristics, utilities, price, description, images } =
+    propertyBySku ?? {};
 
-  // 9. dacă nu există proprietate → redirect
-  if (!isLoading && !property) {
-    navigate("/properties");
-    return null;
-  }
-
-  // 10. destructurări utile
-  const { generalDetails, characteristics, utilities, price, description, images } = property ?? {};
-
-  // 11. restul logicii (gallery, mappers etc.)
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -549,7 +531,7 @@ const PropertyDetail = () => {
               variant="outlined"
               color="info"
               startIcon={<History />}
-              onClick={() => navigate(`/properties/${propertyId}/logs`)}
+              onClick={() => navigate(`/properties/${propertyBySku?._id}/logs`)}
               sx={{
                 textTransform: "none",
                 fontWeight: 600,
@@ -574,7 +556,7 @@ const PropertyDetail = () => {
               sx={{ display: "flex", alignItems: "center" }}
             >
               <LocationOn sx={{ mr: 1 }} />
-              {generalDetails?.location.zone}, {generalDetails?.location.city}
+              {generalDetails?.location.zone} {generalDetails?.location.city}
               {generalDetails?.location.street && `, ${generalDetails.location.street}`}
               {generalDetails?.location.number && ` ${generalDetails.location.number}`}
             </Typography>
@@ -664,35 +646,45 @@ const PropertyDetail = () => {
                         slotProps={{ input: { readOnly: true } }}
                       />
                     </Grid>
+                    <Grid size={{ xs: 6, md: 4 }}>
+                      <TextField
+                        label="Numar Cadastral"
+                        value={canSeeDetails() ? generalDetails?.cadastralNumber : "Confidential"}
+                        fullWidth
+                        size="small"
+                        slotProps={{ input: { readOnly: true } }}
+                      />
+                    </Grid>
                   </Grid>
                 </DetailSection>
-
-                <DetailSection title="Locatie" icon={<LocationOn />}>
-                  <Grid container spacing={2}>
-                    {Object.entries(generalDetails?.location ?? {})
-                      .filter(
-                        ([key]) =>
-                          ![
-                            "_id",
-                            "surroundings",
-                            "interesPoints",
-                            "latitude",
-                            "longitude",
-                          ].includes(key),
-                      )
-                      .map(([key, value]) => (
-                        <Grid key={key} size={{ xs: 6, md: 4 }}>
-                          <TextField
-                            label={locationLabels[key] || key}
-                            value={value || "N/A"}
-                            fullWidth
-                            size="small"
-                            slotProps={{ input: { readOnly: true } }}
-                          />
-                        </Grid>
-                      ))}
-                  </Grid>
-                </DetailSection>
+                {canSeeDetails() && (
+                  <DetailSection title="Locatie" icon={<LocationOn />}>
+                    <Grid container spacing={2}>
+                      {Object.entries(generalDetails?.location ?? {})
+                        .filter(
+                          ([key]) =>
+                            ![
+                              "_id",
+                              "surroundings",
+                              "interesPoints",
+                              "latitude",
+                              "longitude",
+                            ].includes(key),
+                        )
+                        .map(([key, value]) => (
+                          <Grid key={key} size={{ xs: 6, md: 4 }}>
+                            <TextField
+                              label={locationLabels[key] || key}
+                              value={value || "N/A"}
+                              fullWidth
+                              size="small"
+                              slotProps={{ input: { readOnly: true } }}
+                            />
+                          </Grid>
+                        ))}
+                    </Grid>
+                  </DetailSection>
+                )}
 
                 <DetailSection title="Caracteristici" icon={<Apartment />}>
                   <Grid container spacing={2}>
@@ -949,15 +941,6 @@ const PropertyDetail = () => {
                     </Grid>
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
-                        label="Tip Cladire"
-                        value={characteristics?.building.type || "N/A"}
-                        fullWidth
-                        size="small"
-                        slotProps={{ input: { readOnly: true } }}
-                      />
-                    </Grid>
-                    <Grid size={{ xs: 6, md: 4 }}>
-                      <TextField
                         label="Structura"
                         value={mapCharacteristicLabel(
                           "EBuildingStructure",
@@ -1067,7 +1050,7 @@ const PropertyDetail = () => {
                           {label}
                         </Typography>
                         <EnumChipList
-                          items={(data || []).map((item) => {
+                          items={(data || []).map((item: any) => {
                             const enumKey = utilitiesLabelMap[label];
                             const group = UtilitiesLabels[enumKey] as Record<string, string>;
                             return group[item] ?? item;
@@ -1409,93 +1392,98 @@ const PropertyDetail = () => {
                   </Stack>
                 </DetailSection>
 
-                <DetailSection title="Proprietar" icon={<Person />}>
-                  <Box
+                {canSeeDetails() && (
+                  <DetailSection title="Proprietar" icon={<Person />}>
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: isDark ? theme.palette.background.paper : theme.palette.grey[50],
+                        color: theme.palette.text.primary,
+                        boxShadow: isDark ? `0 0 10px ${accent}22` : `0 0 8px ${accent}11`,
+                        transition: "background-color 0.3s ease",
+                      }}
+                    >
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                        {owner
+                          ? `${owner.surname ?? ""} ${owner.lastname ?? ""}`.trim() ||
+                            "Nespecificat"
+                          : "Nespecificat"}
+                      </Typography>
+
+                      <Stack spacing={2}>
+                        <Stack direction="row" spacing={1.5} alignItems="center">
+                          <Phone sx={{ color: accent, fontSize: 20 }} />
+                          {owner?.phone ? (
+                            <Typography
+                              variant="body2"
+                              component="a"
+                              href={`tel:${owner.phone}`}
+                              sx={{
+                                color: theme.palette.text.secondary,
+                                textDecoration: "none",
+                                "&:hover": { color: accent },
+                              }}
+                            >
+                              {owner.phone}
+                            </Typography>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">
+                              Telefon nespecificat
+                            </Typography>
+                          )}
+                        </Stack>
+
+                        <Stack direction="row" spacing={1.5} alignItems="center">
+                          <Email sx={{ color: accent, fontSize: 20 }} />
+                          {owner?.email ? (
+                            <Typography
+                              variant="body2"
+                              component="a"
+                              href={`mailto:${owner.email}`}
+                              sx={{
+                                color: theme.palette.text.secondary,
+                                textDecoration: "none",
+                                "&:hover": { color: accent },
+                              }}
+                            >
+                              {owner.email}
+                            </Typography>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">
+                              Email nespecificat
+                            </Typography>
+                          )}
+                        </Stack>
+                      </Stack>
+                    </Box>
+                  </DetailSection>
+                )}
+                {canSeeDetails() && (
+                  <DetailSection title="Harta" icon={<LocationOn />}>
+                    <PropertyMap
+                      lat={Number(generalDetails?.location.latitude)}
+                      lng={Number(generalDetails?.location.longitude)}
+                      apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+                    />
+                  </DetailSection>
+                )}
+                {canSeeDetails() && (
+                  <Button
+                    variant="contained"
+                    startIcon={<Edit />}
+                    onClick={() => navigate(`/properties/edit/${propertyBySku?._id}`)}
                     sx={{
-                      p: 2,
-                      borderRadius: 2,
-                      bgcolor: isDark ? theme.palette.background.paper : theme.palette.grey[50],
-                      color: theme.palette.text.primary,
-                      boxShadow: isDark ? `0 0 10px ${accent}22` : `0 0 8px ${accent}11`,
-                      transition: "background-color 0.3s ease",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      bgcolor: theme.palette.primary.main,
+                      color: theme.palette.getContrastText(theme.palette.primary.main),
+                      "&:hover": { bgcolor: theme.palette.primary.dark },
                     }}
                   >
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                      {owner
-                        ? `${owner.surname ?? ""} ${owner.lastname ?? ""}`.trim() || "Nespecificat"
-                        : "Nespecificat"}
-                    </Typography>
-
-                    <Stack spacing={2}>
-                      <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Phone sx={{ color: accent, fontSize: 20 }} />
-                        {owner?.phone ? (
-                          <Typography
-                            variant="body2"
-                            component="a"
-                            href={`tel:${owner.phone}`}
-                            sx={{
-                              color: theme.palette.text.secondary,
-                              textDecoration: "none",
-                              "&:hover": { color: accent },
-                            }}
-                          >
-                            {owner.phone}
-                          </Typography>
-                        ) : (
-                          <Typography variant="body2" color="text.secondary">
-                            Telefon nespecificat
-                          </Typography>
-                        )}
-                      </Stack>
-
-                      <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Email sx={{ color: accent, fontSize: 20 }} />
-                        {owner?.email ? (
-                          <Typography
-                            variant="body2"
-                            component="a"
-                            href={`mailto:${owner.email}`}
-                            sx={{
-                              color: theme.palette.text.secondary,
-                              textDecoration: "none",
-                              "&:hover": { color: accent },
-                            }}
-                          >
-                            {owner.email}
-                          </Typography>
-                        ) : (
-                          <Typography variant="body2" color="text.secondary">
-                            Email nespecificat
-                          </Typography>
-                        )}
-                      </Stack>
-                    </Stack>
-                  </Box>
-                </DetailSection>
-
-                <DetailSection title="Harta" icon={<LocationOn />}>
-                  <PropertyMap
-                    lat={Number(generalDetails?.location.latitude)}
-                    lng={Number(generalDetails?.location.longitude)}
-                    apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-                  />
-                </DetailSection>
-
-                <Button
-                  variant="contained"
-                  startIcon={<Edit />}
-                  onClick={() => navigate(`/properties/edit/${propertyId}`)}
-                  sx={{
-                    textTransform: "none",
-                    fontWeight: 600,
-                    bgcolor: theme.palette.primary.main,
-                    color: theme.palette.getContrastText(theme.palette.primary.main),
-                    "&:hover": { bgcolor: theme.palette.primary.dark },
-                  }}
-                >
-                  Editeaza proprietatea
-                </Button>
+                    Editeaza proprietatea
+                  </Button>
+                )}
               </Stack>
             </Grid>
           </Grid>

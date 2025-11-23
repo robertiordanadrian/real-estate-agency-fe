@@ -16,12 +16,15 @@ import {
 } from "@mui/material";
 
 import { useLeadsQuery } from "@/features/leads/leadsQueries";
-import { usePropertiesQuery } from "@/features/properties/propertiesQueries";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
 import { useToast } from "@/context/ToastContext";
 import { useEffect } from "react";
 import { AxiosError } from "axios";
+import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
 
+// =========
+// ✅ READY
+// =========
 const Dashboard = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -33,7 +36,8 @@ const Dashboard = () => {
     data: properties,
     isLoading: isLoadingProperties,
     error: propertiesError,
-  } = usePropertiesQuery();
+  } = useFilterPropertiesQuery({ agentId: "ALL" });
+
   const { data: leads, isLoading: isLoadingLeads, error: leadsError } = useLeadsQuery();
   const { data: users, isLoading: isLoadingUseres, error: usersError } = useAllUsersQuery();
 
@@ -64,6 +68,7 @@ const Dashboard = () => {
       toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietatilor", "error");
     }
   }, [propertiesError, toast]);
+
   return (
     <Box
       sx={{
@@ -311,3 +316,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+function usePropertiesQuery(): { data: any; error: any } {
+  throw new Error("Function not implemented.");
+}

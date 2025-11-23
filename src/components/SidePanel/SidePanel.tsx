@@ -60,10 +60,18 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
   const location = useLocation();
   const { data: user, error: usersError } = useUserQuery();
   const { mutate: logout, isPending } = useLogout();
+
+  const isManagerOrCeo = user?.role === "CEO" || user?.role === "MANAGER";
+
   const { data: pendingRequests, error: pendingPropertyRequestsError } =
-    usePendingPropertyRequestsQuery();
+    usePendingPropertyRequestsQuery({
+      enabled: isManagerOrCeo,
+    });
+
   const { data: pendingLeadRequests, error: pendingLeadRequestsError } =
-    usePendingLeadRequestsQuery();
+    usePendingLeadRequestsQuery({
+      enabled: isManagerOrCeo,
+    });
 
   const pendingLeadCount = pendingLeadRequests?.length ?? 0;
   const pendingCount = pendingRequests?.length ?? 0;

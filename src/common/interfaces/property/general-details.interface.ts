@@ -20,6 +20,7 @@ export interface IGeneralDetails {
   category: ECategory | null;
   location: ILocation;
   ownerID: string;
+  cadastralNumber: string;
 }
 export interface ILocation {
   city: string;

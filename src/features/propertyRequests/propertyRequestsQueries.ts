@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
 import { PropertyRequestsApi } from "@/features/propertyRequests/propertyRequestsApi";
 import { IPropertyRequest } from "@/common/interfaces/property/property-request.interface";
 import { useToast } from "@/context/ToastContext";
@@ -10,10 +10,13 @@ export const propertyRequestsKeys = {
   archive: () => [...propertyRequestsKeys.all, "archive"] as const,
 };
 
-export const usePendingPropertyRequestsQuery = () =>
+export const usePendingPropertyRequestsQuery = (
+  options?: Omit<UseQueryOptions<IPropertyRequest[], Error>, "queryKey" | "queryFn">,
+) =>
   useQuery<IPropertyRequest[]>({
     queryKey: propertyRequestsKeys.pending(),
     queryFn: PropertyRequestsApi.getPending,
+    ...options,
   });
 
 export const useArchivePropertyRequestsQuery = () =>

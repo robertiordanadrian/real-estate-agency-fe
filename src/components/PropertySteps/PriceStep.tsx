@@ -28,6 +28,7 @@ interface PriceStepProps {
   data: IPrice;
   onChange: (updated: IPrice | ((prev: IPrice) => IPrice)) => void;
   priceTouched: boolean;
+  setContractFile: (file: File | null) => void;
 }
 
 export interface PriceStepRef {
@@ -46,7 +47,7 @@ type NestedKey<S extends keyof PriceErrors> = {
 };
 
 const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
-  ({ usableArea, data, onChange, priceTouched }, ref) => {
+  ({ usableArea, data, onChange, priceTouched, setContractFile }, ref) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
 
@@ -513,7 +514,7 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
                         const file = e.target.files?.[0];
                         if (file) {
                           setSelectedContractName(file.name);
-                          handleContactChange("contractFile", file);
+                          setContractFile(file);
                         }
                       }}
                     />
