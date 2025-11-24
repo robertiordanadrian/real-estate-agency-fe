@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+
 import { useImobiliareLogin, useImobiliareSlots } from "@/features/imobiliare/imobiliareQueries";
 
 export const ImobiliareInitializer = () => {

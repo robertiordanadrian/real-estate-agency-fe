@@ -26,9 +26,9 @@ import { IPrice } from "@/common/interfaces/property/price.interface";
 interface PriceStepProps {
   usableArea: number;
   data: IPrice;
-  onChange: (updated: IPrice | ((prev: IPrice) => IPrice)) => void;
+  onChange: (_updated: IPrice | ((_prev: IPrice) => IPrice)) => void;
   priceTouched: boolean;
-  setContractFile: (file: File | null) => void;
+  setContractFile: (_file: File | null) => void;
 }
 
 export interface PriceStepRef {

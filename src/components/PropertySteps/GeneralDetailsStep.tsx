@@ -19,8 +19,10 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { AxiosError } from "axios";
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
+import { useAppSelector } from "@/app/hook";
 import {
   ECategory,
   EGeneralDetailsEnumLabels,
@@ -28,17 +30,15 @@ import {
   ESurroundings,
   EType,
 } from "@/common/enums/property/general-details.enums";
-import type { IGeneralDetails } from "@/common/interfaces/property/general-details.interface";
-import { useAllUsersQuery } from "@/features/users/usersQueries";
-import { IUser } from "@/common/interfaces/user/user.interface";
 import { EOwnerType, IOwner } from "@/common/interfaces/owner/owner.interface";
-import { GoogleAddressAutocomplete } from "@/components/GoogleAddressAutocomplete/GoogleAddressAutocomplete";
-import { useCreateOwner, useOwnersQuery } from "@/features/owners/ownersQueries";
+import type { IGeneralDetails } from "@/common/interfaces/property/general-details.interface";
+import { IUser } from "@/common/interfaces/user/user.interface";
 import { getEnumOptions } from "@/common/utils/utilities-step.util";
-import { AxiosError } from "axios";
+import { GoogleAddressAutocomplete } from "@/components/GoogleAddressAutocomplete/GoogleAddressAutocomplete";
 import { useToast } from "@/context/ToastContext";
-import { useAppSelector } from "@/app/hook";
 import { selectUser } from "@/features/auth/authSelectors";
+import { useCreateOwner, useOwnersQuery } from "@/features/owners/ownersQueries";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
 
 const defaultOwnerForm: IOwner = {
   _id: "",
@@ -66,7 +66,7 @@ const locationFields: {
 ];
 interface GeneralDetailsStepProps {
   data: IGeneralDetails;
-  onChange: (updated: IGeneralDetails | ((prev: IGeneralDetails) => IGeneralDetails)) => void;
+  onChange: (_updated: IGeneralDetails | ((_prev: IGeneralDetails) => IGeneralDetails)) => void;
   generalDetailsTouched: boolean;
   isEdit: boolean;
 }

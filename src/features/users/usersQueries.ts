@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { UsersApi } from "@/features/users/usersApi";
-import { IUser } from "@/common/interfaces/user/user.interface";
 import { IUpdateMeUserPayload } from "@/common/interfaces/payloads/update-me-user-payload.interface";
 import { IUpdateUserByIdPayload } from "@/common/interfaces/payloads/update-user-by-id-payload.interface";
+import { IUser } from "@/common/interfaces/user/user.interface";
+import { UsersApi } from "@/features/users/usersApi";
 
 export const usersKeys = {
   me: ["me"] as const,

@@ -1,11 +1,11 @@
-import { HouseRentPayload } from "@/common/interfaces/imobiliare/imobiliare.interface";
 import {
-  HousingType,
-  RoofType,
   ConstructionPeriod,
   ConstructionStage,
   Destination,
+  HousingType,
+  RoofType,
 } from "@/common/enums/imobiliare/imobiliare.enums";
+import { HouseRentPayload } from "@/common/interfaces/imobiliare/imobiliare.interface";
 
 export const HOUSE_RENT_MOCK: HouseRentPayload = {
   value: {

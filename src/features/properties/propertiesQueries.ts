@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { IProperty } from "@/common/interfaces/property/property.interface";
+
 import { ICreatePropertyPayload } from "@/common/interfaces/payloads/create-property-payload.interface";
-import { PropertiesApi } from "@/features/properties/propertiesApi";
 import { IGetPropertiesByFilterPayload } from "@/common/interfaces/payloads/get-properties-by-filter-payload.interface";
+import { IProperty } from "@/common/interfaces/property/property.interface";
+import { PropertiesApi } from "@/features/properties/propertiesApi";
 
 export const propertiesKeys = {
   byId: (id: string) => ["id", id] as const,

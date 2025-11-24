@@ -21,22 +21,23 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { useMemo, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { EGeneralDetailsEnumLabels } from "@/common/enums/property/general-details.enums";
 import { ESignedContract } from "@/common/enums/property/price.enums";
 import type { IProperty } from "@/common/interfaces/property/property.interface";
-import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
-import { useQuery } from "@tanstack/react-query";
-import { UsersApi } from "@/features/users/usersApi";
 import { ISortState } from "@/common/interfaces/sorting/sort.interface";
 import { formatPrice } from "@/common/utils/format-price.util";
-import { useToast } from "@/context/ToastContext";
-import type { AxiosError } from "axios";
-import { useEffect } from "react";
-import { EGeneralDetailsEnumLabels } from "@/common/enums/property/general-details.enums";
-import { useUserQuery } from "@/features/users/usersQueries";
-import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
+import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import { getFullAddress } from "@/common/utils/get-full-address.util";
+import { useToast } from "@/context/ToastContext";
+import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
+import { UsersApi } from "@/features/users/usersApi";
+import { useUserQuery } from "@/features/users/usersQueries";
 
 export const mapGeneralDetailsLabel = (
   group: keyof typeof EGeneralDetailsEnumLabels,

@@ -11,14 +11,14 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-
-import { IDescription } from "@/common/interfaces/property/description.interface";
 import { DatePicker } from "@mui/x-date-pickers";
 import { forwardRef, useImperativeHandle, useState } from "react";
 
+import { IDescription } from "@/common/interfaces/property/description.interface";
+
 interface DescriptionStepProps {
   data: IDescription;
-  onChange: (updated: IDescription | ((prev: IDescription) => IDescription)) => void;
+  onChange: (_updated: IDescription | ((_prev: IDescription) => IDescription)) => void;
   descriptionTouched: boolean;
 }
 

@@ -19,7 +19,7 @@ interface ImagesStepProps {
   files: File[];
   onChange: (_images: string[]) => void;
   onFilesChange: (_files: File[]) => void;
-  onRemoveExistingImage?: (url: string) => void;
+  onRemoveExistingImage?: (_url: string) => void;
 }
 
 // =========

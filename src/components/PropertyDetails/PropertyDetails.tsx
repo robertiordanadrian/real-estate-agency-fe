@@ -1,5 +1,7 @@
 import {
   Apartment,
+  ChevronLeft,
+  ChevronRight,
   Close,
   Description,
   Download,
@@ -10,12 +12,9 @@ import {
   LocationOn,
   Person,
   Phone,
-  Wifi,
   PhotoLibrary,
-  ChevronLeft,
-  ChevronRight,
+  Wifi,
 } from "@mui/icons-material";
-
 import {
   Avatar,
   Box,
@@ -39,23 +38,22 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import { getRoleColor } from "@/common/utils/get-role-color.util";
-import { useOwnerByIdQuery } from "@/features/owners/ownersQueries";
-import { usePropertyBySkuQuery, usePropertyQuery } from "@/features/properties/propertiesQueries";
-import { useUserByIdQuery, useUserQuery } from "@/features/users/usersQueries";
 import PropertyMap from "@/components/PropertyMap/PropertyMap";
+import { useOwnerByIdQuery } from "@/features/owners/ownersQueries";
+import { usePropertyBySkuQuery } from "@/features/properties/propertiesQueries";
+import { useUserByIdQuery, useUserQuery } from "@/features/users/usersQueries";
 import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-import * as React from "react";
-import { formatBuildingLevels } from "@/common/utils/format-building-levels.util";
-import { UtilitiesLabels } from "@/common/enums/property/utilities.enums";
-import { CharacteristicsEnumLabels } from "@/common/enums/property/characteristics.enums";
-import { useToast } from "@/context/ToastContext";
 import { AxiosError } from "axios";
-import { formatPrice } from "@/common/utils/format-price.util";
-import { formatDateTime } from "@/common/utils/format-date-time.util";
-import { IBuilding } from "@/common/interfaces/property/characteristics.interface";
+import * as React from "react";
+
+import { CharacteristicsEnumLabels } from "@/common/enums/property/characteristics.enums";
 import { EGeneralDetailsEnumLabels, EStatus } from "@/common/enums/property/general-details.enums";
-import { useQuery } from "@tanstack/react-query";
-import { UsersApi } from "@/features/users/usersApi";
+import { UtilitiesLabels } from "@/common/enums/property/utilities.enums";
+import { IBuilding } from "@/common/interfaces/property/characteristics.interface";
+import { formatBuildingLevels } from "@/common/utils/format-building-levels.util";
+import { formatDateTime } from "@/common/utils/format-date-time.util";
+import { formatPrice } from "@/common/utils/format-price.util";
+import { useToast } from "@/context/ToastContext";
 
 export const mapCharacteristicLabel = (
   group: keyof typeof CharacteristicsEnumLabels,

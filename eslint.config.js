@@ -20,7 +20,10 @@ export default defineConfig([
     ignores: ["node_modules", "dist"],
 
     languageOptions: {
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        google: "readonly",
+      },
       parser: tseslint.parser,
       ecmaVersion: 2020,
       parserOptions: {
@@ -63,7 +66,7 @@ export default defineConfig([
       "no-unused-vars": [
         "error",
         {
-          varsIgnorePattern: "^[A-Z_]+$",
+          varsIgnorePattern: "^[A-Z0-9_]+$",
           argsIgnorePattern: "^_",
           ignoreRestSiblings: true,
         },

@@ -22,14 +22,16 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { AxiosError } from "axios";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../app/hook";
+
 import { ERole } from "@/common/enums/role/role.enums";
 import { IRegisterForm } from "@/common/interfaces/forms/register-form.interface";
 import { getRoleColor } from "@/common/utils/get-role-color.util";
 import { getRoleDisplayText } from "@/common/utils/get-role-display-text.util";
+import { useToast } from "@/context/ToastContext";
 import { useRegister } from "@/features/auth/authMutations";
 import { selectUser } from "@/features/auth/authSelectors";
 import {
@@ -37,8 +39,8 @@ import {
   useUploadProfilePictureForUser,
   useUserByIdQuery,
 } from "@/features/users/usersQueries";
-import { AxiosError } from "axios";
-import { useToast } from "@/context/ToastContext";
+
+import { useAppSelector } from "../../app/hook";
 
 type RegisterErrors = {
   name?: boolean;

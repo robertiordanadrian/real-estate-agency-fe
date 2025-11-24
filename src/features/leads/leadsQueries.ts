@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import type { ILead } from "@/common/interfaces/lead/lead.interface";
 import type { IUpdateLeadPayload } from "@/common/interfaces/payloads/update-lead-payload.interface";
 import type { IDeleteLeadResponse } from "@/common/interfaces/responses/delete-lead-response.interface";

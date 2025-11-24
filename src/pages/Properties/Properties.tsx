@@ -18,8 +18,10 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { AxiosError } from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   ECategory,
   EGeneralDetailsEnumLabels,
@@ -27,10 +29,9 @@ import {
 } from "@/common/enums/property/general-details.enums";
 import type { IUser } from "@/common/interfaces/user/user.interface";
 import FilterPropertiesList from "@/components/FilterPropertiesList/FilterPropertiesList";
-import { useAllUsersQuery, useUserQuery } from "@/features/users/usersQueries";
 import { useToast } from "@/context/ToastContext";
-import { AxiosError } from "axios";
 import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
+import { useAllUsersQuery, useUserQuery } from "@/features/users/usersQueries";
 
 type ContractFilter = "CONTRACT" | "NO_CONTRACT";
 

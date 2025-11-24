@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { OwnersApi } from "@/features/owners/ownersApi";
+
 import type { ICreateOwnerPayload } from "@/common/interfaces/payloads/create-owner-payload.interface";
+import { OwnersApi } from "@/features/owners/ownersApi";
 
 export const ownersKeys = {
   all: ["owners", "all"] as const,

@@ -16,6 +16,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
 import {
   CharacteristicsEnumLabels,
@@ -24,13 +25,12 @@ import {
   EConstructionStage,
   EEnergyCertificationClass,
 } from "@/common/enums/property/characteristics.enums";
+import { ECategory } from "@/common/enums/property/general-details.enums";
 import type {
   IAreas,
   ICharacteristics,
 } from "@/common/interfaces/property/characteristics.interface";
-import { forwardRef, useImperativeHandle, useState } from "react";
 import { getEnumOptions } from "@/common/utils/utilities-step.util";
-import { ECategory } from "@/common/enums/property/general-details.enums";
 
 const generateNumberRange = (start: number, end: number) =>
   Array.from({ length: end - start + 1 }, (_, i) => start + i);
@@ -64,7 +64,7 @@ const isAreaErrorKey = (
 
 interface CharacteristicsStepProps {
   data: ICharacteristics;
-  onChange: (updated: ICharacteristics | ((prev: ICharacteristics) => ICharacteristics)) => void;
+  onChange: (_updated: ICharacteristics | ((_prev: ICharacteristics) => ICharacteristics)) => void;
   characteristicsStepTouched: boolean;
   category: ECategory;
 }

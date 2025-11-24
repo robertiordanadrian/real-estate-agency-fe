@@ -1,5 +1,5 @@
-import { http } from "@/services/http";
 import { ILeadRequest } from "@/common/interfaces/lead/lead-request.interface";
+import { http } from "@/services/http";
 
 export const LeadRequestsApi = {
   getPending: async (): Promise<ILeadRequest[]> => {

@@ -1,7 +1,7 @@
-import { IProperty } from "@/common/interfaces/property/property.interface";
 import { ICreatePropertyPayload } from "@/common/interfaces/payloads/create-property-payload.interface";
-import { http } from "@/services/http";
 import { IGetPropertiesByFilterPayload } from "@/common/interfaces/payloads/get-properties-by-filter-payload.interface";
+import { IProperty } from "@/common/interfaces/property/property.interface";
+import { http } from "@/services/http";
 
 export const PropertiesApi = {
   getByFilters: async (payload: IGetPropertiesByFilterPayload): Promise<IProperty[]> => {

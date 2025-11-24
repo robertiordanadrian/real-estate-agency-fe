@@ -7,14 +7,14 @@ import {
   TimelineSeparator,
 } from "@mui/lab";
 import { Box, Paper, Typography } from "@mui/material";
+import { AxiosError } from "axios";
 import React, { useEffect } from "react";
 
 import type { IModificationLogEntry } from "@/common/interfaces/property/modification-log.interface";
 import { IUser } from "@/common/interfaces/user/user.interface";
 import { getReadableFieldLabel } from "@/common/utils/logFieldMap";
-import { useAllUsersQuery } from "@/features/users/usersQueries";
 import { useToast } from "@/context/ToastContext";
-import { AxiosError } from "axios";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
 
 interface PropertyLogsProps {
   logs: IModificationLogEntry[];

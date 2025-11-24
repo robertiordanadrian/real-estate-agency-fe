@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
-import { PropertyRequestsApi } from "@/features/propertyRequests/propertyRequestsApi";
+import type { AxiosError } from "axios";
+
 import { IPropertyRequest } from "@/common/interfaces/property/property-request.interface";
 import { useToast } from "@/context/ToastContext";
-import type { AxiosError } from "axios";
+import { PropertyRequestsApi } from "@/features/propertyRequests/propertyRequestsApi";
 
 export const propertyRequestsKeys = {
   all: ["property-requests"] as const,

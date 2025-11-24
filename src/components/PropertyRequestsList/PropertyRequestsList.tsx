@@ -19,22 +19,22 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { AxiosError } from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { IdRef } from "@/common/interfaces/property/archieved-property-request.interface";
+import { ISortState } from "@/common/interfaces/sorting/sort.interface";
 import { getChipColor } from "@/common/utils/get-chip-color.util";
 import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
+import { useToast } from "@/context/ToastContext";
+import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
 import {
   useApproveRequest,
   usePendingPropertyRequestsQuery,
   useRejectRequest,
 } from "@/features/propertyRequests/propertyRequestsQueries";
-import { IdRef } from "@/common/interfaces/property/archieved-property-request.interface";
-import { ISortState } from "@/common/interfaces/sorting/sort.interface";
-import { useToast } from "@/context/ToastContext";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
-import { AxiosError } from "axios";
-import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
 
 interface PropertyReqItem {
   _id: string;

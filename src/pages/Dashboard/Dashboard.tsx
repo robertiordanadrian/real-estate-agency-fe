@@ -14,13 +14,13 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-
-import { useLeadsQuery } from "@/features/leads/leadsQueries";
-import { useAllUsersQuery } from "@/features/users/usersQueries";
-import { useToast } from "@/context/ToastContext";
-import { useEffect } from "react";
 import { AxiosError } from "axios";
+import { useEffect } from "react";
+
+import { useToast } from "@/context/ToastContext";
+import { useLeadsQuery } from "@/features/leads/leadsQueries";
 import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
+import { useAllUsersQuery } from "@/features/users/usersQueries";
 
 // =========
 // ✅ READY
@@ -316,6 +316,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-function usePropertiesQuery(): { data: any; error: any } {
-  throw new Error("Function not implemented.");
-}

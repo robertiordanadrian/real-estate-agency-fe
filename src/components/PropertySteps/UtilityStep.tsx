@@ -14,37 +14,36 @@ import {
   useTheme,
 } from "@mui/material";
 
-import type { IUtilities } from "@/common/interfaces/property/utilities.interface";
 import {
+  EAmenityAccess,
+  EAmenityAppliances,
+  EAmenityBlind,
+  EAmenityConditioning,
+  EAmenityDoublePaneWindows,
+  EAmenityEntranceDoor,
+  EAmenityFeatures,
+  EAmenityFlooring,
+  EAmenityFurnished,
   EAmenityGeneral,
   EAmenityHeating,
-  EAmenityConditioning,
-  EAmenityInternet,
-  EAmenityDoublePaneWindows,
+  EAmenityHotelServices,
   EAmenityInteriorCondition,
   EAmenityInteriorDoors,
-  EAmenityEntranceDoor,
-  EAmenityShutters,
-  EAmenityBlind,
-  EAmenityThermalInsulation,
-  EAmenityFlooring,
-  EAmenityWalls,
-  EAmenityUtilitySpaces,
+  EAmenityInternet,
   EAmenityKitchen,
-  EAmenityFurnished,
   EAmenityMeters,
-  EAmenityRealEstateFacilities,
-  EAmenityAppliances,
   EAmenityMiscellaneous,
-  EAmenityRealEstateServices,
-  EAmenityHotelServices,
-  EAmenityStreetDevelopment,
-  EAmenityFeatures,
-  EAmenityAccess,
   EAmenityOtherCharacteristics,
+  EAmenityRealEstateFacilities,
+  EAmenityRealEstateServices,
+  EAmenityShutters,
+  EAmenityStreetDevelopment,
+  EAmenityThermalInsulation,
+  EAmenityUtilitySpaces,
+  EAmenityWalls,
 } from "@/common/enums/property/utilities.enums";
-
 import { UtilitiesLabels } from "@/common/enums/property/utilities.enums";
+import type { IUtilities } from "@/common/interfaces/property/utilities.interface";
 import { getEnumLabel, getEnumOptions } from "@/common/utils/utilities-step.util";
 
 interface UtilityStepProps {

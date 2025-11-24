@@ -12,10 +12,11 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-
+import type { AxiosError } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { ECategory, EStatus } from "@/common/enums/property/general-details.enums";
 import { IProperty } from "@/common/interfaces/property/property.interface";
 import CharacteristicsStep, {
   CharacteristicsSteppRef,
@@ -27,19 +28,15 @@ import GeneralDetailsStep, {
 import ImagesStep from "@/components/PropertySteps/ImagesStep";
 import PriceStep, { PriceStepRef } from "@/components/PropertySteps/PriceStep";
 import UtilityStep from "@/components/PropertySteps/UtilityStep";
-
-import {
-  usePropertyQuery,
-  useUpdateProperty,
-  useUploadPropertyImages,
-  useUploadPropertyContract,
-  useDeletePropertyImages,
-  useUpdateImagesOrder,
-} from "@/features/properties/propertiesQueries";
-
-import type { AxiosError } from "axios";
 import { useToast } from "@/context/ToastContext";
-import { ECategory, EStatus } from "@/common/enums/property/general-details.enums";
+import {
+  useDeletePropertyImages,
+  usePropertyQuery,
+  useUpdateImagesOrder,
+  useUpdateProperty,
+  useUploadPropertyContract,
+  useUploadPropertyImages,
+} from "@/features/properties/propertiesQueries";
 
 const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
@@ -93,13 +90,6 @@ const EditProperty = () => {
       setFormData(property);
     }
   }, [property]);
-
-  const statusKeyToValue = (key: EStatus | null) => {
-    if (!key) return null;
-
-    const entry = Object.entries(EStatus).find(([k]) => k === key);
-    return entry ? entry[1] : null;
-  };
 
   const handleNext = () => {
     if (!formData) return;

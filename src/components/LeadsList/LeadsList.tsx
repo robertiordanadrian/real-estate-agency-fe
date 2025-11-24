@@ -25,19 +25,19 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { AxiosError } from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { EGeneralDetailsEnumLabels } from "@/common/enums/property/general-details.enums";
 import type { ILead } from "@/common/interfaces/lead/lead.interface";
+import { ISortState, TSortDirection } from "@/common/interfaces/sorting/sort.interface";
 import { IUser } from "@/common/interfaces/user/user.interface";
+import { formatPrice } from "@/common/utils/format-price.util";
 import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
+import { useToast } from "@/context/ToastContext";
 import { useDeleteLead, useLeadsQuery } from "@/features/leads/leadsQueries";
 import { useAllUsersQuery } from "@/features/users/usersQueries";
-import { ISortState, TSortDirection } from "@/common/interfaces/sorting/sort.interface";
-import { useToast } from "@/context/ToastContext";
-import { AxiosError } from "axios";
-import { formatPrice } from "@/common/utils/format-price.util";
-import { EGeneralDetailsEnumLabels } from "@/common/enums/property/general-details.enums";
 
 export const mapGeneralDetailsLabel = (
   group: keyof typeof EGeneralDetailsEnumLabels,

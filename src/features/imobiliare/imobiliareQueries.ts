@@ -1,7 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ImobiliareApi } from "@/features/imobiliare/imobiliareApi";
-import { IImobiliareSlotsResponse } from "@/common/interfaces/responses/imobiliare-slot-response.interface";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { IImobiliareLoginResponse } from "@/common/interfaces/responses/imobiliare-login-response.interface";
+import { IImobiliareSlotsResponse } from "@/common/interfaces/responses/imobiliare-slot-response.interface";
+import { ImobiliareApi } from "@/features/imobiliare/imobiliareApi";
 
 export const imobiliareKeys = {
   all: ["imobiliare"] as const,

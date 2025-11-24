@@ -1,5 +1,5 @@
-import { createContext, useCallback, useContext, useState } from "react";
 import { Alert, Snackbar } from "@mui/material";
+import { createContext, ReactNode, useCallback, useContext, useState } from "react";
 
 export type ToastSeverity = "success" | "error" | "warning" | "info";
 
@@ -10,12 +10,12 @@ interface ToastState {
 }
 
 interface ToastContextType {
-  toast: (message: string, severity?: ToastSeverity) => void;
+  toast: (_message: string, _severity?: ToastSeverity) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<ToastState>({
     open: false,
     message: "",

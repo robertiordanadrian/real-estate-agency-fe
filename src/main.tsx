@@ -1,20 +1,19 @@
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { APIProvider } from "@vis.gl/react-google-maps";
 import { ro } from "date-fns/locale";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 
-import { APIProvider } from "@vis.gl/react-google-maps";
-
 import App from "@/App";
 import { store } from "@/app/store";
+import { ToastProvider } from "@/context/ToastContext"; // 👈 import nou
 import { loadPersistedAuth, persistAuth } from "@/features/auth/authPersist";
+import { ImobiliareInitializer } from "@/features/imobiliare/ImobiliareInitializer";
 import { queryClient } from "@/services/queryClient";
 import ThemeWrapper from "@/theme";
-import { ImobiliareInitializer } from "@/features/imobiliare/ImobiliareInitializer";
-import { ToastProvider } from "@/context/ToastContext"; // 👈 import nou
 
 loadPersistedAuth();
 store.subscribe(persistAuth);

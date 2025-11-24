@@ -19,20 +19,20 @@ import {
 } from "@mui/material";
 import { blue } from "@mui/material/colors";
 import { useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import * as React from "react";
 import { useEffect, useState } from "react";
 
 import { ERole } from "@/common/enums/role/role.enums";
 import { ISettingsForm } from "@/common/interfaces/forms/settings-form.interface";
 import { getRoleColor } from "@/common/utils/get-role-color.util";
+import { useToast } from "@/context/ToastContext";
+import { useLogout } from "@/features/auth/authMutations";
 import {
   useUpdateUser,
   useUploadProfilePicture,
   useUserQuery,
 } from "@/features/users/usersQueries";
-import { useToast } from "@/context/ToastContext";
-import { AxiosError } from "axios";
-import { useLogout } from "@/features/auth/authMutations";
 
 // =========
 // ✅ READY

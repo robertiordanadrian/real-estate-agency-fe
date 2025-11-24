@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
 import { TextField } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   value: string;
-  onChange: (value: string) => void;
-  onSelect: (addr: {
+  onChange: (_value: string) => void;
+  onSelect: (_addr: {
     street: string;
     number: string;
     city: string;

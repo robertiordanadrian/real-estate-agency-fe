@@ -11,8 +11,11 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { AxiosError } from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { useAppSelector } from "@/app/hook";
 import { ECategory, EStatus } from "@/common/enums/property/general-details.enums";
 import type { ICharacteristics } from "@/common/interfaces/property/characteristics.interface";
 import type { IDescription } from "@/common/interfaces/property/description.interface";
@@ -30,18 +33,13 @@ import GeneralDetailsStep, {
 import ImagesStep from "@/components/PropertySteps/ImagesStep";
 import PriceStep, { PriceStepRef } from "@/components/PropertySteps/PriceStep";
 import UtilityStep from "@/components/PropertySteps/UtilityStep";
-import { PropertiesApi } from "@/features/properties/propertiesApi";
+import { useToast } from "@/context/ToastContext";
+import { selectUser } from "@/features/auth/authSelectors";
 import {
-  propertiesKeys,
   useCreateProperty,
   useUploadPropertyContract,
   useUploadPropertyImages,
 } from "@/features/properties/propertiesQueries";
-import { queryClient } from "@/services/queryClient";
-import { useAppSelector } from "@/app/hook";
-import { selectUser } from "@/features/auth/authSelectors";
-import { useToast } from "@/context/ToastContext";
-import { AxiosError } from "axios";
 
 const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
