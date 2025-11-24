@@ -95,6 +95,9 @@ type CreateOwnerError = {
   representative?: boolean;
 };
 
+// =========
+// ✅ READY
+// =========
 const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepProps>(
   ({ data, onChange, generalDetailsTouched, isEdit }, ref) => {
     const theme = useTheme();

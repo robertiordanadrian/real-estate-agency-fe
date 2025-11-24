@@ -39,11 +39,13 @@ import {
 
 import type { AxiosError } from "axios";
 import { useToast } from "@/context/ToastContext";
-import { normalizeStatus } from "@/common/utils/normalize-status.util";
 import { ECategory, EStatus } from "@/common/enums/property/general-details.enums";
 
 const steps = ["Detalii generale", "Caracteristici", "Utilitati", "Pret", "Descriere", "Imagini"];
 
+// =========
+// ✅ READY
+// =========
 const EditProperty = () => {
   const { id } = useParams<{ id: string }>();
   const theme = useTheme();

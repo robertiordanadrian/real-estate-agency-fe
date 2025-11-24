@@ -52,6 +52,9 @@ interface UtilityStepProps {
   onChange: (_updated: IUtilities) => void;
 }
 
+// =========
+// ✅ READY
+// =========
 const UtilityStep = ({ data, onChange }: UtilityStepProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";

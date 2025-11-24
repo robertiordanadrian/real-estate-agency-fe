@@ -172,6 +172,9 @@ const defaultDescription: IDescription = {
   virtualTour: "",
 };
 
+// =========
+// ✅ READY
+// =========
 const AddProperty = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;

@@ -34,6 +34,9 @@ import type { AxiosError } from "axios";
 import { useEffect } from "react";
 import { useFilterPropertiesQuery } from "@/features/properties/propertiesQueries";
 
+// =========
+// ✅ READY
+// =========
 const ArchivedPropertyRequestsList = () => {
   const theme = useTheme();
   const accent = theme.palette.primary.main;

@@ -22,6 +22,9 @@ interface ImagesStepProps {
   onRemoveExistingImage?: (url: string) => void;
 }
 
+// =========
+// ✅ READY
+// =========
 const ImagesStep = ({
   data,
   files,
@@ -37,17 +40,14 @@ const ImagesStep = ({
   const handleReorder = (from: number, to: number) => {
     if (from === to || from === null) return;
 
-    // 1️⃣ Reordonezi array-ul complet de imagini
     const reordered = [...data];
     const [moved] = reordered.splice(from, 1);
     reordered.splice(to, 0, moved);
     onChange(reordered);
 
-    // 2️⃣ Recaclulezi FILES corect
     const existingImages = reordered.filter((src) => isExistingImage(src));
     const newImages = reordered.filter((src) => !isExistingImage(src));
 
-    // reconstruiești files în ordinea NOULUI array
     const newFilesOrdered: File[] = [];
 
     newImages.forEach((newImgUrl) => {

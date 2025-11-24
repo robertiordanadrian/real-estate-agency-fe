@@ -16,6 +16,9 @@ interface Props {
   required?: boolean;
 }
 
+// =========
+// ✅ READY
+// =========
 export const GoogleAddressAutocomplete = ({
   value,
   onChange,

@@ -97,6 +97,9 @@ type NestedKey<S extends keyof CharacteristicsErrors> = {
   field: keyof CharacteristicsErrors[S];
 };
 
+// =========
+// ✅ READY
+// =========
 const CharacteristicsStep = forwardRef<CharacteristicsSteppRef, CharacteristicsStepProps>(
   ({ data, onChange, characteristicsStepTouched, category }, ref) => {
     const theme = useTheme();

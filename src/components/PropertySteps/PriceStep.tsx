@@ -46,6 +46,9 @@ type NestedKey<S extends keyof PriceErrors> = {
   field: keyof PriceErrors[S];
 };
 
+// =========
+// ✅ READY
+// =========
 const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
   ({ usableArea, data, onChange, priceTouched, setContractFile }, ref) => {
     const theme = useTheme();

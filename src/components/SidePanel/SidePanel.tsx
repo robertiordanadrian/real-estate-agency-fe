@@ -40,6 +40,9 @@ interface SidePanelProps {
   onNavigate?: () => void;
 }
 
+// =========
+// ✅ READY
+// =========
 const SidePanel = ({ onNavigate }: SidePanelProps) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";

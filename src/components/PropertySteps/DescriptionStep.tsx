@@ -35,25 +35,24 @@ type DescriptionErrors = {
   descriptionHasDiacritics?: boolean;
 };
 
+// =========
+// ✅ READY
+// =========
 const DescriptionStep = forwardRef<DescriptionStepRef, DescriptionStepProps>(
   ({ data, onChange, descriptionTouched }, ref) => {
     const theme = useTheme();
     const isDark = theme.palette.mode === "dark";
     const [descriptionErrors, setDescriptionErrors] = useState<DescriptionErrors>({});
 
-    const removeDiacritics = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
     const validateDescription = () => {
       const newErrors: DescriptionErrors = {};
 
-      // TITLE
       if (!data.title) {
         newErrors.title = true;
       } else if (/[ăâîșțĂÂÎȘȚ]/.test(data.title)) {
         newErrors.titleHasDiacritics = true;
       }
 
-      // DESCRIPTION
       if (!data.description) {
         newErrors.description = true;
       } else if (data.description.length < 250) {

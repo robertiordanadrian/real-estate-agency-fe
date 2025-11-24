@@ -20,6 +20,9 @@ interface PropertyLogsProps {
   logs: IModificationLogEntry[];
 }
 
+// =========
+// ✅ READY
+// =========
 export default function PropertyLogs({ logs }: PropertyLogsProps) {
   const toast = useToast();
   const { data: allUsers = [], error } = useAllUsersQuery();

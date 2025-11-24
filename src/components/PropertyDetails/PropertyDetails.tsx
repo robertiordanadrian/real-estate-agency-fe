@@ -336,6 +336,9 @@ const EnumChipList = ({ items }: { items: string[] }) => {
   );
 };
 
+// =========
+// ✅ READY
+// =========
 const PropertyDetail = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -376,7 +379,7 @@ const PropertyDetail = () => {
 
   useEffect(() => {
     if (skuError) {
-      toast("Proprietatea nu a fost găsită după SKU", "error");
+      toast("Proprietatea nu a fost gasita dupa SKU", "error");
       navigate("/properties");
     }
   }, [skuError]);
@@ -384,14 +387,14 @@ const PropertyDetail = () => {
   useEffect(() => {
     if (agentError) {
       const axiosErr = agentError as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la încărcarea agentului", "error");
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea agentului", "error");
     }
   }, [agentError]);
 
   useEffect(() => {
     if (ownerError) {
       const axiosErr = ownerError as AxiosError<{ message?: string }>;
-      toast(axiosErr.response?.data?.message || "Eroare la încărcarea proprietarului", "error");
+      toast(axiosErr.response?.data?.message || "Eroare la incarcarea proprietarului", "error");
     }
   }, [ownerError]);
 

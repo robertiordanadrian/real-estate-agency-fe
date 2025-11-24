@@ -50,6 +50,9 @@ export const mapGeneralDetailsLabel = (
   return groupMap[value] ?? value;
 };
 
+// =========
+// ✅ READY
+// =========
 const LeadsList = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";

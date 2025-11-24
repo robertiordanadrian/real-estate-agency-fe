@@ -6,6 +6,9 @@ interface PropertyMapProps {
   apiKey: string;
 }
 
+// =========
+// ✅ READY
+// =========
 const PropertyMap = ({ lat, lng, apiKey }: PropertyMapProps) => {
   const coords = lat && lng ? { lat, lng } : { lat: 44.4268, lng: 26.1025 };
 

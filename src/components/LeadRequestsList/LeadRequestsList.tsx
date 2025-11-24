@@ -39,6 +39,9 @@ import { ILeadRequest } from "@/common/interfaces/lead/lead-request.interface";
 import { useToast } from "@/context/ToastContext";
 import { AxiosError } from "axios";
 
+// =========
+// ✅ READY
+// =========
 const LeadRequestsList = () => {
   const theme = useTheme();
   const navigate = useNavigate();
