@@ -31,4 +31,14 @@ export const LeadsApi = {
     const { data } = await http.delete<IDeleteLeadResponse>(`/leads/${id}`);
     return data;
   },
+  
+  async getUnseenCount(): Promise<{ count: number }> {
+    const { data } = await http.get<{ count: number }>("/leads/unseen/count");
+    return data;
+  },
+
+  async markVisibleAsSeen(): Promise<{ success: boolean }> {
+    const { data } = await http.post<{ success: boolean }>("/leads/seen/mark-visible");
+    return data;
+  },
 };

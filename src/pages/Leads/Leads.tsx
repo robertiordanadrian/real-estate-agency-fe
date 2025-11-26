@@ -13,6 +13,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 
 import LeadsList from "@/components/LeadsList/LeadsList";
+import { leadsKeys, useMarkVisibleLeadsAsSeen } from "@/features/leads/leadsQueries";
+import { useEffect } from "react";
 
 // =========
 // ✅ READY
@@ -23,6 +25,12 @@ const Leads = () => {
   const accent = theme.palette.primary.main;
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const queryClient = useQueryClient();
+
+  const markSeenMutation = useMarkVisibleLeadsAsSeen();
+
+  useEffect(() => {
+    markSeenMutation.mutate();
+  }, []);
 
   return (
     <Box
@@ -82,10 +90,13 @@ const Leads = () => {
               Leads
             </Typography>
 
-            <Tooltip title="Reîncarcă lista" arrow>
+            <Tooltip title="Reincarca lista" arrow>
               <Fab
                 color="info"
-                onClick={() => queryClient.invalidateQueries({ queryKey: ["leads"] })}
+                onClick={() => {
+                  queryClient.invalidateQueries({ queryKey: leadsKeys.list });
+                  queryClient.invalidateQueries({ queryKey: leadsKeys.unseenCount });
+                }}
                 size={isMobile ? "medium" : "large"}
                 sx={{
                   boxShadow: `0 0 12px ${theme.palette.info.main}55`,

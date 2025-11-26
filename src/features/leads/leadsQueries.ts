@@ -5,11 +5,35 @@ import type { IUpdateLeadPayload } from "@/common/interfaces/payloads/update-lea
 import type { IDeleteLeadResponse } from "@/common/interfaces/responses/delete-lead-response.interface";
 import { LeadsApi } from "@/features/leads/leadsApi";
 
+export const leadsKeys = {
+  all: ["leads"] as const,
+  list: ["leads", "list"] as const,
+  unseenCount: ["leads", "unseenCount"] as const,
+};
+
 export const useLeadsQuery = () =>
   useQuery<ILead[]>({
-    queryKey: ["leads"],
+    queryKey: leadsKeys.list,
     queryFn: LeadsApi.getAll,
   });
+
+export const useUnseenLeadsCount = (enabled: boolean) =>
+  useQuery<{ count: number }>({
+    queryKey: leadsKeys.unseenCount,
+    queryFn: LeadsApi.getUnseenCount,
+    refetchInterval: 60_000,
+    enabled,
+  });
+
+export const useMarkVisibleLeadsAsSeen = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: LeadsApi.markVisibleAsSeen,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: leadsKeys.unseenCount });
+    },
+  });
+};
 
 export const useLeadQuery = (id: string) =>
   useQuery<ILead>({

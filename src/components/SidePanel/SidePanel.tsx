@@ -35,6 +35,7 @@ import { useLogout } from "@/features/auth/authMutations";
 import { usePendingLeadRequestsQuery } from "@/features/leadRequests/leadRequestsQueries";
 import { usePendingPropertyRequestsQuery } from "@/features/propertyRequests/propertyRequestsQueries";
 import { useUserQuery } from "@/features/users/usersQueries";
+import { useUnseenLeadsCount } from "@/features/leads/leadsQueries";
 
 interface SidePanelProps {
   onNavigate?: () => void;
@@ -63,7 +64,8 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
   const location = useLocation();
   const { data: user, error: usersError } = useUserQuery();
   const { mutate: logout, isPending } = useLogout();
-
+  const { data: unseenLeads } = useUnseenLeadsCount(!!user);
+  const unseenLeadsCount = unseenLeads?.count ?? 0;
   const isManagerOrCeo = user?.role === "CEO" || user?.role === "MANAGER";
 
   const { data: pendingRequests, error: pendingPropertyRequestsError } =
@@ -270,7 +272,19 @@ const SidePanel = ({ onNavigate }: SidePanelProps) => {
           {[
             { icon: <Dashboard />, label: "Dashboard", path: "/" },
 
-            { icon: <ContactPhone />, label: "Leads", path: "/leads" },
+            {
+              icon: (
+                <Badge
+                  color="error"
+                  badgeContent={unseenLeadsCount}
+                  invisible={unseenLeadsCount === 0}
+                >
+                  <ContactPhone />
+                </Badge>
+              ),
+              label: "Leads",
+              path: "/leads",
+            },
 
             {
               icon: <RealEstateAgent />,
