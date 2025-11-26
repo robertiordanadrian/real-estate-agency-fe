@@ -62,6 +62,13 @@ export const PropertiesApi = {
     return data;
   },
 
+  downloadWatermarkedImages: async (id: string): Promise<Blob> => {
+    const response = await http.get(`/properties/${id}/watermark-test`, {
+      responseType: "blob",
+    });
+    return response.data;
+  },
+
   uploadContract: async (id: string, file: File) => {
     const formData = new FormData();
     formData.append("contract", file);

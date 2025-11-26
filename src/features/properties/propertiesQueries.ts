@@ -66,6 +66,13 @@ export const useCreateProperty = () => {
   });
 };
 
+export const useDownloadWatermarkedImages = () => {
+  return useMutation({
+    mutationFn: (id: string) => PropertiesApi.downloadWatermarkedImages(id),
+    onError: (err) => console.error("❌ Eroare download watermark:", err),
+  });
+};
+
 export const useUploadPropertyImages = () => {
   const qc = useQueryClient();
   return useMutation({

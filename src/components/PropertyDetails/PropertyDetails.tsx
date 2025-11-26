@@ -40,7 +40,10 @@ import { getCustomChipStyle } from "@/common/utils/get-custom-chip-style.util";
 import { getRoleColor } from "@/common/utils/get-role-color.util";
 import PropertyMap from "@/components/PropertyMap/PropertyMap";
 import { useOwnerByIdQuery } from "@/features/owners/ownersQueries";
-import { usePropertyBySkuQuery } from "@/features/properties/propertiesQueries";
+import {
+  useDownloadWatermarkedImages,
+  usePropertyBySkuQuery,
+} from "@/features/properties/propertiesQueries";
 import { useUserByIdQuery, useUserQuery } from "@/features/users/usersQueries";
 import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 import { AxiosError } from "axios";
@@ -356,6 +359,23 @@ const PropertyDetail = () => {
 
   const { data: currentUser } = useUserQuery();
 
+  const { mutate: downloadWatermark, isPending: downloading } = useDownloadWatermarkedImages();
+
+  const handleWatermarkDownload = () => {
+    if (!propertyBySku?._id) return;
+
+    downloadWatermark(propertyBySku._id, {
+      onSuccess: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `property_${propertyBySku._id}_watermarked.zip`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+    });
+  };
+
   const canSeeDetails = () => {
     if (!currentUser || !agent) return false;
     const myRole = currentUser.role;
@@ -608,6 +628,21 @@ const PropertyDetail = () => {
                         }}
                       >
                         Deschide galeria
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Download />}
+                        onClick={handleWatermarkDownload}
+                        disabled={downloading}
+                        sx={{
+                          textTransform: "none",
+                          fontWeight: 600,
+                          borderRadius: 2,
+                          ml: 2,
+                        }}
+                      >
+                        {downloading ? "Se genereaza..." : "Descarca imagini cu watermark"}
                       </Button>
                     </>
                   ) : (
