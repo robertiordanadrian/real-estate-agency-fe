@@ -27,7 +27,10 @@ import { useMemo, useState } from "react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { EGeneralDetailsEnumLabels } from "@/common/enums/property/general-details.enums";
+import {
+  ECategory,
+  EGeneralDetailsEnumLabels,
+} from "@/common/enums/property/general-details.enums";
 import { ESignedContract } from "@/common/enums/property/price.enums";
 import type { IProperty } from "@/common/interfaces/property/property.interface";
 import { ISortState } from "@/common/interfaces/sorting/sort.interface";
@@ -39,6 +42,18 @@ import { useFilterPropertiesQuery } from "@/features/properties/propertiesQuerie
 import { UsersApi } from "@/features/users/usersApi";
 import { useUserQuery } from "@/features/users/usersQueries";
 
+const mapCategory = (category: ECategory) => {
+  switch (category) {
+    case ECategory.APARTMENT_BUILDING:
+      return "🏢";
+    case ECategory.HOUSE_VILLA:
+      return "🏠";
+    case ECategory.COMMERCIAL:
+      return "🏪";
+    default:
+      return "🏢";
+  }
+};
 export const mapGeneralDetailsLabel = (
   group: keyof typeof EGeneralDetailsEnumLabels,
   value: string | null | undefined,
@@ -60,7 +75,7 @@ const sortableColumns: Record<string, (_p: IProperty) => any> = {
   transactionType: (p) => p.generalDetails?.transactionType,
   category: (p) => p.generalDetails?.category,
   price: (p) => p.price?.priceDetails?.price,
-  bedrooms: (p) => p.characteristics?.details?.bedrooms,
+  rooms: (p) => p.characteristics?.details?.rooms,
   usableArea: (p) => p.characteristics?.areas?.totalUsableArea,
   address: (p) => getFullAddress(p).toLowerCase(),
   contract: (p) => (p.price?.contact?.signedContract === ESignedContract.NO ? 0 : 1),
@@ -97,16 +112,16 @@ function FilteredTable({
 
   const headers = [
     { label: "Imagine", key: null },
-    { label: "Status", key: "status" },
+    { label: "S", key: "status" },
     { label: "SKU", key: "sku" },
     { label: "Tranzactie", key: "transactionType" },
     { label: "Tip", key: "category" },
     { label: "Pret", key: "price" },
-    { label: "Camere", key: "bedrooms" },
+    { label: "Camere", key: "rooms" },
     { label: "Suprafata", key: "usableArea" },
-    { label: "Suprafata teren", key: "gardenArea" },
+    { label: "Teren", key: "gardenArea" },
     { label: "Adresa", key: "address" },
-    { label: "Contract", key: "contract" },
+    { label: "CTR", key: "contract" },
     { label: "Agent", key: "agent" },
     { label: "Actiuni", key: null },
   ];
@@ -254,20 +269,24 @@ function FilteredTable({
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={generalDetails.status}
                       sx={{
+                        width: 14,
+                        height: 14,
+                        padding: 0,
+                        borderRadius: "50%",
                         ...getCustomChipStyle(generalDetails.status),
                       }}
+                      label=""
                       variant="filled"
                     />
                   </TableCell>
                   <TableCell>{property.sku ?? "-"}</TableCell>
                   <TableCell>{generalDetails?.transactionType ?? "-"}</TableCell>
                   <TableCell>
-                    {mapGeneralDetailsLabel("ECategory", generalDetails?.category)}
+                    {generalDetails?.category ? mapCategory(generalDetails?.category) : "-"}
                   </TableCell>
                   <TableCell>{formatPrice(price?.priceDetails?.price)} €</TableCell>
-                  <TableCell>{characteristics?.details?.bedrooms ?? "-"}</TableCell>
+                  <TableCell>{characteristics?.details?.rooms ?? "-"}</TableCell>
                   <TableCell>{characteristics?.areas?.usableArea + " m²"}</TableCell>
                   <TableCell>
                     {characteristics?.areas?.gardenArea

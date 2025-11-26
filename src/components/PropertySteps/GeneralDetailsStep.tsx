@@ -112,7 +112,13 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
 
     if (currentUser) {
       if (RESTRICTED_ROLES.includes(currentUser.role)) {
-        allowedStatuses = [EStatus.WHITE, EStatus.BLUE, EStatus.RESERVED, EStatus.RED];
+        allowedStatuses = [
+          EStatus.WHITE,
+          EStatus.BLUE,
+          EStatus.RESERVED,
+          EStatus.RED,
+          EStatus.GREEN,
+        ];
       }
       if (FULL_ACCESS_ROLES.includes(currentUser.role)) {
         allowedStatuses = Object.values(EStatus);
@@ -501,6 +507,10 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                       }}
                     />
                   </FormControl>
+                </Grid>
+
+                <Grid key={data.location.city} size={{ xs: 12, sm: 6, md: 4 }}>
+                  <TextField label={"Oras"} value={data.location.city ?? ""} fullWidth disabled />
                 </Grid>
 
                 {locationFields.map((field) => (

@@ -39,6 +39,9 @@ type PriceErrors = {
   priceDetails: {
     price?: boolean;
   };
+  contract: {
+    type?: boolean;
+  };
 };
 
 type NestedKey<S extends keyof PriceErrors> = {
@@ -59,6 +62,7 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
 
     const [priceErrors, setPriceErrors] = useState<PriceErrors>({
       priceDetails: {},
+      contract: {},
     });
 
     const formatNumber = (value: string) => {
@@ -73,13 +77,17 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
     };
 
     const validatePrice = () => {
-      const newErrors: PriceErrors = { priceDetails: {} };
+      const newErrors: PriceErrors = { priceDetails: {}, contract: {} };
 
       if (!data.priceDetails.price) newErrors.priceDetails.price = true;
+      if (!data.contact.type) newErrors.contract.type = true;
 
       setPriceErrors(newErrors);
 
-      const hasErrors = Object.values(newErrors.priceDetails).some(Boolean);
+      const hasErrors = [
+        ...Object.values(newErrors.priceDetails),
+        ...Object.values(newErrors.contract),
+      ].some(Boolean);
 
       return !hasErrors;
     };
@@ -383,12 +391,19 @@ const PriceStep = forwardRef<PriceStepRef, PriceStepProps>(
 
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  <FormControl fullWidth>
+                  <FormControl
+                    fullWidth
+                    required
+                    error={priceTouched && !!priceErrors.contract.type}
+                  >
                     <InputLabel>Tip contract</InputLabel>
+
                     <Select
                       value={data.contact.type || ""}
                       label="Tip contract"
                       onChange={(e) => {
+                        clearError({ section: "contract", field: "type" });
+
                         onChange((prev) => ({
                           ...prev,
                           contact: { ...prev.contact, type: e.target.value },

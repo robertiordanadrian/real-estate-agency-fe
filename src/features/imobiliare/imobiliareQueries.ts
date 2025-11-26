@@ -3,10 +3,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { IImobiliareLoginResponse } from "@/common/interfaces/responses/imobiliare-login-response.interface";
 import { IImobiliareSlotsResponse } from "@/common/interfaces/responses/imobiliare-slot-response.interface";
 import { ImobiliareApi } from "@/features/imobiliare/imobiliareApi";
+import {
+  IImobiliareLocationsResponse,
+  IImobiliareNomenclatorLocation,
+} from "@/common/interfaces/imobiliare/imobiliare.interface";
 
 export const imobiliareKeys = {
   all: ["imobiliare"] as const,
   slots: ["imobiliare", "slots"] as const,
+  locations: ["imobiliare", "locations"] as const,
+  bucharestIlfov: ["imobiliare", "nomenclator", "bucharest-ilfov"] as const,
 };
 
 export const useImobiliareLogin = () => {
@@ -27,4 +33,18 @@ export const useImobiliareSlots = () =>
     queryKey: imobiliareKeys.slots,
     queryFn: ImobiliareApi.getSlots,
     staleTime: 1000 * 60 * 10,
+  });
+
+export const useImobiliareLocations = () =>
+  useQuery<IImobiliareLocationsResponse>({
+    queryKey: imobiliareKeys.locations,
+    queryFn: ImobiliareApi.getLocations,
+    staleTime: 1000 * 60 * 60,
+  });
+
+export const useImobiliareBucharestIlfov = () =>
+  useQuery<IImobiliareNomenclatorLocation[]>({
+    queryKey: imobiliareKeys.bucharestIlfov,
+    queryFn: ImobiliareApi.getBucharestIlfovLocations,
+    staleTime: 1000 * 60 * 60,
   });

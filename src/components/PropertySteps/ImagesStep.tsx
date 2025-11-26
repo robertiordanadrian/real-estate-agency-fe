@@ -74,7 +74,7 @@ const ImagesStep = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "image/*": [".jpeg", ".jpg", ".png", ".webp"] },
-    maxFiles: 20,
+    maxFiles: 30,
     maxSize: 10 * 1024 * 1024,
   });
 

@@ -6,8 +6,8 @@ export const getFullAddress = (p: IProperty) => {
 
   const street = loc.street || "";
   const number = loc.number || "";
-  const zone = loc.zone || "";
+  const city = loc.city || "";
 
   const base = `${street} ${number}`.trim();
-  return zone ? `${base} (${zone})` : base || "-";
+  return city ? `${base} (${city})` : base || "-";
 };
