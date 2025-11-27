@@ -532,7 +532,7 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                       onChange={(e) => {
                         onChange((prev) => ({
                           ...prev,
-                          location: { ...prev.location, zone: e.target.value as string },
+                          location: { ...prev.location, zone: e.target.value },
                         }));
                       }}
                       renderValue={(value) => {
@@ -541,8 +541,8 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                             <Typography sx={{ color: "text.disabled" }}>Selecteaza zona</Typography>
                           );
 
-                        const found = imobLocations.find((z) => z.custom_display === value);
-                        return found ? found.custom_display : value;
+                        const found = imobLocations.find((z) => z.id === value);
+                        return found ? found.custom_display : "Zona necunoscuta";
                       }}
                       MenuProps={{
                         PaperProps: {
@@ -583,7 +583,7 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
                       )}
 
                       {filteredZones.map((zone) => (
-                        <MenuItem key={zone.id} value={zone.custom_display}>
+                        <MenuItem key={zone.id} value={zone.id}>
                           {zone.custom_display}
                         </MenuItem>
                       ))}

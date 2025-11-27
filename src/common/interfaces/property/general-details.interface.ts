@@ -28,7 +28,7 @@ export interface ILocation {
   number: string;
   latitude: number | null;
   longitude: number | null;
-  zone: string;
+  zone: number;
   building: string;
   stairwell: string;
   apartment: string;

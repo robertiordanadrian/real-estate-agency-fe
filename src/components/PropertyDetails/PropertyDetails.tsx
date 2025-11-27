@@ -57,6 +57,7 @@ import { formatBuildingLevels } from "@/common/utils/format-building-levels.util
 import { formatDateTime } from "@/common/utils/format-date-time.util";
 import { formatPrice } from "@/common/utils/format-price.util";
 import { useToast } from "@/context/ToastContext";
+import { useImobiliareLocations } from "@/features/imobiliare/imobiliareQueries";
 
 export const mapCharacteristicLabel = (
   group: keyof typeof CharacteristicsEnumLabels,
@@ -361,6 +362,8 @@ const PropertyDetail = () => {
 
   const { mutate: downloadWatermark, isPending: downloading } = useDownloadWatermarkedImages();
 
+  const { data: imobLocations = [] } = useImobiliareLocations();
+
   const handleWatermarkDownload = () => {
     if (!propertyBySku?._id) return;
 
@@ -418,7 +421,7 @@ const PropertyDetail = () => {
 
   const { generalDetails, characteristics, utilities, price, description, images } =
     propertyBySku ?? {};
-
+  const zone = imobLocations.find((z) => z.id === generalDetails?.location.zone);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -577,7 +580,7 @@ const PropertyDetail = () => {
               sx={{ display: "flex", alignItems: "center" }}
             >
               <LocationOn sx={{ mr: 1 }} />
-              {generalDetails?.location.zone} {generalDetails?.location.city}
+              {zone?.custom_display || "Zona necunoscuta"}, {generalDetails?.location.city}
               {generalDetails?.location.street && `, ${generalDetails.location.street}`}
               {generalDetails?.location.number && ` ${generalDetails.location.number}`}
             </Typography>
