@@ -4,14 +4,12 @@ import {
   useImobiliareLogin,
   useImobiliareSlots,
   useImobiliareLocations,
-  useImobiliareBucharestIlfov,
 } from "@/features/imobiliare/imobiliareQueries";
 
 export const ImobiliareInitializer = () => {
   const loginMutation = useImobiliareLogin();
   const { refetch: refetchSlots } = useImobiliareSlots();
   const { refetch: refetchLocations } = useImobiliareLocations();
-  const { refetch: refetchBuchIlfov } = useImobiliareBucharestIlfov();
 
   useEffect(() => {
     const init = async () => {
@@ -24,9 +22,6 @@ export const ImobiliareInitializer = () => {
 
         console.log("🗺️ Încarc locațiile...");
         await refetchLocations();
-
-        console.log("🏙️ Încarc nomenclator București + Ilfov...");
-        await refetchBuchIlfov();
 
         console.log("✅ Imobiliare.ro init COMPLET");
       } catch (err) {

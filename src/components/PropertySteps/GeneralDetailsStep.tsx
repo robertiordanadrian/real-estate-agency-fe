@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { AxiosError } from "axios";
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-
+import { useImobiliareLocations } from "@/features/imobiliare/imobiliareQueries";
 import { useAppSelector } from "@/app/hook";
 import {
   ECategory,
@@ -59,7 +59,6 @@ const locationFields: {
   label: string;
   key: Exclude<keyof IGeneralDetails["location"], "surroundings">;
 }[] = [
-  { label: "Zona", key: "zone" },
   { label: "Bloc", key: "building" },
   { label: "Scara", key: "stairwell" },
   { label: "Apartament", key: "apartment" },
@@ -127,8 +126,14 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
 
     const { data: allUsers, error: usersError } = useAllUsersQuery();
     const { data: owners = [], error: ownersError } = useOwnersQuery();
+    const {
+      data: imobLocations = [],
+      isLoading: loadingLocations,
+      error: locationsError,
+    } = useImobiliareLocations();
     const createOwnerMutation = useCreateOwner();
 
+    const [zoneSearch, setZoneSearch] = useState("");
     const [generalDetailsErrors, setGeneralDetailsErrors] = useState<GeneralDetailsErrors>({});
     const [createOwnerErrors, setCreateOwnerErrors] = useState<CreateOwnerError>({});
     const [ownerForm, setOwnerForm] = useState<IOwner>(defaultOwnerForm);
@@ -151,6 +156,10 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
         phone.includes(query)
       );
     });
+
+    const filteredZones = imobLocations.filter((z) =>
+      z.custom_display.toLowerCase().includes(zoneSearch.toLowerCase()),
+    );
     const validateGeneralDetails = () => {
       const newErrors: GeneralDetailsErrors = {};
       if (!data.transactionType) newErrors.transactionType = true;
@@ -511,6 +520,75 @@ const GeneralDetailsStep = forwardRef<GeneralDetailsStepRef, GeneralDetailsStepP
 
                 <Grid key={data.location.city} size={{ xs: 12, sm: 6, md: 4 }}>
                   <TextField label={"Oras"} value={data.location.city ?? ""} fullWidth disabled />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <FormControl fullWidth>
+                    <InputLabel>Zona</InputLabel>
+
+                    <Select
+                      label="Zona"
+                      value={data.location.zone || ""}
+                      onChange={(e) => {
+                        onChange((prev) => ({
+                          ...prev,
+                          location: { ...prev.location, zone: e.target.value as string },
+                        }));
+                      }}
+                      renderValue={(value) => {
+                        if (!value)
+                          return (
+                            <Typography sx={{ color: "text.disabled" }}>Selecteaza zona</Typography>
+                          );
+
+                        const found = imobLocations.find((z) => z.custom_display === value);
+                        return found ? found.custom_display : value;
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 400,
+                          },
+                        },
+                      }}
+                    >
+                      <MenuItem disableRipple disableTouchRipple>
+                        <TextField
+                          placeholder="Cauta zona..."
+                          size="small"
+                          fullWidth
+                          value={zoneSearch}
+                          onChange={(e) => setZoneSearch(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => e.stopPropagation()}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onFocus={(e) => e.stopPropagation()}
+                          inputProps={{ autoComplete: "off" }}
+                        />
+                      </MenuItem>
+
+                      {/* Dacă încarcă */}
+                      {loadingLocations && (
+                        <MenuItem disabled>
+                          <Typography sx={{ color: "text.disabled" }}>
+                            Se incarca zonele...
+                          </Typography>
+                        </MenuItem>
+                      )}
+
+                      {!loadingLocations && filteredZones.length === 0 && (
+                        <MenuItem disabled>
+                          <Typography sx={{ color: "text.disabled" }}>Nicio zona gasita</Typography>
+                        </MenuItem>
+                      )}
+
+                      {filteredZones.map((zone) => (
+                        <MenuItem key={zone.id} value={zone.custom_display}>
+                          {zone.custom_display}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid>
 
                 {locationFields.map((field) => (

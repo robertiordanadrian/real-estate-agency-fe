@@ -502,26 +502,7 @@ export type RealEstatePayload =
   | HouseSellPayload
   | HouseRentPayload;
 
-export interface IImobiliareLocation {
+export interface IImobiliareFlatLocation {
   id: number;
-  title: string;
-  titles: Record<string, string>;
-  slug: string;
-  parent_id: number | null;
-  is_hidden: boolean;
-  sort_order: number;
-  depth: number;
-  parent: any | null;
   custom_display: string;
-}
-
-export interface IImobiliareLocationsResponse {
-  data: IImobiliareLocation[];
-}
-
-export interface IImobiliareNomenclatorLocation {
-  id: number;
-  title: string;
-  depth: number;
-  parent_id: number | null;
 }
